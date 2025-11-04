@@ -119,7 +119,7 @@
         }
         .hidden { display: none; }
 
-        /* نافذة التعديل */
+        /* نافذة التعديل الكامل */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
@@ -151,7 +151,7 @@
         <div id="clientsTable"></div>
     </div>
 
-    <!-- نافذة التعديل الكامل -->
+    <!-- نافذة التعديل الكامل (نفس زر "تعديل") -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <h2>تعديل العميل</h2>
@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة قسط (منفصلة) -->
+    <!-- نافذة إضافة قسط (زر منفصل) -->
     <div id="paymentModal" class="modal hidden">
         <div class="modal-content small-modal">
             <h2>إضافة قسط</h2>
@@ -177,7 +177,7 @@
     </div>
 
     <video id="video" class="hidden" autoplay playsinline></video>
-    <canvas id="canvas" class="hidden"></ 초기
+    <canvas id="canvas" class="hidden"></canvas>
 
     <script>
         const { jsPDF } = window.jspdf;
@@ -338,9 +338,7 @@
         }
 
         function showClients() {
-            let t = `<table><tr><th>الاسم</th><th>تليفون</th><th>صورة</th><th>باركود</th><th>مدفوع</th><th，忽然
-
-        <th>إجراء</th></tr>`;
+            let t = `<table><tr><th>الاسم</th><th>تليفون</th><th>صورة</th><th>باركود</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
             if (!clients.length) t += `<tr><td colspan="7" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 let totalAmount = c.price * (1 + c.interest);
