@@ -17,7 +17,7 @@
       \"background_color\": \"#f0f8ff\",
       \"theme_color\": \"#28a745\",
       \"icons\": [{
-        \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>\",
+        \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>store</text></svg>\",
         \"sizes\": \"192x192\",
         \"type\": \"image/svg+xml\"
       }]
@@ -36,6 +36,7 @@
             padding: 10px;
             font-size: 16px;
             line-height: 1.6;
+            min-height: 100vh;
         }
         .container {
             max-width: 500px;
@@ -48,7 +49,7 @@
         h1, h2 {
             color: #28a745;
             text-align: center;
-            margin-bottom: 15px;
+            margin: 20px 0 15px;
             font-size: 20px;
         }
         input, button {
@@ -149,13 +150,13 @@
         <canvas id="ch" style="height:200px;"></canvas>
 
         <!-- إدارة العملاء -->
-        <h2 style="margin-top:30px;">إضافة عميل</h2>
+        <h2>إضافة عميل</h2>
         <input type="text" id="name" placeholder="اسم العميل">
         <input type="text" id="phone" placeholder="رقم التليفون">
         <button onclick="addClient()">إضافة عميل</button>
         <button onclick="exportPDF()">تصدير PDF</button>
 
-        <h2 style="margin-top:20px;">العملاء</h2>
+        <h2>العملاء</h2>
         <div id="clientsTable"></div>
     </div>
 
@@ -275,7 +276,7 @@
             let c = clients[i];
             let rem = totalInstallment - c.paid;
             let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = `مرحبا ${c.name}،\nقسطك متبقي ${rem} جنيه،\nهينتهي بعد ${days} يوم!\nادفع دلوقتي عشان متتأخرش 💰`;
+            let msg = `مرحبا ${c.name}،\nقسطك متبقي ${rem} جنيه،\nهينتهي بعد ${days} يوم!\nادفع دلوقتي`;
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             if (phoneClean.length >= 10) {
                 window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -285,18 +286,13 @@
         }
 
         function capturePhoto(i) {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('الكاميرا غير مدعومة في هذا المتصفح');
-                return;
-            }
-            navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" } 
-            }).then(s => {
+            if (!navigator.mediaDevices?.getUserMedia) return alert('الكاميرا غير مدعومة');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(s => {
                 stream = s;
                 let v = document.getElementById('video');
                 v.classList.remove('hidden');
                 v.srcObject = stream;
-                alert('وجه الكاميرا على الفاتورة... سيتم التقاط الصورة بعد 3 ثواني');
+                alert('وجه الكاميرا... سيتم التقاط الصورة بعد 3 ثواني');
                 setTimeout(() => {
                     let canvas = document.getElementById('canvas');
                     canvas.width = v.videoWidth || 640;
@@ -309,10 +305,7 @@
                     showClients();
                     alert('تم حفظ الصورة!');
                 }, 3000);
-            }).catch(err => {
-                console.error(err);
-                alert('فشل تشغيل الكاميرا: ' + err.message);
-            });
+            }).catch(() => alert('فشل تشغيل الكاميرا'));
         }
 
         function showClients() {
