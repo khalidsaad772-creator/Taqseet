@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محل التقسيط</title>
+    <title>محل التقسيط - [اسم محلك]</title>
 
     <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#28a745">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.png" type="image/png">
 
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -147,7 +149,6 @@
         <div id="clientsTable"></div>
     </div>
 
-    <!-- نافذة التعديل -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <h2>تعديل العميل</h2>
@@ -161,7 +162,6 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة قسط -->
     <div id="paymentModal" class="modal hidden">
         <div class="modal-content small-modal">
             <h2>إضافة قسط</h2>
@@ -181,7 +181,6 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
-        // تظبيط البيانات القديمة
         clients = clients.map(c => ({
             ...c,
             price: parseFloat(c.price) || 0,
@@ -310,46 +309,38 @@
             }
         }
 
-        // دالة حساب تاريخ القسط القادم
         function getNextDueDate(payments) {
             if (!payments || payments.length === 0) {
-                // لو مفيش دفعات، القسط الأول بعد شهر من تاريخ الإضافة
                 let start = new Date();
                 start.setMonth(start.getMonth() + 1);
                 return start.toLocaleDateString('ar-EG');
             }
-
-            // آخر دفعة + شهر
-            let lastPayment = payments[payments.length - 1];
-            let lastDate = new Date(lastPayment.date);
+            let lastDate = new Date(payments[payments.length - 1].date);
             let nextDate = new Date(lastDate);
             nextDate.setMonth(nextDate.getMonth() + 1);
             return nextDate.toLocaleDateString('ar-EG');
         }
 
-        // دالة حساب عدد الأقساط المتبقية
-        function getRemainingInstallments(c) {
-            let totalAmount = c.price * (1 + c.interest);
-            let monthly = totalAmount / c.months;
-            let paidInstallments = Math.floor(c.paid / monthly);
-            return Math.max(0, c.months - paidInstallments);
+        function getLastPaymentDate(payments) {
+            if (!payments || payments.length === 0) return 'لا يوجد';
+            return payments[payments.length - 1].date;
         }
 
         function sendWA(i) {
             let c = clients[i];
             let totalAmount = c.price * (1 + c.interest);
             let remainingAmount = totalAmount - c.paid;
-            let remainingInstallments = getRemainingInstallments(c);
+            let remainingInstallments = Math.max(0, c.months - Math.floor(c.paid / (totalAmount / c.months)));
             let nextDueDate = getNextDueDate(c.payments);
 
             let msg = `مرحبا ${c.name}،
 
-📌 *تفاصيل التقسيط:*
+تفاصيل التقسيط:
 - المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*
 - باقي لك: *${remainingInstallments} قسط*
 - القسط القادم مستحق في: *${nextDueDate}*
-ادفع دلوقتي 
-!`;
+
+ادفع دلوقتي وخلّص!`;
 
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
@@ -407,14 +398,27 @@
 
         function exportPDF() {
             const doc = new jsPDF();
-            doc.text('عملاء التقسيط', 105, 15, { align: 'center' });
-            let y = 25;
+            doc.setFont('Amiri', 'normal');
+            doc.setFontSize(16);
+            doc.text('تقرير العملاء - محل التقسيط', 105, 15, { align: 'center' });
+
+            let y = 30;
             clients.forEach((c, i) => {
                 let total = c.price * (1 + (c.interest || 0));
-                doc.text(`${i+1}. ${c.name} | ${c.phone} | مدفوع: ${c.paid} | متبقي: ${(total - c.paid).toFixed(0)}`, 10, y);
-                y += 8;
+                let lastPayment = getLastPaymentDate(c.payments);
+                doc.setFontSize(12);
+                doc.text(`${i+1}. ${c.name}`, 185, y, { align: 'right' });
+                doc.text(`تليفون: ${c.phone}`, 185, y + 7, { align: 'right' });
+                doc.text(`مدفوع: ${c.paid} جنيه`, 185, y + 14, { align: 'right' });
+                doc.text(`متبقي: ${(total - c.paid).toFixed(0)} جنيه`, 185, y + 21, { align: 'right' });
+                doc.text(`آخر قسط: ${lastPayment}`, 185, y + 28, { align: 'right' });
+                y += 35;
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
             });
-            doc.save('عملاء.pdf');
+            doc.save('تقرير_العملاء.pdf');
         }
 
         window.onload = () => {
