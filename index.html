@@ -28,7 +28,7 @@
         .pay { background: #007bff; } .wa { background: #25D366; } .cam { background: #6f42c1; } .edit { background: #ffc107; color: black; } .del { background: #dc3545; }
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
-        th { background: #28a745; color: white; padding: 10px; }
+        th { background: #28a745; color: white; padding: 10px; font-size: 14px; }
         td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
         .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
@@ -56,6 +56,7 @@
         <div id="clientsTable"></div>
     </div>
 
+    <!-- Modals -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <h2>تعديل العميل</h2>
@@ -90,6 +91,7 @@
         // تهيئة البيانات
         clients = clients.map(c => ({ ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [] }));
 
+        // إضافة عميل
         function addClient() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -116,11 +118,13 @@
             calcProfits(); showClients(); alert('تم الإضافة!');
         }
 
+        // حساب الأرباح
         function calcProfits() {
             const total = clients.reduce((sum, c) => sum + (c.price * c.interest), 0);
             document.getElementById('res').innerHTML = `<p>الأرباح الإجمالية: ${total.toFixed(0)} جنيه</p>`;
         }
 
+        // عرض العملاء
         function showClients() {
             let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
             if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
@@ -144,6 +148,7 @@
             document.getElementById('clientsTable').innerHTML = html;
         }
 
+        // دوال أخرى
         function deleteClient(i) { if (confirm('حذف العميل؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
         function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
         function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); alert('تم الحفظ!'); }
