@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محل التقسيط</title>
+    <title>Installment Shop</title>
 
     <!-- PWA -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.png" type="image/png">
 
-    <!-- Libraries (محلية) -->
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -40,48 +40,45 @@
 </head>
 <body>
     <div class="container">
-        <h1>إضافة عميل جديد</h1>
-        <input type="text" id="name" placeholder="اسم العميل">
-        <input type="text" id="phone" placeholder="رقم التليفون">
-        <input type="number" id="price" value="10000" placeholder="سعر السلعة">
-        <input type="number" id="months" value="10" placeholder="عدد الشهور">
-        <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
-        <button onclick="addClient()">إضافة عميل</button>
-        <button onclick="exportPDF()">تصدير تقرير PDF</button>
+        <h1>Add New Client</h1>
+        <input type="text" id="name" id="name" placeholder="Client Name">
+        <input type="text" id="phone" placeholder="Phone (e.g. 010...)">
+        <input type="number" id="price" value="10000" placeholder="Item Price">
+        <input type="number" id="months" value="10" placeholder="Months">
+        <input type="number" id="interest" value="25" placeholder="Interest %">
+        <button onclick="addClient()">Add Client</button>
+        <button onclick="exportPDF()">Export PDF Report</button>
 
-        <h2>الأرباح الإجمالية</h2>
+        <h2>Total Profit</h2>
         <div id="res" class="result"></div>
 
-        <h2>العملاء</h2>
+        <h2>Clients</h2>
         <div id="clientsTable"></div>
     </div>
 
     <!-- Modals -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
-            <h2>تعديل العميل</h2>
-            <input type="text" id="editName" placeholder="الاسم">
-            <input type="text" id="editPhone" placeholder="التليفون">
-            <input type="number" id="editPrice" placeholder="سعر السلعة">
-            <input type="number" id="editMonths" placeholder="عدد الشهور">
-            <input type="number" id="editInterest" placeholder="نسبة الفائدة %">
-            <button onclick="saveClient()">حفظ</button>
-            <button onclick="closeEditModal()">إغلاق</button>
+            <h2>Edit Client</h2>
+            <input type="text" id="editName" placeholder="Name">
+            <input type="text" id="editPhone" placeholder="Phone">
+            <input type="number" id="editPrice" placeholder="Price">
+            <input type="number" id="editMonths" placeholder="Months">
+            <input type="number" id="editInterest" placeholder="Interest %">
+            <button onclick="saveClient()">Save</button>
+            <button onclick="closeEditModal()">Close</button>
         </div>
     </div>
 
     <div id="paymentModal" class="modal hidden">
         <div class="modal-content small-modal">
-            <h2>إضافة قسط</h2>
-            <input type="number" id="paymentAmount" placeholder="قيمة القسط">
+            <h2>Add Payment</h2>
+            <input type="number" id="paymentAmount" placeholder="Amount">
             <input type="date" id="paymentDate">
-            <button onclick="addPayment()">إضافة</button>
-            <button onclick="closePaymentModal()">إغلاق</button>
+            <button onclick="addPayment()">Add</button>
+            <button onclick="closePaymentModal()">Close</button>
         </div>
     </div>
-
-    <video id="video" class="hidden" autoplay playsinline></video>
-    <canvas id="canvas" class="hidden"></canvas>
 
     <script>
         const { jsPDF } = window.jspdf;
@@ -90,14 +87,13 @@
 
         clients = clients.map(c => ({ ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [] }));
 
-        // === دوال أساسية ===
         function addClient() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const price = +document.getElementById('price').value || 10000;
             const months = +document.getElementById('months').value || 10;
             const interest = +document.getElementById('interest').value || 25;
-            if (!name || !phone) return alert('املأ البيانات!');
+            if (!name || !phone) return alert('Fill all fields!');
 
             const clean = phone.replace(/[^0-9]/g, '');
             const full = clean.startsWith('20') ? clean : '20' + clean.replace(/^0/, '');
@@ -108,23 +104,23 @@
             endDate.setMonth(endDate.getMonth() + months);
 
             clients.push({
-                name, phone: formattedPhone, start: today.toLocaleDateString('ar-EG'), end: endDate.toLocaleDateString('ar-EG'),
-                price, months, interest: interest / 100, paid: 0, payments: [], barcode: 'CL' + Date.now(), invoice: ''
+                name, phone: formattedPhone, start: today.toLocaleDateString(), end: endDate.toLocaleDateString(),
+                price, months, interest: interest / 100, paid: 0, payments: [], barcode: 'CL' + Date.now()
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
             document.getElementById('name').value = document.getElementById('phone').value = '';
-            calcProfits(); showClients(); alert('تم الإضافة!');
+            calcProfits(); showClients(); alert('Client added!');
         }
 
         function calcProfits() {
             const total = clients.reduce((sum, c) => sum + (c.price * c.interest), 0);
-            document.getElementById('res').innerHTML = `<p>الأرباح: ${total.toFixed(0)} جنيه</p>`;
+            document.getElementById('res').innerHTML = `<p>Total Profit: ${total.toFixed(0)} EGP</p>`;
         }
 
         function showClients() {
-            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
-            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
+            let html = `<table><tr><th>Name</th><th>Phone</th><th>Paid</th><th>Remaining</th><th>Action</th></tr>`;
+            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">No clients</td></tr>`;
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
                 const rem = total - c.paid;
@@ -134,10 +130,10 @@
                     <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
-                        <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
-                        <button class="btn edit" onclick="editClient(${i})">تعديل</button>
-                        <button class="btn wa" onclick="sendWA(${i})">واتس</button>
-                        <button class="btn del" onclick="deleteClient(${i})">حذف</button>
+                        <button class="btn pay" onclick="openPaymentModal(${i})">Pay</button>
+                        <button class="btn edit" onclick="editClient(${i})">Edit</button>
+                        <button class="btn wa" onclick="sendWA(${i})">WhatsApp</button>
+                        <button class="btn del" onclick="deleteClient(${i})">Delete</button>
                     </td>
                 </tr>`;
             });
@@ -145,16 +141,16 @@
             document.getElementById('clientsTable').innerHTML = html;
         }
 
-        function deleteClient(i) { if (confirm('حذف؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
+        function deleteClient(i) { if (confirm('Delete client?')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
         function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
         function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); }
         function openPaymentModal(i) { currentClientIndex = i; document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; document.getElementById('paymentModal').classList.remove('hidden'); }
-        function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return alert('املأ الحقول!'); clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); }
+        function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return alert('Fill fields!'); clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
-        function sendWA(i) { const c = clients[i]; const total = c.price * (1 + c.interest); const rem = total - c.paid; const msg = `مرحبا ${c.name}\nالمتبقي: ${rem.toFixed(0)} جنيه`; window.open('https://wa.me/' + c.phone.replace('+', '') + '?text=' + encodeURIComponent(msg)); }
+        function sendWA(i) { const c = clients[i]; const total = c.price * (1 + c.interest); const rem = total - c.paid; const msg = `Hi ${c.name}\nRemaining: ${rem.toFixed(0)} EGP`; window.open('https://wa.me/' + c.phone.replace('+', '') + '?text=' + encodeURIComponent(msg)); }
 
-        function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'لا يوجد'; }
+        function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'None'; }
 
         function getMonthlyProfit() {
             const now = new Date();
@@ -167,41 +163,29 @@
             }, 0).toFixed(0);
         }
 
-        // === خط عربي مدمج (Noto Sans Arabic) ===
-        const arabicFontBase64 = "AAEAAAARAQAABAAQFgAAAAAAAwAAAAAAAAAAAAAAAAAAAAAA..."; // (سيتم إضافته كاملاً في ZIP)
-
         function exportPDF() {
             const doc = new jsPDF();
-
-            // إضافة الخط العربي
-            doc.addFileToVFS('arabic.ttf', arabicFontBase64);
-            doc.addFont('arabic.ttf', 'arabic', 'normal');
-            doc.setFont('arabic');
-
-            // العنوان
             doc.setFontSize(18);
-            doc.text('تقرير العملاء - ' + new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' }), 105, 20, { align: 'center' });
+            doc.text('Clients Report - ' + new Date().toLocaleDateString(), 105, 20, { align: 'center' });
 
-            // الجدول
             doc.autoTable({
-                head: [['الاسم', 'تليفون', 'مدفوع', 'متبقي', 'آخر قسط']],
+                head: [['Name', 'Phone', 'Paid', 'Remaining', 'Last Payment']],
                 body: clients.map(c => {
                     const total = c.price * (1 + c.interest);
-                    return [c.name, c.phone, c.paid + ' ج', (total - c.paid).toFixed(0) + ' ج', getLastPayment(c.payments)];
+                    return [c.name, c.phone, c.paid + ' EGP', (total - c.paid).toFixed(0) + ' EGP', getLastPayment(c.payments)];
                 }),
                 startY: 35,
-                styles: { font: 'arabic', fontSize: 12, cellPadding: 5 },
+                styles: { fontSize: 12, cellPadding: 5 },
                 headStyles: { fillColor: [40, 167, 69], textColor: 255 },
                 alternateRowStyles: { fillColor: [240, 248, 255] }
             });
 
-            // الأرباح
             const profit = getMonthlyProfit();
             doc.setFontSize(14);
             doc.setTextColor(0, 100, 0);
-            doc.text(`الأرباح هذا الشهر: ${profit} جنيه`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
+            doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
 
-            doc.save('تقرير_العملاء.pdf');
+            doc.save('report.pdf');
         }
 
         window.onload = () => { calcProfits(); showClients(); };
