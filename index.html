@@ -119,7 +119,7 @@
         }
         .hidden { display: none; }
 
-        /* نافذة التعديل الكامل */
+        /* نافذة التعديل */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
@@ -151,7 +151,7 @@
         <div id="clientsTable"></div>
     </div>
 
-    <!-- نافذة التعديل الكامل (نفس زر "تعديل") -->
+    <!-- نافذة التعديل الكامل (تفتح فقط عند الضغط على "تعديل") -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <h2>تعديل العميل</h2>
@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة قسط (زر منفصل) -->
+    <!-- نافذة إضافة قسط (تفتح فقط عند الضغط على "إضافة قسط") -->
     <div id="paymentModal" class="modal hidden">
         <div class="modal-content small-modal">
             <h2>إضافة قسط</h2>
@@ -222,7 +222,7 @@
             alert('تم الإضافة!');
         }
 
-        // زر "تعديل" → يفتح نافذة التعديل الكامل فقط
+        // زر "تعديل" → يفتح نافذة التعديل فقط
         function editClient(i) {
             currentClientIndex = i;
             let c = clients[i];
@@ -376,6 +376,7 @@
             doc.save('عملاء.pdf');
         }
 
+        // لا يوجد أي كود يفتح نافذة تلقائيًا
         window.onload = () => {
             calcProfits();
             showClients();
