@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محل التقسيط</title>
 
-    <!-- PWA -->
+    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#28a745">
@@ -16,33 +16,121 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f0f8ff; padding: 10px; font-size: 16px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 20px; }
-        h1, h2 { color: #28a745; text-align: center; margin: 20px 0 15px; font-size: 20px; }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #28a745; border-radius: 12px; font-size: 16px; }
-        button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
-        .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+            padding: 10px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 500px; /* تم التصليح */
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #28a745;
+            text-align: center;
+            margin: 20px 0 15px;
+            font-size: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn {
+            display: inline-block;
+            width: auto;
+            padding: 8px 12px;
+            margin: 3px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
         .wa { background: #25D366; }
         .cam { background: #6f42c1; }
         .edit { background: #ffc107; color: black; }
         .del { background: #dc3545; }
-        .calc-all { background: #6c757d; color: white; }
 
-        .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
-        th { background: #28a745; color: white; padding: 10px; }
-        td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
-        .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
-        .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
+        .result {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            font-size: 14px;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .progress {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .bar {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        video, img, svg {
+            max-width: 100%;
+            margin: 10px auto;
+            display: block;
+            border-radius: 8px;
+        }
+        #video {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 12px;
+        }
         .hidden { display: none; }
-        #video { width: 100%; height: 200px; background: #000; border-radius: 12px; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; }
+        /* نافذة التعديل */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- إضافة عميل -->
         <h1>إضافة عميل جديد</h1>
         <input type="text" id="name" placeholder="اسم العميل">
         <input type="text" id="phone" placeholder="رقم التليفون (مثال: 010...)">
@@ -50,16 +138,18 @@
         <input type="number" id="months" value="10" placeholder="عدد الشهور">
         <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
         <button onclick="addClient()">إضافة عميل</button>
-        <button class="calc-all" onclick="showAllCalculations()">عرض الحسابات الكلية</button>
+        <button onclick="exportPDF()">تصدير PDF</button>
 
+        <!-- الأرباح الإجمالية -->
         <h2>الأرباح الإجمالية</h2>
         <div id="res" class="result"></div>
 
+        <!-- جدول العملاء -->
         <h2>العملاء</h2>
         <div id="clientsTable"></div>
     </div>
 
-    <!-- نافذة التعديل والدفعات -->
+    <!-- نافذة التعديل (نفس زر التعديل) -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <h2>تعديل العميل</h2>
@@ -69,12 +159,14 @@
             <input type="number" id="editMonths" placeholder="عدد الشهور">
             <input type="number" id="editInterest" placeholder="نسبة الفائدة %">
 
-            <h3>إضافة قسط</h3>
-            <input type="number" id="paymentAmount" placeholder="قيمة القسط الشهري">
+            <h3>إضافة قسط شهري</h3>
+            <input type="number" id="paymentAmount" placeholder="قيمة القسط">
             <input type="date" id="paymentDate">
             <button onclick="addPayment()">إضافة القسط</button>
 
+            <h3>سجل الدفعات</h3>
             <div id="paymentsList"></div>
+
             <button onclick="saveClient()">حفظ التعديلات</button>
             <button onclick="closeEditModal()">إغلاق</button>
         </div>
@@ -105,7 +197,8 @@
             phone = '+' + clean;
 
             let today = new Date();
-            let endDate = new Date(today); endDate.setMonth(endDate.getMonth() + months);
+            let endDate = new Date(today);
+            endDate.setMonth(endDate.getMonth() + months);
 
             clients.push({
                 name, phone,
@@ -115,25 +208,18 @@
                 invoice: '',
                 barcode: 'CL' + Date.now(),
                 price, months, interest,
-                payments: []
+                payments: [] // سجل الدفعات
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
-            clearAddForm();
+            document.getElementById('name').value = document.getElementById('phone').value = '';
             calcProfits();
             showClients();
             alert('تم الإضافة!');
         }
 
-        function clearAddForm() {
-            document.getElementById('name').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('price').value = '10000';
-            document.getElementById('months').value = '10';
-            document.getElementById('interest').value = '25';
-        }
-
-        function openEditModal(i) {
+        // نفس زر "تعديل" يفتح النافذة
+        function editClient(i) {
             currentClientIndex = i;
             let c = clients[i];
             document.getElementById('editName').value = c.name;
@@ -173,7 +259,11 @@
         function showPayments() {
             let c = clients[currentClientIndex];
             let t = `<table><tr><th>التاريخ</th><th>القسط</th></tr>`;
-            c.payments.forEach(p => t += `<tr><td>${p.date}</td><td>${p.amount}</td></tr>`);
+            if (c.payments.length === 0) {
+                t += `<tr><td colspan="2">لا توجد دفعات</td></tr>`;
+            } else {
+                c.payments.forEach(p => t += `<tr><td>${p.date}</td><td>${p.amount}</td></tr>`);
+            }
             t += `<tr><td><b>الإجمالي</b></td><td><b>${c.paid}</b></td></tr></table>`;
             document.getElementById('paymentsList').innerHTML = t;
         }
@@ -190,6 +280,7 @@
             closeEditModal();
             calcProfits();
             showClients();
+            alert('تم الحفظ!');
         }
 
         function calcProfits() {
@@ -202,31 +293,6 @@
 
             document.getElementById('res').innerHTML = `
                 <p>الأرباح الإجمالية: ${totalProfit.toFixed(0)} جنيه</p>
-            `;
-        }
-
-        function showAllCalculations() {
-            let modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <h2>الحسابات الكلية</h2>
-                    <div id="allCalc"></div>
-                    <button onclick="this.parentElement.parentElement.remove()">إغلاق</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            let totalCapital = 0, totalProfit = 0;
-            clients.forEach(c => {
-                totalCapital += c.price;
-                totalProfit += c.price * c.interest;
-            });
-
-            document.getElementById('allCalc').innerHTML = `
-                <p><b>رأس المال:</b> ${totalCapital} جنيه</p>
-                <p><b>الأرباح:</b> ${totalProfit.toFixed(0)} جنيه</p>
-                <p><b>الإجمالي:</b> ${(totalCapital + totalProfit).toFixed(0)} جنيه</p>
             `;
         }
 
@@ -244,9 +310,13 @@
             let totalAmount = c.price * (1 + c.interest);
             let rem = totalAmount - c.paid;
             let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = `مرحبا ${c.name}، قسطك متبقي ${rem.toFixed(0)} جنيه، هينتهي بعد ${days} يوم! ادفع دلوقتي`;
+            let msg = 'مرحبا ' + c.name + '، قسطك متبقي ' + rem.toFixed(0) + ' جنيه، هينتهي بعد ' + days + ' يوم! ادفع دلوقتي';
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
-            window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
+            if (phoneClean.length >= 10) {
+                window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
+            } else {
+                alert('رقم التليفون غير صحيح!');
+            }
         }
 
         function capturePhoto(i) {
@@ -287,7 +357,7 @@
                     <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
-                        <button class="btn edit" onclick="openEditModal(${i})">تعديل</button>
+                        <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتساب</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                     </td>
