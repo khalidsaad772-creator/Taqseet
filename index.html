@@ -22,12 +22,10 @@
         input, button { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #28a745; border-radius: 12px; font-size: 16px; }
         button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
         .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
-        .pay { background: #007bff; }
         .wa { background: #25D366; }
         .cam { background: #6f42c1; }
         .edit { background: #ffc107; color: black; }
         .del { background: #dc3545; }
-        .payments { background: #17a2b8; color: white; }
         .calc-all { background: #6c757d; color: white; }
 
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
@@ -38,6 +36,7 @@
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
         .hidden { display: none; }
         #video { width: 100%; height: 200px; background: #000; border-radius: 12px; }
+
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; }
     </style>
@@ -60,15 +59,24 @@
         <div id="clientsTable"></div>
     </div>
 
-    <!-- نافذة الدفعات -->
-    <div id="paymentModal" class="modal hidden">
+    <!-- نافذة التعديل والدفعات -->
+    <div id="editModal" class="modal hidden">
         <div class="modal-content">
-            <h2>سجل الدفعات</h2>
-            <input type="number" id="paymentAmount" placeholder="قيمة القسط">
+            <h2>تعديل العميل</h2>
+            <input type="text" id="editName" placeholder="الاسم">
+            <input type="text" id="editPhone" placeholder="التليفون">
+            <input type="number" id="editPrice" placeholder="سعر السلعة">
+            <input type="number" id="editMonths" placeholder="عدد الشهور">
+            <input type="number" id="editInterest" placeholder="نسبة الفائدة %">
+
+            <h3>إضافة قسط</h3>
+            <input type="number" id="paymentAmount" placeholder="قيمة القسط الشهري">
             <input type="date" id="paymentDate">
-            <button onclick="addPayment()">إضافة دفعة</button>
+            <button onclick="addPayment()">إضافة القسط</button>
+
             <div id="paymentsList"></div>
-            <button onclick="closeModal()">إغلاق</button>
+            <button onclick="saveClient()">حفظ التعديلات</button>
+            <button onclick="closeEditModal()">إغلاق</button>
         </div>
     </div>
 
@@ -107,14 +115,43 @@
                 invoice: '',
                 barcode: 'CL' + Date.now(),
                 price, months, interest,
-                payments: [] // سجل الدفعات
+                payments: []
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
-            document.getElementById('name').value = document.getElementById('phone').value = '';
+            clearAddForm();
             calcProfits();
             showClients();
             alert('تم الإضافة!');
+        }
+
+        function clearAddForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('price').value = '10000';
+            document.getElementById('months').value = '10';
+            document.getElementById('interest').value = '25';
+        }
+
+        function openEditModal(i) {
+            currentClientIndex = i;
+            let c = clients[i];
+            document.getElementById('editName').value = c.name;
+            document.getElementById('editPhone').value = c.phone;
+            document.getElementById('editPrice').value = c.price;
+            document.getElementById('editMonths').value = c.months;
+            document.getElementById('editInterest').value = c.interest * 100;
+
+            let today = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = today;
+            document.getElementById('paymentAmount').value = '';
+
+            showPayments();
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
         }
 
         function addPayment() {
@@ -128,7 +165,6 @@
 
             localStorage.setItem('clients', JSON.stringify(clients));
             document.getElementById('paymentAmount').value = '';
-            document.getElementById('paymentDate').value = '';
             showPayments();
             calcProfits();
             showClients();
@@ -142,16 +178,18 @@
             document.getElementById('paymentsList').innerHTML = t;
         }
 
-        function openPayments(i) {
-            currentClientIndex = i;
-            document.getElementById('paymentModal').classList.remove('hidden');
-            let today = new Date().toISOString().split('T')[0];
-            document.getElementById('paymentDate').value = today;
-            showPayments();
-        }
+        function saveClient() {
+            let c = clients[currentClientIndex];
+            c.name = document.getElementById('editName').value.trim();
+            c.phone = document.getElementById('editPhone').value.trim();
+            c.price = +document.getElementById('editPrice').value;
+            c.months = +document.getElementById('editMonths').value;
+            c.interest = (+document.getElementById('editInterest').value) / 100;
 
-        function closeModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
+            localStorage.setItem('clients', JSON.stringify(clients));
+            closeEditModal();
+            calcProfits();
+            showClients();
         }
 
         function calcProfits() {
@@ -179,39 +217,19 @@
             `;
             document.body.appendChild(modal);
 
-            let totalCapital = 0, totalPhones = 0, totalCollected = 0, totalProfit = 0;
-            let his = [];
-
+            let totalCapital = 0, totalProfit = 0;
             clients.forEach(c => {
-                let ini = 1; // كل عميل = سلعة واحدة
-                let pri = c.price;
-                let rat = c.interest;
-                let mon = c.months;
-                let pay = pri * (1 + rat) / mon;
-
-                let act = ini, cas = 0, coll = 0;
-                for (let m = 1; m <= mon; m++) {
-                    let inc = act * pay;
-                    coll += inc; cas += inc;
-                    let nw = Math.floor(cas / pri);
-                    cas -= nw * pri;
-                    if (m < mon) act += nw;
-                }
-                totalCapital += pri;
-                totalPhones += ini;
-                totalCollected += coll + cas;
-                totalProfit += coll + cas - pri;
+                totalCapital += c.price;
+                totalProfit += c.price * c.interest;
             });
 
-            let t = `<p><b>رأس المال:</b> ${totalCapital}</p>`;
-            t += `<p><b>عدد السلع:</b> ${totalPhones}</p>`;
-            t += `<p><b>الأرباح:</b> ${totalProfit.toFixed(0)} جنيه</p>`;
-            t += `<p><b>الإجمالي:</b> ${(totalCapital + totalProfit).toFixed(0)} جنيه</p>`;
-            document.getElementById('allCalc').innerHTML = t;
+            document.getElementById('allCalc').innerHTML = `
+                <p><b>رأس المال:</b> ${totalCapital} جنيه</p>
+                <p><b>الأرباح:</b> ${totalProfit.toFixed(0)} جنيه</p>
+                <p><b>الإجمالي:</b> ${(totalCapital + totalProfit).toFixed(0)} جنيه</p>
+            `;
         }
 
-        function updatePaid(i) { openPayments(i); }
-        function editClient(i) { /* موجود بالكود السابق */ }
         function deleteClient(i) {
             if (confirm('حذف العميل؟')) {
                 clients.splice(i, 1);
@@ -226,12 +244,33 @@
             let totalAmount = c.price * (1 + c.interest);
             let rem = totalAmount - c.paid;
             let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = 'مرحبا ' + c.name + '، قسطك متبقي ' + rem.toFixed(0) + ' جنيه، هينتهي بعد ' + days + ' يوم! ادفع دلوقتي';
+            let msg = `مرحبا ${c.name}، قسطك متبقي ${rem.toFixed(0)} جنيه، هينتهي بعد ${days} يوم! ادفع دلوقتي`;
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
         }
 
-        function capturePhoto(i) { /* موجود بالكود السابق */ }
+        function capturePhoto(i) {
+            if (!navigator.mediaDevices?.getUserMedia) return alert('الكاميرا غير مدعومة');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(s => {
+                stream = s;
+                let v = document.getElementById('video');
+                v.classList.remove('hidden');
+                v.srcObject = stream;
+                alert('وجه الكاميرا... سيتم التقاط الصورة بعد 3 ثواني');
+                setTimeout(() => {
+                    let canvas = document.getElementById('canvas');
+                    canvas.width = v.videoWidth || 640;
+                    canvas.height = v.videoHeight || 480;
+                    canvas.getContext('2d').drawImage(v, 0, 0);
+                    clients[i].invoice = canvas.toDataURL('image/jpeg', 0.8);
+                    localStorage.setItem('clients', JSON.stringify(clients));
+                    stream.getTracks().forEach(t => t.stop());
+                    v.classList.add('hidden');
+                    showClients();
+                    alert('تم حفظ الصورة!');
+                }, 3000);
+            }).catch(() => alert('فشل تشغيل الكاميرا'));
+        }
 
         function showClients() {
             let t = `<table><tr><th>الاسم</th><th>تليفون</th><th>صورة</th><th>باركود</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
@@ -239,7 +278,7 @@
             clients.forEach((c, i) => {
                 let totalAmount = c.price * (1 + c.interest);
                 let rem = totalAmount - c.paid;
-                let pct = (c.paid / totalAmount) * 100;
+                let pct = totalAmount > 0 ? (c.paid / totalAmount) * 100 : 0;
                 let img = c.invoice ? `<img src="${c.invoice}" width="40" style="border-radius:6px">` : '';
                 t += `<tr>
                     <td>${c.name}</td><td>${c.phone}</td>
@@ -248,7 +287,7 @@
                     <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
-                        <button class="btn payments" onclick="openPayments(${i})">دفعات</button>
+                        <button class="btn edit" onclick="openEditModal(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتساب</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                     </td>
