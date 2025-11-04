@@ -1,0 +1,384 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محل التقسيط</title>
+
+    <!-- PWA Settings -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#28a745">
+    <link rel="manifest" href="data:application/manifest+json,{
+      \"name\": \"محل التقسيط\",
+      \"short_name\": \"المحل\",
+      \"start_url\": \".\",
+      \"display\": \"standalone\",
+      \"background_color\": \"#f0f8ff\",
+      \"theme_color\": \"#28a745\",
+      \"icons\": [{
+        \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>store</text></svg>\",
+        \"sizes\": \"192x192\",
+        \"type\": \"image/svg+xml\"
+      }]
+    }">
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #28a745;
+            --danger: #dc3545;
+            --success: #25D366;
+            --info: #007bff;
+            --warning: #ffc107;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f0f8ff, #e0f7fa); 
+            padding: 10px; 
+            min-height: 100vh; 
+            font-size: 14px;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        .box { 
+            background: white; 
+            padding: 16px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(40,167,69,0.2); 
+            margin-bottom: 16px; 
+        }
+        h1, h2 { color: var(--primary); margin-bottom: 12px; font-size: 18px; }
+        input, button { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 6px 0; 
+            font-size: 15px; 
+            border-radius: 12px; 
+            border: 2px solid var(--primary);
+        }
+        button { 
+            background: var(--primary); 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { opacity: 0.9; }
+        .btn { 
+            width: auto; 
+            padding: 6px 10px; 
+            margin: 2px; 
+            font-size: 13px; 
+            display: inline-block;
+        }
+        .pay { background: var(--info); }
+        .wa { background: var(--success); }
+        .cam { background: #6f42c1; }
+        .edit { background: var(--warning); color: black; }
+        .del { background: var(--danger); }
+        .result { 
+            font-size: 16px; 
+            color: var(--primary); 
+            background: #d4edda; 
+            padding: 12px; 
+            border-radius: 12px; 
+            margin: 10px 0;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 10px 0; 
+            font-size: 13px;
+        }
+        th { 
+            background: var(--primary); 
+            color: white; 
+            padding: 8px; 
+            font-size: 12px;
+        }
+        td { 
+            border: 1px solid #ddd; 
+            padding: 6px; 
+            background: #f8fff9; 
+            vertical-align: middle;
+        }
+        .progress { 
+            height: 16px; 
+            background: #eee; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            margin: 4px 0;
+        }
+        .bar { 
+            height: 100%; 
+            background: var(--primary); 
+            width: 0%; 
+            transition: width 0.5s;
+        }
+        canvas, video, img, svg { 
+            max-width: 100%; 
+            margin: 8px auto; 
+            display: block; 
+            border-radius: 8px;
+        }
+        #video { 
+            width: 100%; 
+            height: 180px; 
+            background: #000; 
+            border-radius: 12px;
+        }
+        .hidden { display: none; }
+        .client-row { font-size: 12px; }
+        @media (max-width: 480px) {
+            body { padding: 8px; font-size: 13px; }
+            .box { padding: 12px; }
+            input, button { font-size: 14px; padding: 8px; }
+            h1 { font-size: 16px; }
+            table { font-size: 11px; }
+            .btn { padding: 4px 6px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <h1>حاسبة أرباح</h1>
+            <input type="number" id="capital" value="50000" placeholder="رأس المال">
+            <input type="number" id="phones" value="5" placeholder="تليفونات">
+            <input type="number" id="price" value="10000" placeholder="سعر">
+            <input type="number" id="interest" value="25" placeholder="فائدة %">
+            <input type="number" id="months" value="10" placeholder="شهور">
+            <button onclick="calc()">احسب الأرباح</button>
+            <div id="res" class="result"></div>
+            <div id="tab"></div>
+            <canvas id="ch"></canvas>
+        </div>
+
+        <div class="box">
+            <h2>إضافة عميل</h2>
+            <input type="text" id="name" placeholder="اسم العميل">
+            <input type="text" id="phone" placeholder="رقم التليفون">
+            <button onclick="addClient()">إضافة عميل</button>
+            <button onclick="exportPDF()">تصدير PDF</button>
+            <h2>العملاء</h2>
+            <div id="clientsTable"></div>
+        </div>
+    </div>
+
+    <video id="video" class="hidden" autoplay playsinline></video>
+    <canvas id="canvas" class="hidden"></canvas>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        let ch, stream;
+        let clients = JSON.parse(localStorage.getItem('clients')) || [];
+        const totalInstallment = 12500;
+
+        // --- الحساب ---
+        function calc() {
+            let cap = +document.getElementById('capital').value || 50000;
+            let ini = +document.getElementById('phones').value || 5;
+            let pri = +document.getElementById('price').value || 10000;
+            let rat = (+document.getElementById('interest').value || 25)/100;
+            let mon = +document.getElementById('months').value || 10;
+
+            let totPhone = pri * (1 + rat);
+            let pay = totPhone / mon;
+
+            let act = ini, cas = 0, coll = 0, his = [], casHis = [cap], phHis = [ini];
+
+            for (let m=1; m<=mon; m++) {
+                let inc = act * pay;
+                coll += inc; cas += inc;
+                let nw = Math.floor(cas / pri);
+                cas -= nw * pri;
+                his.push({m, act, inc, nw, aft:cas});
+                casHis.push(cas + act*pri);
+                phHis.push(act);
+                if (m < mon) act += nw;
+            }
+
+            let sold = ini + his.reduce((a,b)=>a+b.nw,0);
+            let prof = coll + cas - cap;
+
+            document.getElementById('res').innerHTML = `
+                <p><strong>تليفونات:</strong> ${sold}</p>
+                <p><strong>أرباح:</strong> ${prof.toFixed(0)} جنيه</p>
+                <p><strong>إجمالي:</strong> ${(cap + prof).toFixed(0)} جنيه</p>
+                <p><strong>نسبة:</strong> ${((prof/cap)*100).toFixed(1)}%</p>
+            `;
+
+            let t = `<table><tr><th>شهر</th><th>نشطة</th><th>أقساط</th><th>جديد</th><th>بعد</th></tr>`;
+            his.forEach(r => t += `<tr><td>${r.m}</td><td>${r.act}</td><td>${r.inc.toFixed(0)}</td><td>${r.nw}</td><td>${r.aft.toFixed(0)}</td></tr>`);
+            t += `</table>`;
+            document.getElementById('tab').innerHTML = t;
+
+            if (ch) ch.destroy();
+            ch = new Chart(document.getElementById('ch'), {
+                type: 'line',
+                data: { 
+                    labels: ['بداية', ...Array(mon).fill().map((_,i)=>`شهر ${i+1}`)], 
+                    datasets: [
+                        {label:'النقد', data:casHis, borderColor:'green', tension: 0.3},
+                        {label:'التليفونات', data:phHis, borderColor:'blue', tension: 0.3}
+                    ]
+                },
+                options: {responsive:true, maintainAspectRatio: false}
+            });
+        }
+
+        // --- العملاء ---
+        function addClient() {
+            let name = document.getElementById('name').value.trim();
+            let phone = document.getElementById('phone').value.trim();
+            if (!name || !phone) return alert('اكتب الاسم ورقم التليفون!');
+            
+            let today = new Date();
+            let endDate = new Date(today); endDate.setMonth(endDate.getMonth() + 10);
+
+            clients.push({
+                name, phone, 
+                start: today.toLocaleDateString('ar-EG'), 
+                end: endDate.toLocaleDateString('ar-EG'),
+                paid: 0,
+                invoice: '',
+                barcode: 'CL' + Date.now()
+            });
+            localStorage.setItem('clients', JSON.stringify(clients));
+            document.getElementById('name').value = document.getElementById('phone').value = '';
+            showClients();
+            alert('تم الإضافة!');
+        }
+
+        function updatePaid(i) {
+            let paid = prompt('المدفوع؟', clients[i].paid);
+            if (paid !== null && !isNaN(paid)) {
+                clients[i].paid = parseFloat(paid);
+                localStorage.setItem('clients', JSON.stringify(clients));
+                showClients();
+            }
+        }
+
+        function editClient(i) {
+            let c = clients[i];
+            let name = prompt('الاسم الجديد:', c.name);
+            let phone = prompt('التليفون الجديد:', c.phone);
+            if (name && phone) {
+                c.name = name.trim();
+                c.phone = phone.trim();
+                localStorage.setItem('clients', JSON.stringify(clients));
+                showClients();
+            }
+        }
+
+        function deleteClient(i) {
+            if (confirm('حذف العميل؟')) {
+                clients.splice(i, 1);
+                localStorage.setItem('clients', JSON.stringify(clients));
+                showClients();
+            }
+        }
+
+        function sendWA(i) {
+            let c = clients[i];
+            let rem = totalInstallment - c.paid;
+            let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
+            let msg = `مرحبا ${c.name}،\nقسطك متبقي ${rem} جنيه،\nهينتهي بعد ${days} يوم!\nادفع دلوقتي عشان متتأخرش`;
+            let phoneClean = c.phone.replace(/[^0-9]/g, '');
+            if (phoneClean.length >= 10) {
+                window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
+            } else {
+                alert('رقم التليفون غير صحيح!');
+            }
+        }
+
+        function capturePhoto(i) {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('الكاميرا غير مدعومة في هذا المتصفح');
+                return;
+            }
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" } 
+            }).then(s => {
+                stream = s;
+                let v = document.getElementById('video');
+                v.classList.remove('hidden');
+                v.srcObject = stream;
+                alert('وجه الكاميرا على الفاتورة... سيتم التقاط الصورة بعد 3 ثواني');
+                setTimeout(() => {
+                    let canvas = document.getElementById('canvas');
+                    canvas.width = v.videoWidth || 640;
+                    canvas.height = v.videoHeight || 480;
+                    canvas.getContext('2d').drawImage(v, 0, 0);
+                    clients[i].invoice = canvas.toDataURL('image/jpeg', 0.8);
+                    localStorage.setItem('clients', JSON.stringify(clients));
+                    stream.getTracks().forEach(t => t.stop());
+                    v.classList.add('hidden');
+                    showClients();
+                    alert('تم حفظ الصورة!');
+                }, 3000);
+            }).catch(err => {
+                console.error(err);
+                alert('فشل تشغيل الكاميرا: ' + err.message);
+            });
+        }
+
+        function showClients() {
+            let t = `<table><tr><th>الاسم</th><th>تليفون</th><th>صورة</th><th>باركود</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
+            clients.forEach((c, i) => {
+                let rem = totalInstallment - c.paid;
+                let pct = (c.paid / totalInstallment) * 100;
+                let img = c.invoice ? `<img src="${c.invoice}" width="35" style="border-radius:6px;">` : '';
+                t += `<tr class="client-row">
+                    <td>${c.name}</td>
+                    <td>${c.phone}</td>
+                    <td>${img} <button class="btn cam" onclick="capturePhoto(${i})">كاميرا</button></td>
+                    <td><svg id="bc${i}" style="height:35px;"></svg></td>
+                    <td>${c.paid}</td>
+                    <td>${rem}</td>
+                    <td>
+                        <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
+                        <button class="btn pay" onclick="updatePaid(${i})">دفع</button>
+                        <button class="btn edit" onclick="editClient(${i})">تعديل</button>
+                        <button class="btn wa" onclick="sendWA(${i})">واتساب</button>
+                        <button class="btn del" onclick="deleteClient(${i})">حذف</button>
+                    </td>
+                </tr>`;
+                setTimeout(() => {
+                    JsBarcode(`#bc${i}`, c.barcode, {
+                        format: "CODE128",
+                        height: 35,
+                        displayValue: true,
+                        fontSize: 12
+                    });
+                }, 100);
+            });
+            t += `</table>`;
+            document.getElementById('clientsTable').innerHTML = t;
+        }
+
+        function exportPDF() {
+            const doc = new jsPDF();
+            doc.setFont('Amiri', 'normal');
+            doc.text('عملاء التقسيط', 105, 15, {align:'center'});
+            let y = 25;
+            clients.forEach((c, i) => {
+                doc.text(`${i+1}. ${c.name} | ${c.phone} | مدفوع: ${c.paid} | متبقي: ${totalInstallment - c.paid}`, 10, y);
+                y += 8;
+            });
+            doc.save('عملاء_التقسيط.pdf');
+        }
+
+        // تشغيل
+        window.onload = () => {
+            calc(); 
+            showClients();
+        };
+    </script>
+</body>
+</html>
