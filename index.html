@@ -1,10 +1,9 @@
-<html>
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محل ا خالد التقسيط</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محل التقسيط</title>
 
     <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,7 +17,7 @@
       \"background_color\": \"#f0f8ff\",
       \"theme_color\": \"#28a745\",
       \"icons\": [{
-        \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>store</text></svg>\",
+        \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>\",
         \"sizes\": \"192x192\",
         \"type\": \"image/svg+xml\"
       }]
@@ -30,145 +29,134 @@
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
-        :root {
-            --primary: #28a745;
-            --danger: #dc3545;
-            --success: #25D366;
-            --info: #007bff;
-            --warning: #ffc107;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+            padding: 10px;
+            font-size: 16px;
+            line-height: 1.6;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #f0f8ff, #e0f7fa); 
-            padding: 10px; 
-            min-height: 100vh; 
-            font-size: 14px;
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 20px;
         }
-        .container { max-width: 500px; margin: 0 auto; }
-        .box { 
-            background: white; 
-            padding: 16px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 15px rgba(40,167,69,0.2); 
-            margin-bottom: 16px; 
+        h1, h2 {
+            color: #28a745;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
         }
-        h1, h2 { color: var(--primary); margin-bottom: 12px; font-size: 18px; }
-        input, button { 
-            width: 100%; 
-            padding: 10px; 
-            margin: 6px 0; 
-            font-size: 15px; 
-            border-radius: 12px; 
-            border: 2px solid var(--primary);
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            font-size: 16px;
         }
-        button { 
-            background: var(--primary); 
-            color: white; 
-            font-weight: bold; 
+        button {
+            background: #28a745;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
         }
-        button:hover { opacity: 0.9; }
-        .btn { 
-            width: auto; 
-            padding: 6px 10px; 
-            margin: 2px; 
-            font-size: 13px; 
+        .btn {
             display: inline-block;
-        }
-        .pay { background: var(--info); }
-        .wa { background: var(--success); }
-        .cam { background: #6f42c1; }
-        .edit { background: var(--warning); color: black; }
-        .del { background: var(--danger); }
-        .result { 
-            font-size: 16px; 
-            color: var(--primary); 
-            background: #d4edda; 
-            padding: 12px; 
-            border-radius: 12px; 
-            margin: 10px 0;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin: 10px 0; 
-            font-size: 13px;
-        }
-        th { 
-            background: var(--primary); 
-            color: white; 
-            padding: 8px; 
-            font-size: 12px;
-        }
-        td { 
-            border: 1px solid #ddd; 
-            padding: 6px; 
-            background: #f8fff9; 
-            vertical-align: middle;
-        }
-        .progress { 
-            height: 16px; 
-            background: #eee; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            margin: 4px 0;
-        }
-        .bar { 
-            height: 100%; 
-            background: var(--primary); 
-            width: 0%; 
-            transition: width 0.5s;
-        }
-        canvas, video, img, svg { 
-            max-width: 100%; 
-            margin: 8px auto; 
-            display: block; 
+            width: auto;
+            padding: 8px 12px;
+            margin: 3px;
+            font-size: 14px;
             border-radius: 8px;
         }
-        #video { 
-            width: 100%; 
-            height: 180px; 
-            background: #000; 
+        .pay { background: #007bff; }
+        .wa { background: #25D366; }
+        .cam { background: #6f42c1; }
+        .edit { background: #ffc107; color: black; }
+        .del { background: #dc3545; }
+
+        .result {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            font-size: 14px;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .progress {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .bar {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        canvas, video, img, svg {
+            max-width: 100%;
+            margin: 10px auto;
+            display: block;
+            border-radius: 8px;
+        }
+        #video {
+            width: 100%;
+            height: 200px;
+            background: #000;
             border-radius: 12px;
         }
         .hidden { display: none; }
-        .client-row { font-size: 12px; }
-        @media (max-width: 480px) {
-            body { padding: 8px; font-size: 13px; }
-            .box { padding: 12px; }
-            input, button { font-size: 14px; padding: 8px; }
-            h1 { font-size: 16px; }
-            table { font-size: 11px; }
-            .btn { padding: 4px 6px; font-size: 11px; }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="box">
-            <h1>حاسبة أرباح</h1>
-            <input type="number" id="capital" value="50000" placeholder="رأس المال">
-            <input type="number" id="phones" value="5" placeholder="تليفونات">
-            <input type="number" id="price" value="10000" placeholder="سعر">
-            <input type="number" id="interest" value="25" placeholder="فائدة %">
-            <input type="number" id="months" value="10" placeholder="شهور">
-            <button onclick="calc()">احسب الأرباح</button>
-            <div id="res" class="result"></div>
-            <div id="tab"></div>
-            <canvas id="ch"></canvas>
-        </div>
+        <!-- حاسبة الأرباح -->
+        <h1>حاسبة أرباح</h1>
+        <input type="number" id="capital" value="50000" placeholder="رأس المال">
+        <input type="number" id="phones" value="5" placeholder="عدد التليفونات">
+        <input type="number" id="price" value="10000" placeholder="سعر التليفون">
+        <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
+        <input type="number" id="months" value="10" placeholder="عدد الشهور">
+        <button onclick="calc()">احسب الأرباح</button>
+        <div id="res" class="result"></div>
+        <div id="tab"></div>
+        <canvas id="ch" style="height:200px;"></canvas>
 
-        <div class="box">
-            <h2>إضافة عميل</h2>
-            <input type="text" id="name" placeholder="اسم العميل">
-            <input type="text" id="phone" placeholder="رقم التليفون">
-            <button onclick="addClient()">إضافة عميل</button>
-            <button onclick="exportPDF()">تصدير PDF</button>
-            <h2>العملاء</h2>
-            <div id="clientsTable"></div>
-        </div>
+        <!-- إدارة العملاء -->
+        <h2 style="margin-top:30px;">إضافة عميل</h2>
+        <input type="text" id="name" placeholder="اسم العميل">
+        <input type="text" id="phone" placeholder="رقم التليفون">
+        <button onclick="addClient()">إضافة عميل</button>
+        <button onclick="exportPDF()">تصدير PDF</button>
+
+        <h2 style="margin-top:20px;">العملاء</h2>
+        <div id="clientsTable"></div>
     </div>
 
     <video id="video" class="hidden" autoplay playsinline></video>
@@ -180,12 +168,11 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         const totalInstallment = 12500;
 
-        // --- الحساب ---
         function calc() {
             let cap = +document.getElementById('capital').value || 50000;
             let ini = +document.getElementById('phones').value || 5;
             let pri = +document.getElementById('price').value || 10000;
-            let rat = (+document.getElementById('interest').value || 25)/100;
+            let rat = (+document.getElementById('interest').value || 25) / 100;
             let mon = +document.getElementById('months').value || 10;
 
             let totPhone = pri * (1 + rat);
@@ -193,25 +180,25 @@
 
             let act = ini, cas = 0, coll = 0, his = [], casHis = [cap], phHis = [ini];
 
-            for (let m=1; m<=mon; m++) {
+            for (let m = 1; m <= mon; m++) {
                 let inc = act * pay;
                 coll += inc; cas += inc;
                 let nw = Math.floor(cas / pri);
                 cas -= nw * pri;
-                his.push({m, act, inc, nw, aft:cas});
-                casHis.push(cas + act*pri);
+                his.push({ m, act, inc, nw, aft: cas });
+                casHis.push(cas + act * pri);
                 phHis.push(act);
                 if (m < mon) act += nw;
             }
 
-            let sold = ini + his.reduce((a,b)=>a+b.nw,0);
+            let sold = ini + his.reduce((a, b) => a + b.nw, 0);
             let prof = coll + cas - cap;
 
             document.getElementById('res').innerHTML = `
-                <p><strong>تليفونات:</strong> ${sold}</p>
-                <p><strong>أرباح:</strong> ${prof.toFixed(0)} جنيه</p>
-                <p><strong>إجمالي:</strong> ${(cap + prof).toFixed(0)} جنيه</p>
-                <p><strong>نسبة:</strong> ${((prof/cap)*100).toFixed(1)}%</p>
+                <p>تليفونات: ${sold}</p>
+                <p>أرباح: ${prof.toFixed(0)} جنيه</p>
+                <p>إجمالي: ${(cap + prof).toFixed(0)} جنيه</p>
+                <p>نسبة: ${((prof / cap) * 100).toFixed(1)}%</p>
             `;
 
             let t = `<table><tr><th>شهر</th><th>نشطة</th><th>أقساط</th><th>جديد</th><th>بعد</th></tr>`;
@@ -223,17 +210,16 @@
             ch = new Chart(document.getElementById('ch'), {
                 type: 'line',
                 data: { 
-                    labels: ['بداية', ...Array(mon).fill().map((_,i)=>`شهر ${i+1}`)], 
+                    labels: ['بداية', ...Array(mon).fill().map((_, i) => `شهر ${i + 1}`)], 
                     datasets: [
-                        {label:'النقد', data:casHis, borderColor:'green', tension: 0.3},
-                        {label:'التليفونات', data:phHis, borderColor:'blue', tension: 0.3}
+                        { label: 'النقد', data: casHis, borderColor: 'green', tension: 0.3 },
+                        { label: 'التليفونات', data: phHis, borderColor: 'blue', tension: 0.3 }
                     ]
                 },
-                options: {responsive:true, maintainAspectRatio: false}
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
-        // --- العملاء ---
         function addClient() {
             let name = document.getElementById('name').value.trim();
             let phone = document.getElementById('phone').value.trim();
@@ -289,7 +275,7 @@
             let c = clients[i];
             let rem = totalInstallment - c.paid;
             let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = `مرحبا ${c.name}،\nقسطك متبقي ${rem} جنيه،\nهينتهي بعد ${days} يوم!\nادفع دلوقتي عشان متتأخرش`;
+            let msg = `مرحبا ${c.name}،\nقسطك متبقي ${rem} جنيه،\nهينتهي بعد ${days} يوم!\nادفع دلوقتي عشان متتأخرش 💰`;
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             if (phoneClean.length >= 10) {
                 window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -331,17 +317,16 @@
 
         function showClients() {
             let t = `<table><tr><th>الاسم</th><th>تليفون</th><th>صورة</th><th>باركود</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
+            if (!clients.length) t += `<tr><td colspan="7" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 let rem = totalInstallment - c.paid;
                 let pct = (c.paid / totalInstallment) * 100;
-                let img = c.invoice ? `<img src="${c.invoice}" width="35" style="border-radius:6px;">` : '';
-                t += `<tr class="client-row">
-                    <td>${c.name}</td>
-                    <td>${c.phone}</td>
+                let img = c.invoice ? `<img src="${c.invoice}" width="40" style="border-radius:6px">` : '';
+                t += `<tr>
+                    <td>${c.name}</td><td>${c.phone}</td>
                     <td>${img} <button class="btn cam" onclick="capturePhoto(${i})">كاميرا</button></td>
-                    <td><svg id="bc${i}" style="height:35px;"></svg></td>
-                    <td>${c.paid}</td>
-                    <td>${rem}</td>
+                    <td><svg id="bc${i}" style="height:40px"></svg></td>
+                    <td>${c.paid}</td><td>${rem}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="updatePaid(${i})">دفع</button>
@@ -350,14 +335,7 @@
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                     </td>
                 </tr>`;
-                setTimeout(() => {
-                    JsBarcode(`#bc${i}`, c.barcode, {
-                        format: "CODE128",
-                        height: 35,
-                        displayValue: true,
-                        fontSize: 12
-                    });
-                }, 100);
+                setTimeout(() => JsBarcode(`#bc${i}`, c.barcode, { format: "CODE128", height: 40, displayValue: true, fontSize: 12 }), 100);
             });
             t += `</table>`;
             document.getElementById('clientsTable').innerHTML = t;
@@ -365,19 +343,17 @@
 
         function exportPDF() {
             const doc = new jsPDF();
-            doc.setFont('Amiri', 'normal');
-            doc.text('عملاء التقسيط', 105, 15, {align:'center'});
+            doc.text('عملاء التقسيط', 105, 15, { align: 'center' });
             let y = 25;
             clients.forEach((c, i) => {
                 doc.text(`${i+1}. ${c.name} | ${c.phone} | مدفوع: ${c.paid} | متبقي: ${totalInstallment - c.paid}`, 10, y);
                 y += 8;
             });
-            doc.save('عملاء_التقسيط.pdf');
+            doc.save('عملاء.pdf');
         }
 
-        // تشغيل
         window.onload = () => {
-            calc(); 
+            calc();
             showClients();
         };
     </script>
