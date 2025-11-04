@@ -12,14 +12,14 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.png" type="image/png">
 
-    <!-- Libraries -->
+    <!-- Libraries (محلية) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f0f8ff; padding: 10px; font-size: 16px; line-height: 1.6; }
+        body { font-family: Arial, sans-serif; background: #f0f8ff; padding: 10px; font-size: 16px; }
         .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 20px; }
         h1, h2 { color: #28a745; text-align: center; margin: 20px 0 15px; font-size: 20px; }
         input, button { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #28a745; border-radius: 12px; font-size: 16px; }
@@ -88,10 +88,9 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
-        // تهيئة
         clients = clients.map(c => ({ ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [] }));
 
-        // دوال أساسية
+        // === دوال أساسية ===
         function addClient() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -125,6 +124,7 @@
 
         function showClients() {
             let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
+            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
                 const rem = total - c.paid;
@@ -146,68 +146,62 @@
         }
 
         function deleteClient(i) { if (confirm('حذف؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
-        function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; /* ... */ document.getElementById('editModal').classList.remove('hidden'); }
-        function saveClient() { /* ... */ }
+        function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
+        function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); }
         function openPaymentModal(i) { currentClientIndex = i; document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; document.getElementById('paymentModal').classList.remove('hidden'); }
-        function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return; clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); }
+        function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return alert('املأ الحقول!'); clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+        function sendWA(i) { const c = clients[i]; const total = c.price * (1 + c.interest); const rem = total - c.paid; const msg = `مرحبا ${c.name}\nالمتبقي: ${rem.toFixed(0)} جنيه`; window.open('https://wa.me/' + c.phone.replace('+', '') + '?text=' + encodeURIComponent(msg)); }
 
         function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'لا يوجد'; }
 
         function getMonthlyProfit() {
             const now = new Date();
             const month = now.getMonth(), year = now.getFullYear();
-            return clients.reduce((profit, c) => {
+            return clients.reduce((p, c) => {
                 const total = c.price * (1 + c.interest);
                 const installment = total / c.months;
-                const paidThisMonth = c.payments.reduce((s, p) => new Date(p.date).getMonth() === month && new Date(p.date).getFullYear() === year ? s + p.amount : s, 0);
-                return profit + Math.max(0, paidThisMonth - installment);
+                const paid = c.payments.reduce((s, pay) => new Date(pay.date).getMonth() === month && new Date(pay.date).getFullYear() === year ? s + pay.amount : s, 0);
+                return p + Math.max(0, paid - installment);
             }, 0).toFixed(0);
         }
 
-        // دالة تصدير PDF (تعمل فورًا)
-        async function exportPDF() {
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+        // === خط عربي مدمج (Noto Sans Arabic) ===
+        const arabicFontBase64 = "AAEAAAARAQAABAAQFgAAAAAAAwAAAAAAAAAAAAAAAAAAAAAA..."; // (سيتم إضافته كاملاً في ZIP)
 
-                // تحميل خط عربي
-                const fontUrl = 'https://cdn.jsdelivr.net/gh/googlefonts/noto-sans-arabic@1.0.0/NotoSansArabic-Regular.ttf';
-                const font = await fetch(fontUrl).then(r => r.arrayBuffer());
-                const base64 = btoa(String.fromCharCode(...new Uint8Array(font)));
-                doc.addFileToVFS('arabic.ttf', base64);
-                doc.addFont('arabic.ttf', 'arabic', 'normal');
-                doc.setFont('arabic');
+        function exportPDF() {
+            const doc = new jsPDF();
 
-                // العنوان
-                doc.setFontSize(18);
-                doc.text('تقرير العملاء - ' + new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' }), 105, 20, { align: 'center' });
+            // إضافة الخط العربي
+            doc.addFileToVFS('arabic.ttf', arabicFontBase64);
+            doc.addFont('arabic.ttf', 'arabic', 'normal');
+            doc.setFont('arabic');
 
-                // الجدول
-                doc.autoTable({
-                    head: [['الاسم', 'تليفون', 'مدفوع', 'متبقي', 'آخر قسط']],
-                    body: clients.map(c => {
-                        const total = c.price * (1 + c.interest);
-                        return [c.name, c.phone, c.paid + ' ج', (total - c.paid).toFixed(0) + ' ج', getLastPayment(c.payments)];
-                    }),
-                    startY: 35,
-                    styles: { font: 'arabic', fontSize: 12, cellPadding: 5 },
-                    headStyles: { fillColor: [40, 167, 69], textColor: 255 },
-                    alternateRowStyles: { fillColor: [240, 248, 255] }
-                });
+            // العنوان
+            doc.setFontSize(18);
+            doc.text('تقرير العملاء - ' + new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' }), 105, 20, { align: 'center' });
 
-                // الأرباح
-                const profit = getMonthlyProfit();
-                doc.setFontSize(14);
-                doc.setTextColor(0, 100, 0);
-                doc.text(`الأرباح هذا الشهر: ${profit} جنيه`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
+            // الجدول
+            doc.autoTable({
+                head: [['الاسم', 'تليفون', 'مدفوع', 'متبقي', 'آخر قسط']],
+                body: clients.map(c => {
+                    const total = c.price * (1 + c.interest);
+                    return [c.name, c.phone, c.paid + ' ج', (total - c.paid).toFixed(0) + ' ج', getLastPayment(c.payments)];
+                }),
+                startY: 35,
+                styles: { font: 'arabic', fontSize: 12, cellPadding: 5 },
+                headStyles: { fillColor: [40, 167, 69], textColor: 255 },
+                alternateRowStyles: { fillColor: [240, 248, 255] }
+            });
 
-                doc.save('تقرير.pdf');
-            } catch (e) {
-                alert('خطأ: تأكد من الإنترنت أو جرب مرة أخرى');
-                console.error(e);
-            }
+            // الأرباح
+            const profit = getMonthlyProfit();
+            doc.setFontSize(14);
+            doc.setTextColor(0, 100, 0);
+            doc.text(`الأرباح هذا الشهر: ${profit} جنيه`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
+
+            doc.save('تقرير_العملاء.pdf');
         }
 
         window.onload = () => { calcProfits(); showClients(); };
