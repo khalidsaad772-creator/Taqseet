@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=500"> <!-- ثابتة على 500px -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محل التقسيط</title>
 
     <!-- PWA Settings -->
@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#28a745">
 
-    <!-- Libraries (بدون Chart.js) -->
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
@@ -24,7 +24,7 @@
             line-height: 1.6;
         }
         .container {
-            width: 500px;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -245,10 +245,10 @@
             let c = clients[i];
             let rem = totalInstallment - c.paid;
             let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = `مرحبا ${c.name}،\nقسطك متبقي ${rem} جنيه،\nهينتهي بعد ${days} يوم!\nادفع دلوقتي`;
+            let msg = 'مرحبا ' + c.name + '، قسطك متبقي ' + rem + ' جنيه، هينتهي بعد ' + days + ' يوم! ادفع دلوقتي عشان متتأخرش 💰';
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             if (phoneClean.length >= 10) {
-                window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
+                window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
             } else {
                 alert('رقم التليفون غير صحيح!');
             }
