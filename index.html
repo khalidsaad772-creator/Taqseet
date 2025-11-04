@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محل خالد التقسيط</title>
+    <title>خالد ستور التقسيط</title>
 
     <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
             line-height: 1.6;
         }
         .container {
-            max-width: 500px;
+            max-width: 500pxpx;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -122,24 +122,21 @@
 </head>
 <body>
     <div class="container">
-        <!-- حاسبة الأرباح -->
-        <h1>حاسبة أرباح</h1>
-        <input type="number" id="capital" value="50000" placeholder="رأس المال">
-        <input type="number" id="phones" value="5" placeholder="عدد التليفونات">
-        <input type="number" id="price" value="10000" placeholder="سعر التليفون">
-        <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
-        <input type="number" id="months" value="10" placeholder="عدد الشهور">
-        <button onclick="calc()">احسب الأرباح</button>
-        <div id="res" class="result"></div>
-        <div id="tab"></div>
-
-        <!-- إدارة العملاء -->
-        <h2>إضافة عميل</h2>
+        <!-- إضافة عميل -->
+        <h1>إضافة عميل جديد</h1>
         <input type="text" id="name" placeholder="اسم العميل">
-        <input type="text" id="phone" placeholder="رقم التليفون">
+        <input type="text" id="phone" placeholder="رقم التليفون (مثال: 010...)">
+        <input type="number" id="price" value="10000" placeholder="سعر السلعة">
+        <input type="number" id="months" value="10" placeholder="عدد الشهور">
+        <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
         <button onclick="addClient()">إضافة عميل</button>
         <button onclick="exportPDF()">تصدير PDF</button>
 
+        <!-- الأرباح الإجمالية -->
+        <h2>الأرباح الإجمالية</h2>
+        <div id="res" class="result"></div>
+
+        <!-- جدول العملاء -->
         <h2>العملاء</h2>
         <div id="clientsTable"></div>
     </div>
@@ -151,65 +148,55 @@
         const { jsPDF } = window.jspdf;
         let stream;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
-        const totalInstallment = 12500;
-
-        function calc() {
-            let cap = +document.getElementById('capital').value || 50000;
-            let ini = +document.getElementById('phones').value || 5;
-            let pri = +document.getElementById('price').value || 10000;
-            let rat = (+document.getElementById('interest').value || 25) / 100;
-            let mon = +document.getElementById('months').value || 10;
-
-            let totPhone = pri * (1 + rat);
-            let pay = totPhone / mon;
-
-            let act = ini, cas = 0, coll = 0, his = [];
-
-            for (let m = 1; m <= mon; m++) {
-                let inc = act * pay;
-                coll += inc; cas += inc;
-                let nw = Math.floor(cas / pri);
-                cas -= nw * pri;
-                his.push({ m, act, inc, nw, aft: cas });
-                if (m < mon) act += nw;
-            }
-
-            let sold = ini + his.reduce((a, b) => a + b.nw, 0);
-            let prof = coll + cas - cap;
-
-            document.getElementById('res').innerHTML = `
-                <p>تليفونات: ${sold}</p>
-                <p>أرباح: ${prof.toFixed(0)} جنيه</p>
-                <p>إجمالي: ${(cap + prof).toFixed(0)} جنيه</p>
-                <p>نسبة: ${((prof / cap) * 100).toFixed(1)}%</p>
-            `;
-
-            let t = `<table><tr><th>شهر</th><th>نشطة</th><th>أقساط</th><th>جديد</th><th>بعد</th></tr>`;
-            his.forEach(r => t += `<tr><td>${r.m}</td><td>${r.act}</td><td>${r.inc.toFixed(0)}</td><td>${r.nw}</td><td>${r.aft.toFixed(0)}</td></tr>`);
-            t += `</table>`;
-            document.getElementById('tab').innerHTML = t;
-        }
 
         function addClient() {
             let name = document.getElementById('name').value.trim();
             let phone = document.getElementById('phone').value.trim();
+            let price = +document.getElementById('price').value || 10000;
+            let months = +document.getElementById('months').value || 10;
+            let interest = (+document.getElementById('interest').value || 25) / 100;
+
             if (!name || !phone) return alert('اكتب الاسم ورقم التليفون!');
-            
+
+            // تنظيف الرقم وإضافة +20 تلقائيًا
+            let clean = phone.replace(/[^0-9]/g, '');
+            if (clean.startsWith('0')) clean = '20' + clean.slice(1);
+            else if (clean.startsWith('1') && clean.length === 10) clean = '20' + clean;
+            else if (!clean.startsWith('20')) clean = '20' + clean;
+            phone = '+' + clean;
+
             let today = new Date();
-            let endDate = new Date(today); endDate.setMonth(endDate.getMonth() + 10);
+            let endDate = new Date(today);
+            endDate.setMonth(endDate.getMonth() + months);
 
             clients.push({
-                name, phone, 
-                start: today.toLocaleDateString('ar-EG'), 
+                name, phone,
+                start: today.toLocaleDateString('ar-EG'),
                 end: endDate.toLocaleDateString('ar-EG'),
                 paid: 0,
                 invoice: '',
-                barcode: 'CL' + Date.now()
+                barcode: 'CL' + Date.now(),
+                price, months, interest
             });
+
             localStorage.setItem('clients', JSON.stringify(clients));
             document.getElementById('name').value = document.getElementById('phone').value = '';
+            calcProfits();
             showClients();
             alert('تم الإضافة!');
+        }
+
+        function calcProfits() {
+            let totalProfit = 0;
+            clients.forEach(c => {
+                let totalAmount = c.price * (1 + c.interest);
+                let profit = totalAmount - c.price;
+                totalProfit += profit;
+            });
+
+            document.getElementById('res').innerHTML = `
+                <p>الأرباح الإجمالية: ${totalProfit.toFixed(0)} جنيه</p>
+            `;
         }
 
         function updatePaid(i) {
@@ -217,6 +204,7 @@
             if (paid !== null && !isNaN(paid)) {
                 clients[i].paid = parseFloat(paid);
                 localStorage.setItem('clients', JSON.stringify(clients));
+                calcProfits();
                 showClients();
             }
         }
@@ -225,10 +213,17 @@
             let c = clients[i];
             let name = prompt('الاسم الجديد:', c.name);
             let phone = prompt('التليفون الجديد:', c.phone);
-            if (name && phone) {
+            let price = prompt('سعر السلعة الجديد:', c.price);
+            let months = prompt('عدد الشهور الجديد:', c.months);
+            let interest = prompt('نسبة الفائدة % الجديدة:', c.interest * 100);
+            if (name && phone && !isNaN(price) && !isNaN(months) && !isNaN(interest)) {
                 c.name = name.trim();
                 c.phone = phone.trim();
+                c.price = +price;
+                c.months = +months;
+                c.interest = interest / 100;
                 localStorage.setItem('clients', JSON.stringify(clients));
+                calcProfits();
                 showClients();
             }
         }
@@ -237,15 +232,17 @@
             if (confirm('حذف العميل؟')) {
                 clients.splice(i, 1);
                 localStorage.setItem('clients', JSON.stringify(clients));
+                calcProfits();
                 showClients();
             }
         }
 
         function sendWA(i) {
             let c = clients[i];
-            let rem = totalInstallment - c.paid;
+            let totalAmount = c.price * (1 + c.interest);
+            let rem = totalAmount - c.paid;
             let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = 'مرحبا ' + c.name + '، قسطك متبقي ' + rem + ' جنيه، هينتهي بعد ' + days + ' يوم! ادفع دلوقتي عشان متتأخرش 💰';
+            let msg = 'مرحبا ' + c.name + '، قسطك متبقي ' + rem.toFixed(0) + ' جنيه، هينتهي بعد ' + days + ' يوم! ادفع دلوقتي عشان متتأخرش';
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             if (phoneClean.length >= 10) {
                 window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
@@ -281,14 +278,15 @@
             let t = `<table><tr><th>الاسم</th><th>تليفون</th><th>صورة</th><th>باركود</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
             if (!clients.length) t += `<tr><td colspan="7" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
-                let rem = totalInstallment - c.paid;
-                let pct = (c.paid / totalInstallment) * 100;
+                let totalAmount = c.price * (1 + c.interest);
+                let rem = totalAmount - c.paid;
+                let pct = (c.paid / totalAmount) * 100;
                 let img = c.invoice ? `<img src="${c.invoice}" width="40" style="border-radius:6px">` : '';
                 t += `<tr>
                     <td>${c.name}</td><td>${c.phone}</td>
                     <td>${img} <button class="btn cam" onclick="capturePhoto(${i})">كاميرا</button></td>
                     <td><svg id="bc${i}" style="height:40px"></svg></td>
-                    <td>${c.paid}</td><td>${rem}</td>
+                    <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="updatePaid(${i})">دفع</button>
@@ -308,14 +306,15 @@
             doc.text('عملاء التقسيط', 105, 15, { align: 'center' });
             let y = 25;
             clients.forEach((c, i) => {
-                doc.text(`${i+1}. ${c.name} | ${c.phone} | مدفوع: ${c.paid} | متبقي: ${totalInstallment - c.paid}`, 10, y);
+                let total = c.price * (1 + c.interest);
+                doc.text(`${i+1}. ${c.name} | ${c.phone} | مدفوع: ${c.paid} | متبقي: ${(total - c.paid).toFixed(0)}`, 10, y);
                 y += 8;
             });
             doc.save('عملاء.pdf');
         }
 
         window.onload = () => {
-            calc();
+            calcProfits();
             showClients();
         };
     </script>
