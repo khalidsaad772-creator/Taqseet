@@ -181,7 +181,7 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
-        // تأكد من أن كل العملاء ليهم interest
+        // تظبيط البيانات القديمة
         clients = clients.map(c => ({
             ...c,
             price: parseFloat(c.price) || 0,
@@ -310,12 +310,47 @@
             }
         }
 
+        // دالة حساب تاريخ القسط القادم
+        function getNextDueDate(payments) {
+            if (!payments || payments.length === 0) {
+                // لو مفيش دفعات، القسط الأول بعد شهر من تاريخ الإضافة
+                let start = new Date();
+                start.setMonth(start.getMonth() + 1);
+                return start.toLocaleDateString('ar-EG');
+            }
+
+            // آخر دفعة + شهر
+            let lastPayment = payments[payments.length - 1];
+            let lastDate = new Date(lastPayment.date);
+            let nextDate = new Date(lastDate);
+            nextDate.setMonth(nextDate.getMonth() + 1);
+            return nextDate.toLocaleDateString('ar-EG');
+        }
+
+        // دالة حساب عدد الأقساط المتبقية
+        function getRemainingInstallments(c) {
+            let totalAmount = c.price * (1 + c.interest);
+            let monthly = totalAmount / c.months;
+            let paidInstallments = Math.floor(c.paid / monthly);
+            return Math.max(0, c.months - paidInstallments);
+        }
+
         function sendWA(i) {
             let c = clients[i];
-            let totalAmount = c.price * (1 + (c.interest || 0));
-            let rem = totalAmount - c.paid;
-            let days = Math.ceil((new Date(c.end.split('/').reverse().join('-')) - new Date()) / 86400000);
-            let msg = 'مرحبا ' + c.name + '، قسطك متبقي ' + rem.toFixed(0) + ' جنيه، هينتهي بعد ' + days + ' يوم! ادفع دلوقتي';
+            let totalAmount = c.price * (1 + c.interest);
+            let remainingAmount = totalAmount - c.paid;
+            let remainingInstallments = getRemainingInstallments(c);
+            let nextDueDate = getNextDueDate(c.payments);
+
+            let msg = `مرحبا ${c.name}،
+
+📌 *تفاصيل التقسيط:*
+- المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*
+- باقي لك: *${remainingInstallments} قسط*
+- القسط القادم مستحق في: *${nextDueDate}*
+ادفع دلوقتي 
+!`;
+
             let phoneClean = c.phone.replace(/[^0-9]/g, '');
             window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg), '_blank');
         }
@@ -382,7 +417,6 @@
             doc.save('عملاء.pdf');
         }
 
-        // لا يوجد أي كود يفتح نافذة تلقائيًا
         window.onload = () => {
             calcProfits();
             showClients();
