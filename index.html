@@ -140,7 +140,7 @@
         <input type="number" id="months" value="10" placeholder="عدد الشهور">
         <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
         <button onclick="addClient()">إضافة عميل</button>
-        <button onclick="exportPDF()">تصدير PDF</button>
+        <button onclick="exportPDF()">تصدير تقرير PDF</button>
 
         <h2>الأرباح الإجمالية</h2>
         <div id="res" class="result"></div>
@@ -396,28 +396,86 @@
             document.getElementById('clientsTable').innerHTML = t;
         }
 
-        function exportPDF() {
-            const doc = new jsPDF();
-            doc.setFont('Amiri', 'normal');
-            doc.setFontSize(16);
-            doc.text('تقرير العملاء - محل التقسيط', 105, 15, { align: 'center' });
+        // دالة حساب أرباح الشهر الحالي
+        function getMonthlyProfit() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            let profit = 0;
 
-            let y = 30;
-            clients.forEach((c, i) => {
-                let total = c.price * (1 + (c.interest || 0));
-                let lastPayment = getLastPaymentDate(c.payments);
-                doc.setFontSize(12);
-                doc.text(`${i+1}. ${c.name}`, 185, y, { align: 'right' });
-                doc.text(`تليفون: ${c.phone}`, 185, y + 7, { align: 'right' });
-                doc.text(`مدفوع: ${c.paid} جنيه`, 185, y + 14, { align: 'right' });
-                doc.text(`متبقي: ${(total - c.paid).toFixed(0)} جنيه`, 185, y + 21, { align: 'right' });
-                doc.text(`آخر قسط: ${lastPayment}`, 185, y + 28, { align: 'right' });
-                y += 35;
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
+            clients.forEach(c => {
+                let totalAmount = c.price * (1 + c.interest);
+                let monthlyInstallment = totalAmount / c.months;
+                let paidThisMonth = 0;
+
+                c.payments.forEach(p => {
+                    let payDate = new Date(p.date);
+                    if (payDate.getMonth() === currentMonth && payDate.getFullYear() === currentYear) {
+                        paidThisMonth += p.amount;
+                    }
+                });
+
+                // الأرباح من الدفعات الشهرية = (الفائدة الموزعة على الشهر)
+                let profitThisMonth = paidThisMonth - (monthlyInstallment);
+                if (profitThisMonth > 0) profit += profitThisMonth;
+            });
+
+            return profit.toFixed(0);
+        }
+
+        async function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // تحميل خط عربي
+            const fontUrl = 'https://cdn.jsdelivr.net/gh/googlefonts/noto-sans-arabic@1.0.0/NotoSansArabic-Regular.ttf';
+            const response = await fetch(fontUrl);
+            const fontData = await response.arrayBuffer();
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(fontData)));
+            doc.addFileToVFS('NotoSansArabic.ttf', base64);
+            doc.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
+            doc.setFont('NotoSansArabic');
+
+            // العنوان
+            doc.setFontSize(18);
+            doc.text('تقرير العملاء - شهر ' + new Date().toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' }), 105, 20, { align: 'center' });
+
+            // جدول
+            const headers = [['الاسم', 'تليفون', 'مدفوع', 'متبقي', 'آخر قسط']];
+            const data = clients.map(c => {
+                let total = c.price * (1 + c.interest);
+                return [
+                    c.name,
+                    c.phone,
+                    c.paid + ' جنيه',
+                    (total - c.paid).toFixed(0) + ' جنيه',
+                    getLastPaymentDate(c.payments)
+                ];
+            });
+
+            doc.autoTable({
+                head: headers,
+                body: data,
+                startY: 35,
+                styles: { font: 'NotoSansArabic', fontSize: 12, cellPadding: 5 },
+                headStyles: { fillColor: [40, 167, 69], textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [240, 248, 255] },
+                columnStyles: {
+                    0: { cellWidth: 40 },
+                    1: { cellWidth: 45 },
+                    2: { cellWidth: 30 },
+                    3: { cellWidth: 30 },
+                    4: { cellWidth: 35 }
                 }
             });
+
+            // أرباح الشهر
+            const monthlyProfit = getMonthlyProfit();
+            const finalY = doc.lastAutoTable.finalY + 15;
+            doc.setFontSize(14);
+            doc.setTextColor(0, 100, 0);
+            doc.text(`إجمالي الأرباح هذا الشهر: ${monthlyProfit} جنيه`, 105, finalY, { align: 'center' });
+
             doc.save('تقرير_العملاء.pdf');
         }
 
