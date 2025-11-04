@@ -2,16 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=500"> <!-- ثابتة على 500px -->
     <title>محل التقسيط</title>
 
-    <!-- PWA Settings (بدون manifest مكسور) -->
+    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#28a745">
 
-    <!-- Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Libraries (بدون Chart.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
@@ -23,10 +22,9 @@
             padding: 10px;
             font-size: 16px;
             line-height: 1.6;
-            min-height: 100vh;
         }
         .container {
-            max-width: 500px;
+            width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -107,7 +105,7 @@
             width: 0%;
             transition: width 0.5s;
         }
-        canvas, video, img, svg {
+        video, img, svg {
             max-width: 100%;
             margin: 10px auto;
             display: block;
@@ -134,7 +132,6 @@
         <button onclick="calc()">احسب الأرباح</button>
         <div id="res" class="result"></div>
         <div id="tab"></div>
-        <canvas id="ch" style="height:200px;"></canvas>
 
         <!-- إدارة العملاء -->
         <h2>إضافة عميل</h2>
@@ -152,7 +149,7 @@
 
     <script>
         const { jsPDF } = window.jspdf;
-        let ch, stream;
+        let stream;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         const totalInstallment = 12500;
 
@@ -166,7 +163,7 @@
             let totPhone = pri * (1 + rat);
             let pay = totPhone / mon;
 
-            let act = ini, cas = 0, coll = 0, his = [], casHis = [cap], phHis = [ini];
+            let act = ini, cas = 0, coll = 0, his = [];
 
             for (let m = 1; m <= mon; m++) {
                 let inc = act * pay;
@@ -174,8 +171,6 @@
                 let nw = Math.floor(cas / pri);
                 cas -= nw * pri;
                 his.push({ m, act, inc, nw, aft: cas });
-                casHis.push(cas + act * pri);
-                phHis.push(act);
                 if (m < mon) act += nw;
             }
 
@@ -193,19 +188,6 @@
             his.forEach(r => t += `<tr><td>${r.m}</td><td>${r.act}</td><td>${r.inc.toFixed(0)}</td><td>${r.nw}</td><td>${r.aft.toFixed(0)}</td></tr>`);
             t += `</table>`;
             document.getElementById('tab').innerHTML = t;
-
-            if (ch) ch.destroy();
-            ch = new Chart(document.getElementById('ch'), {
-                type: 'line',
-                data: { 
-                    labels: ['بداية', ...Array(mon).fill().map((_, i) => `شهر ${i + 1}`)], 
-                    datasets: [
-                        { label: 'النقد', data: casHis, borderColor: 'green', tension: 0.3 },
-                        { label: 'التليفونات', data: phHis, borderColor: 'blue', tension: 0.3 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
         }
 
         function addClient() {
