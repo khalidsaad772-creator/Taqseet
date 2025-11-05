@@ -19,9 +19,10 @@
         button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
         .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
         .pay { background: #007bff; } .wa { background: #25D366; } .edit { background: #ffc107; color: black; } .del { background: #dc3545; }
+        .cam { background: #6f42c1; color: white; } .barcode-btn { background: #9c27b0; color: white; }
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
-        th { background: #28a745; color: white; padding: 10px; }
+        th { background: #28a745; color: white; padding: 10px; font-size: 13px; }
         td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
         .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
@@ -30,6 +31,7 @@
         .small-modal { max-width: 300px; }
         .hidden { display: none !important; }
         .barcode-img { width: 100%; margin: 10px 0; }
+        .photo-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -43,7 +45,7 @@
         <button onclick="addClient()">إضافة عميل</button>
         <button onclick="exportPDF()">تصدير تقرير PDF</button>
 
-        <h2>الأرباح الإجمالية</h2>
+        <h2>الأربح الإجمالية</h2>
         <div id="res" class="result"></div>
 
         <h2>العملاء</h2>
@@ -75,6 +77,17 @@
         </div>
     </div>
 
+    <!-- نافذة الكاميرا -->
+    <div id="cameraModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>التقط صورة الفاتورة</h2>
+            <video id="video" autoplay playsinline style="width:100%; border-radius:12px;"></video>
+            <canvas id="canvas" class="hidden"></canvas>
+            <button onclick="capturePhoto()">التقاط</button>
+            <button onclick="closeCameraModal()">إغلاق</button>
+        </div>
+    </div>
+
     <!-- نافذة الباركود -->
     <div id="barcodeModal" class="modal hidden">
         <div class="modal-content">
@@ -84,25 +97,27 @@
         </div>
     </div>
 
+    <!-- نافذة الصورة -->
+    <div id="photoModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>صورة الفاتورة</h2>
+            <img id="photoImg" style="width:100%; border-radius:12px;">
+            <button onclick="closePhotoModal()">إغلاق</button>
+        </div>
+    </div>
+
     <script>
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
+        let stream = null;
 
-        // تهيئة البيانات + تحويل التواريخ
+        // تهيئة البيانات
         clients = clients.map(c => {
             const startISO = c.startISO || new Date().toISOString().split('T')[0];
             const barcode = c.barcode || 'CL' + Date.now();
-            return { 
-                ...c, 
-                price: +c.price || 0, 
-                months: +c.months || 0, 
-                interest: +c.interest || 0, 
-                paid: +c.paid || 0, 
-                payments: c.payments || [],
-                startISO: startISO,
-                barcode: barcode
-            };
+            const photo = c.photo || '';
+            return { ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [], startISO, barcode, photo };
         });
 
         function addClient() {
@@ -122,15 +137,7 @@
             const barcode = 'CL' + Date.now();
 
             clients.push({
-                name, 
-                phone: formattedPhone, 
-                startISO: startISO,
-                price, 
-                months, 
-                interest: interest / 100, 
-                paid: 0, 
-                payments: [],
-                barcode: barcode
+                name, phone: formattedPhone, startISO, price, months, interest: interest / 100, paid: 0, payments: [], barcode, photo: ''
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -144,22 +151,30 @@
         }
 
         function showClients() {
-            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
-            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
+            let html = `<table>
+                <tr>
+                    <th>الاسم</th><th>تليفون</th>
+                    <th>مدفوع</th><th>متبقي</th><th>الإجمالي</th>
+                    <th>إجراء</th>
+                </tr>`;
+            if (!clients.length) html += `<tr><td colspan="6" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
                 const rem = total - c.paid;
                 const pct = total ? (c.paid / total) * 100 : 0;
+                const photoPreview = c.photo ? `<img src="${c.photo}" class="photo-preview" onclick="showPhoto(${i})">` : '—';
                 html += `<tr>
                     <td>${c.name}</td><td>${c.phone}</td>
-                    <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
+                    <td>${c.paid}</td><td>${rem.toFixed(0)}</td><td>${total.toFixed(0)}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                         <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتس</button>
-                        <button class="btn" style="background:#9c27b0;color:white" onclick="showBarcode(${i})">باركود</button>
+                        <button class="btn cam" onclick="openCamera(${i})">كاميرا</button>
+                        <button class="btn barcode-btn" onclick="showBarcode(${i})">باركود</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
+                        ${photoPreview}
                     </td>
                 </tr>`;
             });
@@ -167,10 +182,54 @@
             document.getElementById('clientsTable').innerHTML = html;
         }
 
+        // === الكاميرا ===
+        function openCamera(i) {
+            currentClientIndex = i;
+            if (!navigator.mediaDevices?.getUserMedia) return alert('الكاميرا غير مدعومة');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(s => {
+                    stream = s;
+                    const video = document.getElementById('video');
+                    video.classList.remove('hidden');
+                    video.srcObject = stream;
+                    document.getElementById('cameraModal').classList.remove('hidden');
+                }).catch(() => alert('فشل فتح الكاميرا'));
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const photo = canvas.toDataURL('image/jpeg', 0.8);
+            clients[currentClientIndex].photo = photo;
+            localStorage.setItem('clients', JSON.stringify(clients));
+            stream.getTracks().forEach(t => t.stop());
+            closeCameraModal();
+            showClients();
+            alert('تم حفظ الصورة!');
+        }
+
+        function closeCameraModal() {
+            document.getElementById('cameraModal').classList.add('hidden');
+            document.getElementById('video').classList.add('hidden');
+            if (stream) stream.getTracks().forEach(t => t.stop());
+        }
+
+        function showPhoto(i) {
+            document.getElementById('photoImg').src = clients[i].photo;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        // === الباركود ===
         function showBarcode(i) {
             currentClientIndex = i;
-            const c = clients[i];
-            JsBarcode("#barcode", c.barcode, { format: "CODE128", displayValue: true, fontSize: 16 });
+            JsBarcode("#barcode", clients[i].barcode, { format: "CODE128", displayValue: true, fontSize: 16 });
             document.getElementById('barcodeModal').classList.remove('hidden');
         }
 
@@ -178,6 +237,7 @@
             document.getElementById('barcodeModal').classList.add('hidden');
         }
 
+        // === باقي الوظائف ===
         function deleteClient(i) { if (confirm('حذف العميل؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
         function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
         function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); alert('تم الحفظ!'); }
@@ -186,7 +246,7 @@
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس (مثالك بالضبط + ديناميكية) ===
+        // === رسالة واتس ===
         function sendWA(i) {
             const c = clients[i];
             const totalPrice = c.price * (1 + c.interest);
@@ -214,28 +274,31 @@
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // === PDF إنجليزي فوري ===
+        // === PDF مع الباركود ===
         function exportPDF() {
             const doc = new jsPDF();
             doc.setFontSize(18);
             doc.text('Clients Report - ' + new Date().toLocaleDateString(), 105, 20, { align: 'center' });
 
-            doc.autoTable({
-                head: [['Name', 'Phone', 'Paid', 'Remaining', 'Last Payment']],
-                body: clients.map(c => {
-                    const total = c.price * (1 + c.interest);
-                    return [c.name, c.phone, c.paid + ' EGP', (total - c.paid).toFixed(0) + ' EGP', getLastPayment(c.payments)];
-                }),
-                startY: 35,
-                styles: { fontSize: 12, cellPadding: 5 },
-                headStyles: { fillColor: [40, 167, 69], textColor: 255 },
-                alternateRowStyles: { fillColor: [240, 248, 255] }
+            let y = 35;
+            clients.forEach(c => {
+                const total = c.price * (1 + c.interest);
+                doc.setFontSize(12);
+                doc.text(`${c.name} | ${c.phone} | Paid: ${c.paid} | Remaining: ${(total - c.paid).toFixed(0)} | Total: ${total.toFixed(0)}`, 10, y);
+                y += 8;
+
+                // إضافة الباركود
+                const barcodeCanvas = document.createElement('canvas');
+                JsBarcode(barcodeCanvas, c.barcode, { format: "CODE128", height: 40, displayValue: false });
+                const barcodeData = barcodeCanvas.toDataURL('image/png');
+                doc.addImage(barcodeData, 'PNG', 10, y, 80, 20);
+                y += 25;
             });
 
             const profit = getMonthlyProfit();
             doc.setFontSize(14);
             doc.setTextColor(0, 100, 0);
-            doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
+            doc.text(`This Month Profit: ${profit} EGP`, 105, y + 10, { align: 'center' });
 
             doc.save('تقرير_العملاء.pdf');
         }
