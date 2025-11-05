@@ -129,12 +129,7 @@
         }
 
         function showClients() {
-            let html = `<table>
-                <tr>
-                    <th>الاسم</th><th>تليفون</th>
-                    <th>مدفوع</th><th>متبقي</th><th>الإجمالي</th>
-                    <th>إجراء</th>
-                </tr>`;
+            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>الإجمالي</th><th>إجراء</th></tr>`;
             if (!clients.length) html += `<tr><td colspan="6" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
@@ -156,76 +151,32 @@
             document.getElementById('clientsTable').innerHTML = html;
         }
 
-        function deleteClient(i) { 
-            if (confirm('حذف العميل؟')) { 
-                clients.splice(i,1); 
-                localStorage.setItem('clients', JSON.stringify(clients)); 
-                calcProfits(); 
-                showClients(); 
-            } 
-        }
-
-        function editClient(i) { 
-            currentClientIndex = i; 
-            const c = clients[i]; 
-            document.getElementById('editName').value = c.name; 
-            document.getElementById('editPhone').value = c.phone.replace('+', ''); 
-            document.getElementById('editPrice').value = c.price; 
-            document.getElementById('editMonths').value = c.months; 
-            document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); 
-            document.getElementById('editModal').classList.remove('hidden'); 
-        }
-
-        function saveClient() { 
-            const c = clients[currentClientIndex]; 
-            c.name = document.getElementById('editName').value.trim(); 
-            c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); 
-            c.price = +document.getElementById('editPrice').value; 
-            c.months = +document.getElementById('editMonths').value; 
-            c.interest = (+document.getElementById('editInterest').value) / 100; 
-            localStorage.setItem('clients', JSON.stringify(clients)); 
-            closeEditModal(); 
-            calcProfits(); 
-            showClients(); 
-            alert('تم الحفظ!'); 
-        }
-
-        function openPaymentModal(i) { 
-            currentClientIndex = i; 
-            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; 
-            document.getElementById('paymentModal').classList.remove('hidden'); 
-        }
-
-        function addPayment() { 
-            const amount = +document.getElementById('paymentAmount').value; 
-            const date = document.getElementById('paymentDate').value; 
-            if (!amount || !date) return alert('املأ الحقول!'); 
-            clients[currentClientIndex].payments.push({amount, date}); 
-            clients[currentClientIndex].paid += amount; 
-            localStorage.setItem('clients', JSON.stringify(clients)); 
-            closePaymentModal(); 
-            calcProfits(); 
-            showClients(); 
-            alert('تم الإضافة!'); 
-        }
-
+        function deleteClient(i) { if (confirm('حذف العميل؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
+        function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
+        function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); alert('تم الحفظ!'); }
+        function openPaymentModal(i) { currentClientIndex = i; document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; document.getElementById('paymentModal').classList.remove('hidden'); }
+        function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return alert('املأ الحقول!'); clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); alert('تم الإضافة!'); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس: تاريخ القسط التالي من آخر دفع ===
+        // === رسالة واتس (تاريخ القسط التالي بناءً على آخر دفع) ===
         function sendWA(i) {
             const c = clients[i];
             const totalPrice = c.price * (1 + c.interest);
             const remainingAmount = totalPrice - c.paid;
             const installmentValue = totalPrice / c.months;
 
+            // آخر قسط مدفوع
+            const lastPayment = c.payments.length > 0 ? c.payments[c.payments.length - 1] : null;
             let nextDueStr = 'غير محدد';
-            if (c.payments.length > 0) {
-                const lastDate = new Date(c.payments[c.payments.length - 1].date);
+
+            if (lastPayment) {
+                const lastDate = new Date(lastPayment.date);
                 const nextDue = new Date(lastDate);
                 nextDue.setMonth(lastDate.getMonth() + 1);
                 nextDueStr = nextDue.toLocaleDateString('ar-EG');
             } else {
+                // لو مفيش دفعات → القسط الأول بعد شهر من بداية العقد
                 const startDate = new Date(c.startISO);
                 const firstDue = new Date(startDate);
                 firstDue.setMonth(startDate.getMonth() + 1);
@@ -274,7 +225,7 @@
             return totalProfit.toFixed(0);
         }
 
-        // === تقرير PDF بالإنجليزي + الأرباح صحيحة ===
+        // === تقرير PDF بالإنجليزي + الأرباح من الفائدة فقط ===
         function exportPDF() {
             const doc = new jsPDF();
             const today = new Date().toLocaleDateString('en-GB');
