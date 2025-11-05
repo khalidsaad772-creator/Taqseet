@@ -34,7 +34,8 @@
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
         .hidden { display: none !important; }
-        .client-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #28a745; }
+        .client-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #28a745; cursor: pointer; }
+        .full-image { max-width: 100%; max-height: 80vh; border-radius: 12px; }
         #capturedImage { max-width: 100%; margin-top: 10px; border-radius: 8px; }
     </style>
 </head>
@@ -97,6 +98,14 @@
         </div>
     </div>
 
+    <!-- نافذة عرض الصورة كاملة -->
+    <div id="imageModal" class="modal hidden">
+        <div class="modal-content">
+            <img id="fullImage" class="full-image">
+            <button onclick="closeImageModal()" style="margin-top:10px;">إغلاق</button>
+        </div>
+    </div>
+
     <script>
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
@@ -151,7 +160,7 @@
                 const rem = total - c.paid;
                 const pct = total ? (c.paid / total) * 100 : 0;
 
-                const thumb = c.photo ? `<img src="${c.photo}" class="client-thumb">` : '';
+                const thumb = c.photo ? `<img src="${c.photo}" class="client-thumb" onclick="openImageModal('${c.photo}')">` : '';
 
                 html += `
                 <tr class="client-row">
@@ -163,12 +172,12 @@
                 <tr class="action-row">
                     <td colspan="4">
                         <div class="action-content">
-                            ${thumb}
                             <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                             <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                             <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                             <button class="btn wa" onclick="sendWA(${i})">واتس</button>
                             <button class="btn cam" onclick="openCameraModal(${i})">كاميرا</button>
+                            ${thumb}
                             <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                         </div>
                     </td>
@@ -206,7 +215,7 @@
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // === كاميرا: التقاط + حفظ + عرض مصغر ===
+        // === كاميرا: التقاط + حفظ ===
         function openCameraModal(i) {
             currentClientIndex = i;
             capturedDataUrl = null;
@@ -249,7 +258,17 @@
             document.getElementById('video').srcObject = null;
         }
 
-        // === الأرباح الشهرية = القسط المدفوع − أصل القسط ===
+        // === فتح الصورة كاملة ===
+        function openImageModal(src) {
+            document.getElementById('fullImage').src = src;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+
+        // === الأرباح الشهرية ===
         function getMonthlyProfit() {
             const now = new Date();
             const currentMonth = now.getMonth();
