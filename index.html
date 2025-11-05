@@ -289,29 +289,8 @@
               const fullInstallment = (client.price * (1 + client.interest)) / client.months;
                const installmentsPaid = paidThisMonth / fullInstallment;
                const profitThisMonth = paidThisMonth - (installmentsPaid * originalInstallment);
-               //totalProfit += Math.max(0, profitThisMonth);
-                // 1. حساب قيمة القسط الأصلي (رأس المال فقط)
-const principalInstallment = client.price / client.months;
-
-// 2. حساب قيمة الأرباح (الفائدة) الثابتة في كل قسط
-// بافتراض أن client.interest هي نسبة الفائدة الإجمالية الموزعة بالتساوي
-const monthlyProfit = (client.price * client.interest) / client.months;
-
-// 3. القسط الكامل (رأس المال + الفائدة) للمقارنة
-const fullInstallment = principalInstallment + monthlyProfit;
-
-// 4. حساب عدد الوحدات المدفوعة (كل وحدة هي قسط كامل)
-const unitsPaid = paidThisMonth / fullInstallment; 
-
-// 5. الأرباح المحصلة هذا الشهر
-// الأرباح = عدد الوحدات المدفوعة * حصة الأرباح من كل وحدة
-const profitThisMonth = unitsPaid * monthlyProfit; 
-
-// ضمان عدم احتساب قيمة سالبة إذا كانت الحسابات فيها مشكلة (للاحتياط)
-totalProfit += Math.max(0, profitThisMonth);
-
-// ملاحظة: يُفضل استخدام طرق حساب القسط المتناقص إذا كانت الفائدة تُحتسب على الرصيد المتبقي
-
+               totalProfit += Math.max(0, profitThisMonth);
+                 
             });
 
             return totalProfit.toFixed(0);
