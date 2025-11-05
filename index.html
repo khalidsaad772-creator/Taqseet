@@ -8,6 +8,8 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -17,7 +19,12 @@
         input, button { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #28a745; border-radius: 12px; font-size: 16px; }
         button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
         .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
-        .pay { background: #007bff; } .wa { background: #25D366; } .edit { background: #ffc107; color: black; } .del { background: #dc3545; }
+        .pay { background: #007bff; } 
+        .wa { background: #25D366; } 
+        .cam { background: #6f42c1; color: white; } 
+        .edit { background: #ffc107; color: black; } 
+        .del { background: #dc3545; } 
+        .barcode-btn { background: #9c27b0; color: white; }
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         th { background: #28a745; color: white; padding: 10px; font-size: 13px; }
@@ -25,9 +32,11 @@
         .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; }
+        .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
         .small-modal { max-width: 300px; }
         .hidden { display: none !important; }
+        #reader { width: 100%; max-width: 300px; margin: 10px auto; }
+        #barcodeCanvas { margin: 20px auto; }
     </style>
 </head>
 <body>
@@ -73,24 +82,39 @@
         </div>
     </div>
 
+    <!-- نافذة الكاميرا -->
+    <div id="cameraModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>مسح الباركود</h2>
+            <div id="reader"></div>
+            <button onclick="closeCameraModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة الباركود -->
+    <div id="barcodeModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>باركود العميل</h2>
+            <canvas id="barcodeCanvas"></canvas>
+            <button onclick="closeBarcodeModal()">إغلاق</button>
+        </div>
+    </div>
+
     <script>
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
         // تهيئة البيانات
-        clients = clients.map(c => {
-            const startISO = c.startISO || new Date().toISOString().split('T')[0];
-            return { 
-                ...c, 
-                price: +c.price || 0, 
-                months: +c.months || 0, 
-                interest: +c.interest || 0, 
-                paid: +c.paid || 0, 
-                payments: c.payments || [],
-                startISO: startISO
-            };
-        });
+        clients = clients.map(c => ({ 
+            ...c, 
+            price: +c.price || 0, 
+            months: +c.months || 0, 
+            interest: +c.interest || 0, 
+            paid: +c.paid || 0, 
+            payments: c.payments || [],
+            id: c.id || Date.now().toString() // معرف فريد للباركود
+        }));
 
         function addClient() {
             const name = document.getElementById('name').value.trim();
@@ -103,19 +127,16 @@
             const clean = phone.replace(/[^0-9]/g, '');
             const full = clean.startsWith('20') ? clean : '20' + clean.replace(/^0/, '');
             const formattedPhone = '+' + full;
+            const id = Date.now().toString();
 
             const today = new Date();
-            const startISO = today.toISOString().split('T')[0];
+            const endDate = new Date(today);
+            endDate.setMonth(endDate.getMonth() + months);
 
             clients.push({
-                name, 
-                phone: formattedPhone, 
-                startISO: startISO,
-                price, 
-                months, 
-                interest: interest / 100, 
-                paid: 0, 
-                payments: []
+                name, phone: formattedPhone, id,
+                start: today.toLocaleDateString('ar-EG'), end: endDate.toLocaleDateString('ar-EG'),
+                price, months, interest: interest / 100, paid: 0, payments: []
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -129,20 +150,22 @@
         }
 
         function showClients() {
-            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>الإجمالي</th><th>إجراء</th></tr>`;
-            if (!clients.length) html += `<tr><td colspan="6" style="color:#999">لا يوجد عملاء</td></tr>`;
+            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
+            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
                 const rem = total - c.paid;
                 const pct = total ? (c.paid / total) * 100 : 0;
                 html += `<tr>
                     <td>${c.name}</td><td>${c.phone}</td>
-                    <td>${c.paid}</td><td>${rem.toFixed(0)}</td><td>${total.toFixed(0)}</td>
+                    <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
                     <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                         <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتس</button>
+                        <button class="btn cam" onclick="openCameraModal(${i})">كاميرا</button>
+                        <button class="btn barcode-btn" onclick="showBarcode(${i})">باركود</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                     </td>
                 </tr>`;
@@ -159,31 +182,19 @@
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس (تاريخ القسط التالي بناءً على آخر دفع) ===
+        // === رسالة واتس ===
         function sendWA(i) {
             const c = clients[i];
             const totalPrice = c.price * (1 + c.interest);
             const remainingAmount = totalPrice - c.paid;
             const installmentValue = totalPrice / c.months;
+            const paidInstallments = Math.floor(c.paid / installmentValue);
+            const remainingInstallments = c.months - paidInstallments;
 
-            // آخر قسط مدفوع
-            const lastPayment = c.payments.length > 0 ? c.payments[c.payments.length - 1] : null;
-            let nextDueStr = 'غير محدد';
-
-            if (lastPayment) {
-                const lastDate = new Date(lastPayment.date);
-                const nextDue = new Date(lastDate);
-                nextDue.setMonth(lastDate.getMonth() + 1);
-                nextDueStr = nextDue.toLocaleDateString('ar-EG');
-            } else {
-                // لو مفيش دفعات → القسط الأول بعد شهر من بداية العقد
-                const startDate = new Date(c.startISO);
-                const firstDue = new Date(startDate);
-                firstDue.setMonth(startDate.getMonth() + 1);
-                nextDueStr = firstDue.toLocaleDateString('ar-EG');
-            }
-
-            const remainingInstallments = Math.max(0, c.months - Math.ceil(c.paid / installmentValue));
+            const startDate = new Date(c.start);
+            const nextDue = new Date(startDate);
+            nextDue.setMonth(startDate.getMonth() + paidInstallments + 1);
+            const nextDueStr = nextDue.toLocaleDateString('ar-EG');
 
             const msg = `مرحبا ${c.name}،
 
@@ -198,80 +209,82 @@
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // === حساب الأرباح في الشهر من الفائدة المدفوعة فقط ===
-        function getMonthlyProfit() {
-            const now = new Date();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-            let totalProfit = 0;
-
-            clients.forEach(client => {
-                const totalPrice = client.price * (1 + client.interest);
-                const installmentValue = totalPrice / client.months;
-                const profitPerInstallment = (client.price * client.interest) / client.months;
-
-                let paidThisMonth = 0;
-                client.payments.forEach(pay => {
-                    const payDate = new Date(pay.date);
-                    if (payDate.getMonth() === currentMonth && payDate.getFullYear() === currentYear) {
-                        paidThisMonth += pay.amount;
+        // === فتح الكاميرا لمسح الباركود ===
+        function openCameraModal(i) {
+            currentClientIndex = i;
+            document.getElementById('cameraModal').classList.remove('hidden');
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+                    if (decodedText === clients[i].id) {
+                        alert('تم التعرف على العميل: ' + clients[i].name);
+                        html5QrCode.stop();
+                        closeCameraModal();
                     }
-                });
-
-                const installmentsPaidThisMonth = paidThisMonth / installmentValue;
-                totalProfit += installmentsPaidThisMonth * profitPerInstallment;
-            });
-
-            return totalProfit.toFixed(0);
+                },
+                () => {}
+            ).catch(err => console.error(err));
         }
 
-        // === تقرير PDF بالإنجليزي + الأرباح من الفائدة فقط ===
+        function closeCameraModal() {
+            document.getElementById('cameraModal').classList.add('hidden');
+            Html5Qrcode.getRunningScanner()?.stop();
+        }
+
+        // === عرض الباركود ===
+        function showBarcode(i) {
+            currentClientIndex = i;
+            const canvas = document.getElementById('barcodeCanvas');
+            JsBarcode(canvas, clients[i].id, { format: "CODE128", displayValue: true });
+            document.getElementById('barcodeModal').classList.remove('hidden');
+        }
+
+        function closeBarcodeModal() {
+            document.getElementById('barcodeModal').classList.add('hidden');
+        }
+
+        // === PDF بدون باركود ===
         function exportPDF() {
             const doc = new jsPDF();
-            const today = new Date().toLocaleDateString('en-GB');
-            
-            doc.setFontSize(20);
-            doc.setTextColor(40, 167, 69);
-            doc.text('Clients Payment Report', 105, 20, { align: 'center' });
-
-            doc.setFontSize(12);
-            doc.setTextColor(100);
-            doc.text(`Generated on: ${today}`, 105, 28, { align: 'center' });
+            doc.setFontSize(18);
+            doc.text('Clients Report - ' + new Date().toLocaleDateString(), 105, 20, { align: 'center' });
 
             doc.autoTable({
-                head: [['Name', 'Phone', 'Paid (EGP)', 'Remaining (EGP)', 'Total (EGP)', 'Last Payment']],
+                head: [['Name', 'Phone', 'Paid', 'Remaining', 'Last Payment']],
                 body: clients.map(c => {
                     const total = c.price * (1 + c.interest);
-                    const lastPay = c.payments.length > 0 ? c.payments[c.payments.length - 1].date : 'None';
-                    return [
-                        c.name,
-                        c.phone,
-                        c.paid.toFixed(0),
-                        (total - c.paid).toFixed(0),
-                        total.toFixed(0),
-                        lastPay
-                    ];
+                    return [c.name, c.phone, c.paid + ' EGP', (total - c.paid).toFixed(0) + ' EGP', getLastPayment(c.payments)];
                 }),
-                startY: 40,
-                styles: { fontSize: 11, cellPadding: 6 },
-                headStyles: { fillColor: [40, 167, 69], textColor: 255, fontStyle: 'bold' },
-                alternateRowStyles: { fillColor: [245, 250, 255] },
-                columnStyles: {
-                    0: { cellWidth: 35 },
-                    1: { cellWidth: 40 },
-                    2: { halign: 'center' },
-                    3: { halign: 'center' },
-                    4: { halign: 'center' },
-                    5: { cellWidth: 30, halign: 'center' }
-                }
+                startY: 35,
+                styles: { fontSize: 12, cellPadding: 5 },
+                headStyles: { fillColor: [40, 167, 69], textColor: 255 },
+                alternateRowStyles: { fillColor: [240, 248, 255] }
             });
 
             const profit = getMonthlyProfit();
-            doc.setFontSize(16);
-            doc.setTextColor(0, 120, 0);
-            doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 20, { align: 'center' });
+            doc.setFontSize(14);
+            doc.setTextColor(0, 100, 0);
+            doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
 
-            doc.save('Clients_Report.pdf');
+            doc.save('تقرير_العملاء.pdf');
+        }
+
+        function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'لا يوجد'; }
+
+        function getMonthlyProfit() {
+            const now = new Date();
+            const month = now.getMonth(), year = now.getFullYear();
+            return clients.reduce((p, c) => {
+                const total = c.price * (1 + c.interest);
+                const installment = total / c.months;
+                const paid = c.payments.reduce((s, pay) => {
+                    const d = new Date(pay.date);
+                    return d.getMonth() === month && d.getFullYear() === year ? s + pay.amount : s;
+                }, 0);
+                return p + Math.max(0, paid - installment);
+            }, 0).toFixed(0);
         }
 
         window.onload = () => { calcProfits(); showClients(); };
