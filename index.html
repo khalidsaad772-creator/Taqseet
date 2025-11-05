@@ -27,12 +27,13 @@
         th { background: #28a745; color: white; padding: 10px; font-size: 13px; }
         td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
         .client-row { background: #f9f9f9; }
-        .action-row { background: #e9ecef; padding: 8px 0; text-align: center; }
-        .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
+        .action-row { background: #e9ecef; padding: 8px 0; text-align: center; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; }
+        .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; width: 100%; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
         .hidden { display: none !important; }
+        .client-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 2px solid #28a745; }
         #capturedImage { max-width: 100%; margin-top: 10px; border-radius: 8px; }
     </style>
 </head>
@@ -79,16 +80,17 @@
         </div>
     </div>
 
-    <!-- نافذة الكاميرا (صورة عادية) -->
+    <!-- نافذة الكاميرا -->
     <div id="cameraModal" class="modal hidden">
         <div class="modal-content">
             <h2>التقاط صورة</h2>
             <video id="video" width="300" height="300" autoplay></video>
             <canvas id="canvas" width="300" height="300" class="hidden"></canvas>
             <img id="capturedImage" class="hidden">
-            <div>
+            <div style="margin-top:10px;">
                 <button onclick="startCamera()">ابدأ الكاميرا</button>
                 <button onclick="takePhoto()">التقط</button>
+                <button onclick="savePhoto()">حفظ</button>
                 <button onclick="closeCameraModal()">إغلاق</button>
             </div>
         </div>
@@ -99,6 +101,7 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
         let stream = null;
+               let capturedDataUrl = null;
 
         // تهيئة البيانات
         clients = clients.map(c => ({ 
@@ -107,7 +110,8 @@
             months: +c.months || 0, 
             interest: +c.interest || 0, 
             paid: +c.paid || 0, 
-            payments: c.payments || []
+            payments: c.payments || [],
+            photo: c.photo || null // صورة العميل
         }));
 
         function addClient() {
@@ -124,7 +128,7 @@
 
             clients.push({
                 name, phone: formattedPhone,
-                price, months, interest: interest / 100, paid: 0, payments: []
+                price, months, interest: interest / 100, paid: 0, payments: [], photo: null
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -146,6 +150,8 @@
                 const rem = total - c.paid;
                 const pct = total ? (c.paid / total) * 100 : 0;
 
+                const thumb = c.photo ? `<img src="${c.photo}" class="client-thumb">` : '';
+
                 html += `
                 <tr class="client-row">
                     <td>${c.name}</td>
@@ -155,6 +161,7 @@
                 </tr>
                 <tr class="action-row">
                     <td colspan="4">
+                        ${thumb}
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                         <button class="btn edit" onclick="editClient(${i})">تعديل</button>
@@ -186,7 +193,7 @@
             const remainingInstallments = c.months - paidInstallments;
 
             const nextDue = new Date();
-            nextDue.setMonth(nextDue.getMonth() + (paidInstallments % 12) + 1);
+            nextDue.setMonth(nextDue.getMonth() + 1);
             const nextDueStr = nextDue.toLocaleDateString('ar-EG');
 
             const msg = `مرحبا ${c.name}،\n\nتفاصيل التقسيط:\n- المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*\n- باقي لك: *${remainingInstallments} قسط*\n- القسط القادم مستحق في: *${nextDueStr}*\nادفع دلوقتي!`;
@@ -196,9 +203,10 @@
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // === كاميرا: التقاط صورة عادية ===
+        // === كاميرا: التقاط + حفظ + عرض مصغر ===
         function openCameraModal(i) {
             currentClientIndex = i;
+            capturedDataUrl = null;
             document.getElementById('cameraModal').classList.remove('hidden');
             startCamera();
         }
@@ -215,11 +223,20 @@
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, 300, 300);
-            const dataUrl = canvas.toDataURL('image/png');
-            document.getElementById('capturedImage').src = dataUrl;
-            document.getElementById('capturedImage').classList.remove('hidden');
+            capturedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            const img = document.getElementById('capturedImage');
+            img.src = capturedDataUrl;
+            img.classList.remove('hidden');
             document.getElementById('canvas').classList.add('hidden');
-            if (stream) stream.getTracks().forEach(t => t.stop());
+        }
+
+        function savePhoto() {
+            if (!capturedDataUrl) return alert("التقط صورة أولاً!");
+            clients[currentClientIndex].photo = capturedDataUrl;
+            localStorage.setItem('clients', JSON.stringify(clients));
+            closeCameraModal();
+            showClients();
+            alert("تم حفظ الصورة!");
         }
 
         function closeCameraModal() {
@@ -229,7 +246,7 @@
             document.getElementById('video').srcObject = null;
         }
 
-        // === الأرباح الشهرية = (القسط المدفوع) − (أصل القسط) ===
+        // === الأرباح الشهرية = القسط المدفوع − أصل القسط ===
         function getMonthlyProfit() {
             const now = new Date();
             const currentMonth = now.getMonth();
@@ -237,7 +254,7 @@
             let totalProfit = 0;
 
             clients.forEach(client => {
-                const originalInstallment = client.price / client.months; // أصل القسط
+                const originalInstallment = client.price / client.months;
                 let paidThisMonth = 0;
 
                 client.payments.forEach(pay => {
