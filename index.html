@@ -8,8 +8,6 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,20 +21,19 @@
         .wa { background: #25D366; } 
         .cam { background: #6f42c1; color: white; } 
         .edit { background: #ffc107; color: black; } 
-        .del { background: #dc3545; } 
-        .barcode-btn { background: #9c27b0; color: white; }
+        .del { background: #dc3545; }
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         th { background: #28a745; color: white; padding: 10px; font-size: 13px; }
         td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
+        .client-row { background: #f9f9f9; }
+        .action-row { background: #e9ecef; padding: 8px 0; text-align: center; }
         .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
-        .small-modal { max-width: 300px; }
         .hidden { display: none !important; }
-        #reader { width: 100%; max-width: 300px; margin: 10px auto; }
-        #barcodeCanvas { margin: 20px auto; }
+        #capturedImage { max-width: 100%; margin-top: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -73,7 +70,7 @@
 
     <!-- نافذة الدفع -->
     <div id="paymentModal" class="modal hidden">
-        <div class="modal-content small-modal">
+        <div class="modal-content">
             <h2>إضافة قسط</h2>
             <input type="number" id="paymentAmount" placeholder="قيمة القسط">
             <input type="date" id="paymentDate">
@@ -82,21 +79,18 @@
         </div>
     </div>
 
-    <!-- نافذة الكاميرا -->
+    <!-- نافذة الكاميرا (صورة عادية) -->
     <div id="cameraModal" class="modal hidden">
         <div class="modal-content">
-            <h2>مسح الباركود</h2>
-            <div id="reader"></div>
-            <button onclick="closeCameraModal()">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الباركود -->
-    <div id="barcodeModal" class="modal hidden">
-        <div class="modal-content">
-            <h2>باركود العميل</h2>
-            <canvas id="barcodeCanvas"></canvas>
-            <button onclick="closeBarcodeModal()">إغلاق</button>
+            <h2>التقاط صورة</h2>
+            <video id="video" width="300" height="300" autoplay></video>
+            <canvas id="canvas" width="300" height="300" class="hidden"></canvas>
+            <img id="capturedImage" class="hidden">
+            <div>
+                <button onclick="startCamera()">ابدأ الكاميرا</button>
+                <button onclick="takePhoto()">التقط</button>
+                <button onclick="closeCameraModal()">إغلاق</button>
+            </div>
         </div>
     </div>
 
@@ -104,6 +98,7 @@
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
+        let stream = null;
 
         // تهيئة البيانات
         clients = clients.map(c => ({ 
@@ -112,8 +107,7 @@
             months: +c.months || 0, 
             interest: +c.interest || 0, 
             paid: +c.paid || 0, 
-            payments: c.payments || [],
-            id: c.id || Date.now().toString() // معرف فريد للباركود
+            payments: c.payments || []
         }));
 
         function addClient() {
@@ -127,15 +121,9 @@
             const clean = phone.replace(/[^0-9]/g, '');
             const full = clean.startsWith('20') ? clean : '20' + clean.replace(/^0/, '');
             const formattedPhone = '+' + full;
-            const id = Date.now().toString();
-
-            const today = new Date();
-            const endDate = new Date(today);
-            endDate.setMonth(endDate.getMonth() + months);
 
             clients.push({
-                name, phone: formattedPhone, id,
-                start: today.toLocaleDateString('ar-EG'), end: endDate.toLocaleDateString('ar-EG'),
+                name, phone: formattedPhone,
                 price, months, interest: interest / 100, paid: 0, payments: []
             });
 
@@ -150,22 +138,28 @@
         }
 
         function showClients() {
-            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>إجراء</th></tr>`;
-            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
+            let html = `<table><tr><th>الاسم</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th></tr>`;
+            if (!clients.length) html += `<tr><td colspan="4" style="color:#999">لا يوجد عملاء</td></tr>`;
+
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
                 const rem = total - c.paid;
                 const pct = total ? (c.paid / total) * 100 : 0;
-                html += `<tr>
-                    <td>${c.name}</td><td>${c.phone}</td>
-                    <td>${c.paid}</td><td>${rem.toFixed(0)}</td>
-                    <td>
+
+                html += `
+                <tr class="client-row">
+                    <td>${c.name}</td>
+                    <td>${c.phone}</td>
+                    <td>${c.paid}</td>
+                    <td>${rem.toFixed(0)}</td>
+                </tr>
+                <tr class="action-row">
+                    <td colspan="4">
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                         <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتس</button>
                         <button class="btn cam" onclick="openCameraModal(${i})">كاميرا</button>
-                        <button class="btn barcode-btn" onclick="showBarcode(${i})">باركود</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                     </td>
                 </tr>`;
@@ -191,61 +185,77 @@
             const paidInstallments = Math.floor(c.paid / installmentValue);
             const remainingInstallments = c.months - paidInstallments;
 
-            const startDate = new Date(c.start);
-            const nextDue = new Date(startDate);
-            nextDue.setMonth(startDate.getMonth() + paidInstallments + 1);
+            const nextDue = new Date();
+            nextDue.setMonth(nextDue.getMonth() + (paidInstallments % 12) + 1);
             const nextDueStr = nextDue.toLocaleDateString('ar-EG');
 
-            const msg = `مرحبا ${c.name}،
-
-تفاصيل التقسيط:
-- المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*
-- باقي لك: *${remainingInstallments} قسط*
-- القسط القادم مستحق في: *${nextDueStr}*
-ادفع دلوقتي!`;
+            const msg = `مرحبا ${c.name}،\n\nتفاصيل التقسيط:\n- المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*\n- باقي لك: *${remainingInstallments} قسط*\n- القسط القادم مستحق في: *${nextDueStr}*\nادفع دلوقتي!`;
 
             const phoneClean = c.phone.replace('+', '');
             const encodedMsg = encodeURIComponent(msg);
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // === فتح الكاميرا لمسح الباركود ===
+        // === كاميرا: التقاط صورة عادية ===
         function openCameraModal(i) {
             currentClientIndex = i;
             document.getElementById('cameraModal').classList.remove('hidden');
-            const html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                (decodedText) => {
-                    if (decodedText === clients[i].id) {
-                        alert('تم التعرف على العميل: ' + clients[i].name);
-                        html5QrCode.stop();
-                        closeCameraModal();
-                    }
-                },
-                () => {}
-            ).catch(err => console.error(err));
+            startCamera();
+        }
+
+        function startCamera() {
+            const video = document.getElementById('video');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(s => { stream = s; video.srcObject = stream; })
+                .catch(() => alert("فشل فتح الكاميرا"));
+        }
+
+        function takePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, 300, 300);
+            const dataUrl = canvas.toDataURL('image/png');
+            document.getElementById('capturedImage').src = dataUrl;
+            document.getElementById('capturedImage').classList.remove('hidden');
+            document.getElementById('canvas').classList.add('hidden');
+            if (stream) stream.getTracks().forEach(t => t.stop());
         }
 
         function closeCameraModal() {
             document.getElementById('cameraModal').classList.add('hidden');
-            Html5Qrcode.getRunningScanner()?.stop();
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            document.getElementById('capturedImage').classList.add('hidden');
+            document.getElementById('video').srcObject = null;
         }
 
-        // === عرض الباركود ===
-        function showBarcode(i) {
-            currentClientIndex = i;
-            const canvas = document.getElementById('barcodeCanvas');
-            JsBarcode(canvas, clients[i].id, { format: "CODE128", displayValue: true });
-            document.getElementById('barcodeModal').classList.remove('hidden');
+        // === الأرباح الشهرية = (القسط المدفوع) − (أصل القسط) ===
+        function getMonthlyProfit() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            let totalProfit = 0;
+
+            clients.forEach(client => {
+                const originalInstallment = client.price / client.months; // أصل القسط
+                let paidThisMonth = 0;
+
+                client.payments.forEach(pay => {
+                    const payDate = new Date(pay.date);
+                    if (payDate.getMonth() === currentMonth && payDate.getFullYear() === currentYear) {
+                        paidThisMonth += pay.amount;
+                    }
+                });
+
+                const installmentsPaid = paidThisMonth / (client.price * (1 + client.interest) / client.months);
+                const profitThisMonth = paidThisMonth - (installmentsPaid * originalInstallment);
+                totalProfit += Math.max(0, profitThisMonth);
+            });
+
+            return totalProfit.toFixed(0);
         }
 
-        function closeBarcodeModal() {
-            document.getElementById('barcodeModal').classList.add('hidden');
-        }
-
-        // === PDF بدون باركود ===
+        // === PDF ===
         function exportPDF() {
             const doc = new jsPDF();
             doc.setFontSize(18);
@@ -255,7 +265,7 @@
                 head: [['Name', 'Phone', 'Paid', 'Remaining', 'Last Payment']],
                 body: clients.map(c => {
                     const total = c.price * (1 + c.interest);
-                    return [c.name, c.phone, c.paid + ' EGP', (total - c.paid).toFixed(0) + ' EGP', getLastPayment(c.payments)];
+                    return [c.name, c.phone, c.paid + ' EGP', (total - c.paid).toFixed(0) + ' EGP', c.payments.length ? c.payments.at(-1).date : 'لا يوجد'];
                 }),
                 startY: 35,
                 styles: { fontSize: 12, cellPadding: 5 },
@@ -269,22 +279,6 @@
             doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
 
             doc.save('تقرير_العملاء.pdf');
-        }
-
-        function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'لا يوجد'; }
-
-        function getMonthlyProfit() {
-            const now = new Date();
-            const month = now.getMonth(), year = now.getFullYear();
-            return clients.reduce((p, c) => {
-                const total = c.price * (1 + c.interest);
-                const installment = total / c.months;
-                const paid = c.payments.reduce((s, pay) => {
-                    const d = new Date(pay.date);
-                    return d.getMonth() === month && d.getFullYear() === year ? s + pay.amount : s;
-                }, 0);
-                return p + Math.max(0, paid - installment);
-            }, 0).toFixed(0);
         }
 
         window.onload = () => { calcProfits(); showClients(); };
