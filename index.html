@@ -8,6 +8,7 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,6 +29,7 @@
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; }
         .small-modal { max-width: 300px; }
         .hidden { display: none !important; }
+        .barcode-img { width: 100%; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -73,14 +75,24 @@
         </div>
     </div>
 
+    <!-- نافذة الباركود -->
+    <div id="barcodeModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>باركود العميل</h2>
+            <svg id="barcode"></svg>
+            <button onclick="closeBarcodeModal()">إغلاق</button>
+        </div>
+    </div>
+
     <script>
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
-        // تهيئة البيانات + تحويل التواريخ القديمة لـ ISO
+        // تهيئة البيانات + تحويل التواريخ
         clients = clients.map(c => {
             const startISO = c.startISO || new Date().toISOString().split('T')[0];
+            const barcode = c.barcode || 'CL' + Date.now();
             return { 
                 ...c, 
                 price: +c.price || 0, 
@@ -88,7 +100,8 @@
                 interest: +c.interest || 0, 
                 paid: +c.paid || 0, 
                 payments: c.payments || [],
-                startISO: startISO
+                startISO: startISO,
+                barcode: barcode
             };
         });
 
@@ -106,6 +119,7 @@
 
             const today = new Date();
             const startISO = today.toISOString().split('T')[0];
+            const barcode = 'CL' + Date.now();
 
             clients.push({
                 name, 
@@ -115,7 +129,8 @@
                 months, 
                 interest: interest / 100, 
                 paid: 0, 
-                payments: []
+                payments: [],
+                barcode: barcode
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -143,12 +158,24 @@
                         <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                         <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتس</button>
+                        <button class="btn" style="background:#9c27b0;color:white" onclick="showBarcode(${i})">باركود</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
                     </td>
                 </tr>`;
             });
             html += `</table>`;
             document.getElementById('clientsTable').innerHTML = html;
+        }
+
+        function showBarcode(i) {
+            currentClientIndex = i;
+            const c = clients[i];
+            JsBarcode("#barcode", c.barcode, { format: "CODE128", displayValue: true, fontSize: 16 });
+            document.getElementById('barcodeModal').classList.remove('hidden');
+        }
+
+        function closeBarcodeModal() {
+            document.getElementById('barcodeModal').classList.add('hidden');
         }
 
         function deleteClient(i) { if (confirm('حذف العميل؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
@@ -159,18 +186,15 @@
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس (تاريخ القسط القادم صحيح 100%) ===
+        // === رسالة واتس (مثالك بالضبط + ديناميكية) ===
         function sendWA(i) {
             const c = clients[i];
             const totalPrice = c.price * (1 + c.interest);
             const remainingAmount = totalPrice - c.paid;
             const installmentValue = totalPrice / c.months;
-
-            // عدد الأقساط المدفوعة
             const paidInstallments = Math.floor(c.paid / installmentValue);
             const remainingInstallments = c.months - paidInstallments;
 
-            // تاريخ القسط القادم
             const startDate = new Date(c.startISO);
             const nextDue = new Date(startDate);
             nextDue.setMonth(startDate.getMonth() + paidInstallments + 1);
