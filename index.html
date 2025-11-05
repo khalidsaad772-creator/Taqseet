@@ -16,7 +16,7 @@
         h1, h2 { color: #28a745; text-align: center; margin: 20px 0 15px; font-size: 20px; }
         input, button { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #28a745; border-radius: 12px; font-size: 16px; }
         button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
-        .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
+        .btn { display: inline-block; width: auto; padding: 6px 10px; margin: 2px; font-size: 13px; border-radius: 8px; }
         .pay { background: #007bff; } 
         .wa { background: #25D366; } 
         .cam { background: #6f42c1; color: white; } 
@@ -27,13 +27,14 @@
         th { background: #28a745; color: white; padding: 10px; font-size: 13px; }
         td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
         .client-row { background: #f9f9f9; }
-        .action-row { background: #e9ecef; padding: 8px 0; text-align: center; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; }
-        .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; width: 100%; }
+        .action-row { background: #e9ecef; padding: 8px; text-align: center; }
+        .action-content { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
+        .progress { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 6px; width: 100%; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
         .hidden { display: none !important; }
-        .client-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 2px solid #28a745; }
+        .client-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #28a745; }
         #capturedImage { max-width: 100%; margin-top: 10px; border-radius: 8px; }
     </style>
 </head>
@@ -101,7 +102,7 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
         let stream = null;
-               let capturedDataUrl = null;
+        let capturedDataUrl = null;
 
         // تهيئة البيانات
         clients = clients.map(c => ({ 
@@ -111,7 +112,7 @@
             interest: +c.interest || 0, 
             paid: +c.paid || 0, 
             payments: c.payments || [],
-            photo: c.photo || null // صورة العميل
+            photo: c.photo || null
         }));
 
         function addClient() {
@@ -161,13 +162,15 @@
                 </tr>
                 <tr class="action-row">
                     <td colspan="4">
-                        ${thumb}
-                        <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
-                        <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
-                        <button class="btn edit" onclick="editClient(${i})">تعديل</button>
-                        <button class="btn wa" onclick="sendWA(${i})">واتس</button>
-                        <button class="btn cam" onclick="openCameraModal(${i})">كاميرا</button>
-                        <button class="btn del" onclick="deleteClient(${i})">حذف</button>
+                        <div class="action-content">
+                            ${thumb}
+                            <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
+                            <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
+                            <button class="btn edit" onclick="editClient(${i})">تعديل</button>
+                            <button class="btn wa" onclick="sendWA(${i})">واتس</button>
+                            <button class="btn cam" onclick="openCameraModal(${i})">كاميرا</button>
+                            <button class="btn del" onclick="deleteClient(${i})">حذف</button>
+                        </div>
                     </td>
                 </tr>`;
             });
@@ -264,7 +267,8 @@
                     }
                 });
 
-                const installmentsPaid = paidThisMonth / (client.price * (1 + client.interest) / client.months);
+                const fullInstallment = (client.price * (1 + client.interest)) / client.months;
+                const installmentsPaid = paidThisMonth / fullInstallment;
                 const profitThisMonth = paidThisMonth - (installmentsPaid * originalInstallment);
                 totalProfit += Math.max(0, profitThisMonth);
             });
