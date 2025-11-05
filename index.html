@@ -286,10 +286,10 @@
                     }
                 });
 
-              //===  const fullInstallment = (client.price * (1 + client.interest)) / client.months;
-              //  const installmentsPaid = paidThisMonth / fullInstallment;
-               // const profitThisMonth = paidThisMonth - (installmentsPaid * originalInstallment);
-               // totalProfit += Math.max(0, profitThisMonth);
+              const fullInstallment = (client.price * (1 + client.interest)) / client.months;
+               const installmentsPaid = paidThisMonth / fullInstallment;
+               const profitThisMonth = paidThisMonth - (installmentsPaid * originalInstallment);
+               //totalProfit += Math.max(0, profitThisMonth);
                 // 1. حساب قيمة القسط الأصلي (رأس المال فقط)
 const principalInstallment = client.price / client.months;
 
