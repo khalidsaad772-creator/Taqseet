@@ -8,7 +8,6 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,15 +18,12 @@
         button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
         .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
         .pay { background: #007bff; } .wa { background: #25D366; } .edit { background: #ffc107; color: black; } .del { background: #dc3545; }
-        .cam { background: #6f42c1; color: white; } .barcode-btn { background: #9c27b0; color: white; }
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         th { background: #28a745; color: white; padding: 10px; font-size: 13px; }
         td { border: 1px solid #ddd; padding: 8px; text-align: center; background: #f9f9f9; }
         .progress { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 5px 0; }
         .bar { height: 100%; background: #28a745; width: 0%; transition: width 0.5s; }
-        .actions-row { background: #e9f7ef !important; }
-        .photo-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin: 3px; cursor: pointer; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; }
         .small-modal { max-width: 300px; }
@@ -77,48 +73,23 @@
         </div>
     </div>
 
-    <!-- نافذة الكاميرا -->
-    <div id="cameraModal" class="modal hidden">
-        <div class="modal-content">
-            <h2>التقط صورة الفاتورة</h2>
-            <video id="video" autoplay playsinline style="width:100%; border-radius:12px;"></video>
-            <canvas id="canvas" class="hidden"></canvas>
-            <button onclick="capturePhoto()">التقاط</button>
-            <button onclick="closeCameraModal()">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الباركود -->
-    <div id="barcodeModal" class="modal hidden">
-        <div class="modal-content">
-            <h2>باركود العميل</h2>
-            <svg id="barcode"></svg>
-            <button onclick="closeBarcodeModal()">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الصورة -->
-    <div id="photoModal" class="modal hidden">
-        <div to you
-        <div class="modal-content">
-            <h2>صورة الفاتورة</h2>
-            <img id="photoImg" style="width:100%; border-radius:12px;">
-            <button onclick="closePhotoModal()">إغلاق</button>
-        </div>
-    </div>
-
     <script>
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
-        let stream = null;
 
         // تهيئة البيانات
         clients = clients.map(c => {
             const startISO = c.startISO || new Date().toISOString().split('T')[0];
-            const barcode = c.barcode || 'CL' + Date.now();
-            const photo = c.photo || '';
-            return { ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [], startISO, barcode, photo };
+            return { 
+                ...c, 
+                price: +c.price || 0, 
+                months: +c.months || 0, 
+                interest: +c.interest || 0, 
+                paid: +c.paid || 0, 
+                payments: c.payments || [],
+                startISO: startISO
+            };
         });
 
         function addClient() {
@@ -135,10 +106,16 @@
 
             const today = new Date();
             const startISO = today.toISOString().split('T')[0];
-            const barcode = 'CL' + Date.now();
 
             clients.push({
-                name, phone: formattedPhone, startISO, price, months, interest: interest / 100, paid: 0, payments: [], barcode, photo: ''
+                name, 
+                phone: formattedPhone, 
+                startISO: startISO,
+                price, 
+                months, 
+                interest: interest / 100, 
+                paid: 0, 
+                payments: []
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -156,32 +133,22 @@
                 <tr>
                     <th>الاسم</th><th>تليفون</th>
                     <th>مدفوع</th><th>متبقي</th><th>الإجمالي</th>
+                    <th>إجراء</th>
                 </tr>`;
-            if (!clients.length) html += `<tr><td colspan="5" style="color:#999">لا يوجد عملاء</td></tr>`;
-
+            if (!clients.length) html += `<tr><td colspan="6" style="color:#999">لا يوجد عملاء</td></tr>`;
             clients.forEach((c, i) => {
                 const total = c.price * (1 + c.interest);
                 const rem = total - c.paid;
                 const pct = total ? (c.paid / total) * 100 : 0;
-                const photoPreview = c.photo ? `<img src="${c.photo}" class="photo-preview" onclick="showPhoto(${i})">` : '—';
-
-                // صف البيانات
                 html += `<tr>
                     <td>${c.name}</td><td>${c.phone}</td>
                     <td>${c.paid}</td><td>${rem.toFixed(0)}</td><td>${total.toFixed(0)}</td>
-                </tr>`;
-
-                // صف الإجراءات (تحت كل عميل)
-                html += `<tr class="actions-row">
-                    <td colspan="5">
+                    <td>
                         <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
                         <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
                         <button class="btn edit" onclick="editClient(${i})">تعديل</button>
                         <button class="btn wa" onclick="sendWA(${i})">واتس</button>
-                        <button class="btn cam" onclick="openCamera(${i})">كاميرا</button>
-                        <button class="btn barcode-btn" onclick="showBarcode(${i})">باركود</button>
                         <button class="btn del" onclick="deleteClient(${i})">حذف</button>
-                        ${photoPreview}
                     </td>
                 </tr>`;
             });
@@ -189,87 +156,83 @@
             document.getElementById('clientsTable').innerHTML = html;
         }
 
-        // === الكاميرا ===
-        function openCamera(i) {
-            currentClientIndex = i;
-            if (!navigator.mediaDevices?.getUserMedia) return alert('الكاميرا غير مدعومة');
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(s => {
-                    stream = s;
-                    const video = document.getElementById('video');
-                    video.classList.remove('hidden');
-                    video.srcObject = stream;
-                    document.getElementById('cameraModal').classList.remove('hidden');
-                }).catch(() => alert('فشل فتح الكاميرا'));
+        function deleteClient(i) { 
+            if (confirm('حذف العميل؟')) { 
+                clients.splice(i,1); 
+                localStorage.setItem('clients', JSON.stringify(clients)); 
+                calcProfits(); 
+                showClients(); 
+            } 
         }
 
-        function capturePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const photo = canvas.toDataURL('image/jpeg', 0.8);
-            clients[currentClientIndex].photo = photo;
-            localStorage.setItem('clients', JSON.stringify(clients));
-            stream.getTracks().forEach(t => t.stop());
-            closeCameraModal();
-            showClients();
-            alert('تم حفظ الصورة!');
+        function editClient(i) { 
+            currentClientIndex = i; 
+            const c = clients[i]; 
+            document.getElementById('editName').value = c.name; 
+            document.getElementById('editPhone').value = c.phone.replace('+', ''); 
+            document.getElementById('editPrice').value = c.price; 
+            document.getElementById('editMonths').value = c.months; 
+            document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); 
+            document.getElementById('editModal').classList.remove('hidden'); 
         }
 
-        function closeCameraModal() {
-            document.getElementById('cameraModal').classList.add('hidden');
-            document.getElementById('video').classList.add('hidden');
-            if (stream) stream.getTracks().forEach(t => t.stop());
+        function saveClient() { 
+            const c = clients[currentClientIndex]; 
+            c.name = document.getElementById('editName').value.trim(); 
+            c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); 
+            c.price = +document.getElementById('editPrice').value; 
+            c.months = +document.getElementById('editMonths').value; 
+            c.interest = (+document.getElementById('editInterest').value) / 100; 
+            localStorage.setItem('clients', JSON.stringify(clients)); 
+            closeEditModal(); 
+            calcProfits(); 
+            showClients(); 
+            alert('تم الحفظ!'); 
         }
 
-        function showPhoto(i) {
-            document.getElementById('photoImg').src = clients[i].photo;
-            document.getElementById('photoModal').classList.remove('hidden');
+        function openPaymentModal(i) { 
+            currentClientIndex = i; 
+            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; 
+            document.getElementById('paymentModal').classList.remove('hidden'); 
         }
 
-        function closePhotoModal() {
-            document.getElementById('photoModal').classList.add('hidden');
+        function addPayment() { 
+            const amount = +document.getElementById('paymentAmount').value; 
+            const date = document.getElementById('paymentDate').value; 
+            if (!amount || !date) return alert('املأ الحقول!'); 
+            clients[currentClientIndex].payments.push({amount, date}); 
+            clients[currentClientIndex].paid += amount; 
+            localStorage.setItem('clients', JSON.stringify(clients)); 
+            closePaymentModal(); 
+            calcProfits(); 
+            showClients(); 
+            alert('تم الإضافة!'); 
         }
 
-        // === الباركود ===
-        function showBarcode(i) {
-            currentClientIndex = i;
-            JsBarcode("#barcode", clients[i].barcode, { format: "CODE128", displayValue: true, fontSize: 16 });
-            document.getElementById('barcodeModal').classList.remove('hidden');
-        }
-
-        function closeBarcodeModal() {
-            document.getElementById('barcodeModal').classList.add('hidden');
-        }
-
-        // === باقي الوظائف ===
-        function deleteClient(i) { if (confirm('حذف العميل؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
-        function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
-        function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); alert('تم الحفظ!'); }
-        function openPaymentModal(i) { currentClientIndex = i; document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; document.getElementById('paymentModal').classList.remove('hidden'); }
-        function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return alert('املأ الحقول!'); clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); alert('تم الإضافة!'); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس (تاريخ القسط التالي بعد آخر دفعة) ===
+        // === رسالة واتس: تاريخ القسط التالي من آخر دفع ===
         function sendWA(i) {
             const c = clients[i];
             const totalPrice = c.price * (1 + c.interest);
             const remainingAmount = totalPrice - c.paid;
             const installmentValue = totalPrice / c.months;
 
-            // آخر دفعة
-            const lastPayment = c.payments.length ? c.payments[c.payments.length - 1] : null;
-            const lastPaymentDate = lastPayment ? new Date(lastPayment.date) : new Date(c.startISO);
+            let nextDueStr = 'غير محدد';
+            if (c.payments.length > 0) {
+                const lastDate = new Date(c.payments[c.payments.length - 1].date);
+                const nextDue = new Date(lastDate);
+                nextDue.setMonth(lastDate.getMonth() + 1);
+                nextDueStr = nextDue.toLocaleDateString('ar-EG');
+            } else {
+                const startDate = new Date(c.startISO);
+                const firstDue = new Date(startDate);
+                firstDue.setMonth(startDate.getMonth() + 1);
+                nextDueStr = firstDue.toLocaleDateString('ar-EG');
+            }
 
-            // تاريخ القسط التالي
-            const nextDue = new Date(lastPaymentDate);
-            nextDue.setMonth(nextDue.getMonth() + 1);
-            const nextDueStr = nextDue.toLocaleDateString('ar-EG');
-
-            const remainingInstallments = Math.ceil(remainingAmount / installmentValue);
+            const remainingInstallments = Math.max(0, c.months - Math.ceil(c.paid / installmentValue));
 
             const msg = `مرحبا ${c.name}،
 
@@ -277,71 +240,87 @@
 - المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*
 - باقي لك: *${remainingInstallments} قسط*
 - القسط القادم مستحق في: *${nextDueStr}*
-ادفع دلوقتي 
-!`;
+ادفع دلوقتي!`;
 
             const phoneClean = c.phone.replace('+', '');
             const encodedMsg = encodeURIComponent(msg);
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // === PDF أنيق + أرباح الشهر دقيقة + باركود كامل ===
-        function exportPDF() {
-            const doc = new jsPDF();
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(16);
-            doc.text('تقرير العملاء', 105, 15, { align: 'center' });
+        // === حساب الأرباح في الشهر من الفائدة المدفوعة فقط ===
+        function getMonthlyProfit() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            let totalProfit = 0;
 
-            const head = [['الاسم', 'التليفون', 'مدفوع', 'متبقي', 'الإجمالي']];
-            const body = clients.map(c => {
-                const total = c.price * (1 + c.interest);
-                return [c.name, c.phone, c.paid + '', (total - c.paid).toFixed(0), total.toFixed(0)];
+            clients.forEach(client => {
+                const totalPrice = client.price * (1 + client.interest);
+                const installmentValue = totalPrice / client.months;
+                const profitPerInstallment = (client.price * client.interest) / client.months;
+
+                let paidThisMonth = 0;
+                client.payments.forEach(pay => {
+                    const payDate = new Date(pay.date);
+                    if (payDate.getMonth() === currentMonth && payDate.getFullYear() === currentYear) {
+                        paidThisMonth += pay.amount;
+                    }
+                });
+
+                const installmentsPaidThisMonth = paidThisMonth / installmentValue;
+                totalProfit += installmentsPaidThisMonth * profitPerInstallment;
             });
 
+            return totalProfit.toFixed(0);
+        }
+
+        // === تقرير PDF بالإنجليزي + الأرباح صحيحة ===
+        function exportPDF() {
+            const doc = new jsPDF();
+            const today = new Date().toLocaleDateString('en-GB');
+            
+            doc.setFontSize(20);
+            doc.setTextColor(40, 167, 69);
+            doc.text('Clients Payment Report', 105, 20, { align: 'center' });
+
+            doc.setFontSize(12);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${today}`, 105, 28, { align: 'center' });
+
             doc.autoTable({
-                head: head,
-                body: body,
-                startY: 25,
-                styles: { fontSize: 11, cellPadding: 4, halign: 'center' },
+                head: [['Name', 'Phone', 'Paid (EGP)', 'Remaining (EGP)', 'Total (EGP)', 'Last Payment']],
+                body: clients.map(c => {
+                    const total = c.price * (1 + c.interest);
+                    const lastPay = c.payments.length > 0 ? c.payments[c.payments.length - 1].date : 'None';
+                    return [
+                        c.name,
+                        c.phone,
+                        c.paid.toFixed(0),
+                        (total - c.paid).toFixed(0),
+                        total.toFixed(0),
+                        lastPay
+                    ];
+                }),
+                startY: 40,
+                styles: { fontSize: 11, cellPadding: 6 },
                 headStyles: { fillColor: [40, 167, 69], textColor: 255, fontStyle: 'bold' },
-                alternateRowStyles: { fillColor: [240, 248, 255] },
-                columnStyles: { 0: { halign: 'right' }, 1: { halign: 'center' } },
-                didDrawCell: (data) => {
-                    if (data.section === 'body' && data.column.index === 0) {
-                        const clientIndex = data.row.index;
-                        const client = clients[clientIndex];
-                        const barcodeCanvas = document.createElement('canvas');
-                        JsBarcode(barcodeCanvas, client.barcode, { format: "CODE128", height: 30, width: 1.5, displayValue: false });
-                        const barcodeData = barcodeCanvas.toDataURL('image/png');
-                        doc.addImage(barcodeData, 'PNG', data.cell.x + 2, data.cell.y + 2, 25, 12);
-                    }
+                alternateRowStyles: { fillColor: [245, 250, 255] },
+                columnStyles: {
+                    0: { cellWidth: 35 },
+                    1: { cellWidth: 40 },
+                    2: { halign: 'center' },
+                    3: { halign: 'center' },
+                    4: { halign: 'center' },
+                    5: { cellWidth: 30, halign: 'center' }
                 }
             });
 
             const profit = getMonthlyProfit();
-            doc.setFontSize(14);
-            doc.setTextColor(0, 100, 0);
-            doc.text(`أرباح الشهر الحالي: ${profit} جنيه`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
+            doc.setFontSize(16);
+            doc.setTextColor(0, 120, 0);
+            doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 20, { align: 'center' });
 
-            doc.save('تقرير_العملاء.pdf');
-        }
-
-        function getMonthlyProfit() {
-            const now = new Date();
-            const month = now.getMonth(), year = now.getFullYear();
-            let totalPaidThisMonth = 0;
-
-            clients.forEach(c => {
-                const installment = (c.price * (1 + c.interest)) / c.months;
-                let paidThisMonth = 0;
-                c.payments.forEach(p => {
-                    const d = new Date(p.date);
-                    if (d.getMonth() === month && d.getFullYear() === year) paidThisMonth += p.amount;
-                });
-                totalPaidThisMonth += Math.max(0, paidThisMonth - installment);
-            });
-
-            return totalPaidThisMonth.toFixed(0);
+            doc.save('Clients_Report.pdf');
         }
 
         window.onload = () => { calcProfits(); showClients(); };
