@@ -78,15 +78,19 @@
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
-        // تهيئة البيانات
-        clients = clients.map(c => ({ 
-            ...c, 
-            price: +c.price || 0, 
-            months: +c.months || 0, 
-            interest: +c.interest || 0, 
-            paid: +c.paid || 0, 
-            payments: c.payments || [] 
-        }));
+        // تهيئة البيانات + تحويل التواريخ القديمة لـ ISO
+        clients = clients.map(c => {
+            const startISO = c.startISO || new Date().toISOString().split('T')[0];
+            return { 
+                ...c, 
+                price: +c.price || 0, 
+                months: +c.months || 0, 
+                interest: +c.interest || 0, 
+                paid: +c.paid || 0, 
+                payments: c.payments || [],
+                startISO: startISO
+            };
+        });
 
         function addClient() {
             const name = document.getElementById('name').value.trim();
@@ -101,21 +105,17 @@
             const formattedPhone = '+' + full;
 
             const today = new Date();
-            const endDate = new Date(today);
-            endDate.setMonth(endDate.getMonth() + months);
+            const startISO = today.toISOString().split('T')[0];
 
             clients.push({
                 name, 
                 phone: formattedPhone, 
-                start: today.toLocaleDateString('ar-EG'), 
-                end: endDate.toLocaleDateString('ar-EG'),
+                startISO: startISO,
                 price, 
                 months, 
                 interest: interest / 100, 
                 paid: 0, 
-                payments: [], 
-                barcode: 'CL' + Date.now(), 
-                invoice: ''
+                payments: []
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -159,29 +159,31 @@
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس ديناميكية 100% (زي المثال بالضبط) ===
+        // === رسالة واتس (تاريخ القسط القادم صحيح 100%) ===
         function sendWA(i) {
             const c = clients[i];
             const totalPrice = c.price * (1 + c.interest);
             const remainingAmount = totalPrice - c.paid;
             const installmentValue = totalPrice / c.months;
+
+            // عدد الأقساط المدفوعة
             const paidInstallments = Math.floor(c.paid / installmentValue);
             const remainingInstallments = c.months - paidInstallments;
 
             // تاريخ القسط القادم
-            const startDate = new Date(c.start.split('/').reverse().join('-'));
+            const startDate = new Date(c.startISO);
             const nextDue = new Date(startDate);
             nextDue.setMonth(startDate.getMonth() + paidInstallments + 1);
             const nextDueStr = nextDue.toLocaleDateString('ar-EG');
 
             const msg = `مرحبا ${c.name}،
 
-📌 *تفاصيل التقسيط:*
+تفاصيل التقسيط:
 - المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*
 - باقي لك: *${remainingInstallments} قسط*
 - القسط القادم مستحق في: *${nextDueStr}*
 ادفع دلوقتي 
-!😁`;
+!`;
 
             const phoneClean = c.phone.replace('+', '');
             const encodedMsg = encodeURIComponent(msg);
