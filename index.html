@@ -5,17 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محل التقسيط</title>
 
-    <!-- PWA -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#28a745">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon.png" type="image/png">
-
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,12 +17,7 @@
         input, button { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #28a745; border-radius: 12px; font-size: 16px; }
         button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
         .btn { display: inline-block; width: auto; padding: 8px 12px; margin: 3px; font-size: 14px; border-radius: 8px; }
-        .pay { background: #007bff; }
-        .wa { background: #25D366; }
-        .cam { background: #6f42c1; }
-        .edit { background: #ffc107; color: black; }
-        .del { background: #dc3545; }
-
+        .pay { background: #007bff; } .wa { background: #25D366; } .edit { background: #ffc107; color: black; } .del { background: #dc3545; }
         .result { background: #d4edda; color: #155724; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         th { background: #28a745; color: white; padding: 10px; }
@@ -61,6 +48,7 @@
         <div id="clientsTable"></div>
     </div>
 
+    <!-- نافذة التعديل -->
     <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <h2>تعديل العميل</h2>
@@ -74,6 +62,7 @@
         </div>
     </div>
 
+    <!-- نافذة الدفع -->
     <div id="paymentModal" class="modal hidden">
         <div class="modal-content small-modal">
             <h2>إضافة قسط</h2>
@@ -84,23 +73,13 @@
         </div>
     </div>
 
-    <video id="video" class="hidden" autoplay playsinline></video>
-    <canvas id="canvas" class="hidden"></canvas>
-
     <script>
         const { jsPDF } = window.jspdf;
         let clients = JSON.parse(localStorage.getItem('clients')) || [];
         let currentClientIndex = -1;
 
         // تهيئة البيانات
-        clients = clients.map(c => ({
-            ...c,
-            price: +c.price || 0,
-            months: +c.months || 0,
-            interest: +c.interest || 0,
-            paid: +c.paid || 0,
-            payments: c.payments || []
-        }));
+        clients = clients.map(c => ({ ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [] }));
 
         function addClient() {
             const name = document.getElementById('name').value.trim();
@@ -158,30 +137,32 @@
 
         function deleteClient(i) { if (confirm('حذف العميل؟')) { clients.splice(i,1); localStorage.setItem('clients', JSON.stringify(clients)); calcProfits(); showClients(); } }
         function editClient(i) { currentClientIndex = i; const c = clients[i]; document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone.replace('+', ''); document.getElementById('editPrice').value = c.price; document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = (c.interest * 100).toFixed(0); document.getElementById('editModal').classList.remove('hidden'); }
-        function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editname').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); alert('تم الحفظ!'); }
+        function saveClient() { const c = clients[currentClientIndex]; c.name = document.getElementById('editName').value.trim(); c.phone = '+' + document.getElementById('editPhone').value.trim().replace(/[^0-9]/g, ''); c.price = +document.getElementById('editPrice').value; c.months = +document.getElementById('editMonths').value; c.interest = (+document.getElementById('editInterest').value) / 100; localStorage.setItem('clients', JSON.stringify(clients)); closeEditModal(); calcProfits(); showClients(); alert('تم الحفظ!'); }
         function openPaymentModal(i) { currentClientIndex = i; document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; document.getElementById('paymentModal').classList.remove('hidden'); }
         function addPayment() { const amount = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if (!amount || !date) return alert('املأ الحقول!'); clients[currentClientIndex].payments.push({amount, date}); clients[currentClientIndex].paid += amount; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); alert('تم الإضافة!'); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
-        function sendWA(i) { const c = clients[i]; const total = c.price * (1 + c.interest); const rem = total - c.paid; const msg = `مرحبا ${c.name}، قسطك متبقي ${rem.toFixed(0)} جنيه، هينتهي بعد ${days} يوم! ادفع دلوقتي عشان متتأخرش`; const phoneClean = c.phone.replace('+', ''); window.open('https://wa.me/' + phoneClean + '?text=' + encodeURIComponent(msg)); }
 
-        function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'لا يوجد'; }
+        // === رسالة واتس (مُصلحة 100%) ===
+        function sendWA(i) {
+            const c = clients[i];
+            const total = c.price * (1 + c.interest);
+            const rem = total - c.paid;
 
-        function getMonthlyProfit() {
-            const now = new Date();
-            const month = now.getMonth(), year = now.getFullYear();
-            return clients.reduce((p, c) => {
-                const total = c.price * (1 + c.interest);
-                const installment = total / c.months;
-                const paid = c.payments.reduce((s, pay) => {
-                    const d = new Date(pay.date);
-                    return d.getMonth() === month && d.getFullYear() === year ? s + pay.amount : s;
-                }, 0);
-                return p + Math.max(0, paid - installment);
-            }, 0).toFixed(0);
+            // حساب الأيام المتبقية
+            const [d, m, y] = c.end.split('/');
+            const endDate = new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+            const today = new Date();
+            const diffTime = endDate - today;
+            const days = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+            const msg = `مرحبا ${c.name}، قسطك متبقي ${rem.toFixed(0)} جنيه، هينتهي بعد ${days} يوم! ادفع دلوقتي عشان متتأخرش`;
+            const phoneClean = c.phone.replace('+', '');
+            const encodedMsg = encodeURIComponent(msg);
+            window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
         }
 
-        // PDF إنجليزي فوري
+        // === PDF إنجليزي فوري ===
         function exportPDF() {
             const doc = new jsPDF();
             doc.setFontSize(18);
@@ -204,7 +185,23 @@
             doc.setTextColor(0, 100, 0);
             doc.text(`This Month Profit: ${profit} EGP`, 105, doc.lastAutoTable.finalY + 15, { align: 'center' });
 
-            doc.save('report.pdf');
+            doc.save('تقرير_العملاء.pdf');
+        }
+
+        function getLastPayment(payments) { return payments?.length ? payments.at(-1).date : 'لا يوجد'; }
+
+        function getMonthlyProfit() {
+            const now = new Date();
+            const month = now.getMonth(), year = now.getFullYear();
+            return clients.reduce((p, c) => {
+                const total = c.price * (1 + c.interest);
+                const installment = total / c.months;
+                const paid = c.payments.reduce((s, pay) => {
+                    const d = new Date(pay.date);
+                    return d.getMonth() === month && d.getFullYear() === year ? s + pay.amount : s;
+                }, 0);
+                return p + Math.max(0, paid - installment);
+            }, 0).toFixed(0);
         }
 
         window.onload = () => { calcProfits(); showClients(); };
