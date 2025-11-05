@@ -79,7 +79,14 @@
         let currentClientIndex = -1;
 
         // تهيئة البيانات
-        clients = clients.map(c => ({ ...c, price: +c.price || 0, months: +c.months || 0, interest: +c.interest || 0, paid: +c.paid || 0, payments: c.payments || [] }));
+        clients = clients.map(c => ({ 
+            ...c, 
+            price: +c.price || 0, 
+            months: +c.months || 0, 
+            interest: +c.interest || 0, 
+            paid: +c.paid || 0, 
+            payments: c.payments || [] 
+        }));
 
         function addClient() {
             const name = document.getElementById('name').value.trim();
@@ -98,8 +105,17 @@
             endDate.setMonth(endDate.getMonth() + months);
 
             clients.push({
-                name, phone: formattedPhone, start: today.toLocaleDateString('ar-EG'), end: endDate.toLocaleDateString('ar-EG'),
-                price, months, interest: interest / 100, paid: 0, payments: [], barcode: 'CL' + Date.now(), invoice: ''
+                name, 
+                phone: formattedPhone, 
+                start: today.toLocaleDateString('ar-EG'), 
+                end: endDate.toLocaleDateString('ar-EG'),
+                price, 
+                months, 
+                interest: interest / 100, 
+                paid: 0, 
+                payments: [], 
+                barcode: 'CL' + Date.now(), 
+                invoice: ''
             });
 
             localStorage.setItem('clients', JSON.stringify(clients));
@@ -143,20 +159,30 @@
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        // === رسالة واتس (مُصلحة 100%) ===
+        // === رسالة واتس ديناميكية 100% (زي المثال بالضبط) ===
         function sendWA(i) {
             const c = clients[i];
-            const total = c.price * (1 + c.interest);
-            const rem = total - c.paid;
+            const totalPrice = c.price * (1 + c.interest);
+            const remainingAmount = totalPrice - c.paid;
+            const installmentValue = totalPrice / c.months;
+            const paidInstallments = Math.floor(c.paid / installmentValue);
+            const remainingInstallments = c.months - paidInstallments;
 
-            // حساب الأيام المتبقية
-            const [d, m, y] = c.end.split('/');
-            const endDate = new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
-            const today = new Date();
-            const diffTime = endDate - today;
-            const days = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+            // تاريخ القسط القادم
+            const startDate = new Date(c.start.split('/').reverse().join('-'));
+            const nextDue = new Date(startDate);
+            nextDue.setMonth(startDate.getMonth() + paidInstallments + 1);
+            const nextDueStr = nextDue.toLocaleDateString('ar-EG');
 
-            const msg = `مرحبا ${c.name}، قسطك متبقي ${rem.toFixed(0)} جنيه، هينتهي بعد ${days} يوم! ادفع دلوقتي عشان متتأخرش`;
+            const msg = `مرحبا ${c.name}،
+
+📌 *تفاصيل التقسيط:*
+- المبلغ المتبقي: *${remainingAmount.toFixed(0)} جنيه*
+- باقي لك: *${remainingInstallments} قسط*
+- القسط القادم مستحق في: *${nextDueStr}*
+ادفع دلوقتي 
+!😁`;
+
             const phoneClean = c.phone.replace('+', '');
             const encodedMsg = encodeURIComponent(msg);
             window.open(`https://wa.me/${phoneClean}?text=${encodedMsg}`, '_blank');
