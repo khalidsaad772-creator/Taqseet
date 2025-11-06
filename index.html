@@ -49,7 +49,11 @@
         <input type="number" id="interest" value="25" placeholder="نسبة الفائدة %">
         <button onclick="addClient()">إضافة عميل</button>
         <button onclick="exportPDF()">تصدير تقرير PDF</button>
-
+         <!-- ضيف الزرين دول تحت زر "تصدير تقرير PDF" -->
+<button onclick="exportData()" style="background:#ff9800; margin:8px 0;">تصدير البيانات (نسخة احتياطية)</button>
+<button onclick="document.getElementById('restoreInput').click()" style="background:#9c27b0; margin:8px 0;">استعادة البيانات</button>
+<input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none;">
+        
         <h2>الأرباح الإجمالية</h2>
         <div id="res" class="result"></div>
 
@@ -323,6 +327,43 @@
         }
 
         window.onload = () => { calcProfits(); showClients(); };
+        // === تصدير البيانات ===
+function exportData() {
+    const data = {
+        clients: clients,
+        backupDate: new Date().toLocaleString('ar-EG')
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `تقسيط_نسخة_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('تم تصدير البيانات! احفظ الملف على موبايلك أو واتس');
+}
+
+// === استعادة البيانات ===
+function restoreData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.clients && confirm('هل تريد استعادة البيانات؟ سيتم مسح البيانات الحالية')) {
+                clients = data.clients;
+                localStorage.setItem('clients', JSON.stringify(clients));
+                calcProfits();
+                showClients();
+                alert('تم استعادة البيانات بنجاح!');
+            }
+        } catch (err) {
+            alert('الملف تالف أو غير صالح!');
+        }
+    };
+    reader.readAsText(file);
+}
     </script>
 </body>
 </html>
