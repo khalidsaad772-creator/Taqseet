@@ -19,7 +19,28 @@ input,button{width:100%;padding:14px;margin:8px 0;border:2px solid #28a745;borde
 button{background:#28a745;color:#fff;font-weight:bold;cursor:pointer;transition:background .3s}
 button:hover{background:#1e7e34}
 .backup-btn{background:#ff9800!important}.restore-btn{background:#9c27b0!important}
-.btn{padding:8px 14px;margin:4px;font-size:14px;border-radius:10px;font-weight:bold;cursor:pointer}
+
+/* ==================================== */
+/* 🌟 التعديل الأول: تصغير الأزرار وتنظيمها */
+/* ==================================== */
+.btn{
+    padding:6px 10px; /* تصغير البادينغ */
+    margin:3px; /* تصغير الهامش */
+    font-size:13px; /* تصغير الخط */
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    flex-grow: 1; /* للسماح لهم بالتمدد متساوياً */
+    min-width: 70px; /* حد أدنى للعرض */
+}
+.action-content{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px; /* تقليل المسافة بين العناصر */
+    justify-content:center;
+}
+/* ==================================== */
+
 .pay{background:#007bff}.wa{background:#25D366}.edit{background:#ffc107;color:#000}.del{background:#dc3545}
 .wa:hover{background:#1dbe52}.pay:hover{background:#0056b3}.del:hover{background:#c82333}
 
@@ -29,7 +50,7 @@ table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px;border-ra
 th{background:#28a745;color:#fff;padding:12px}
 td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
 .action-row td{background:#e9ecef;padding:12px}
-.action-content{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+
 .progress{height:10px;background:#eee;border-radius:5px;overflow:hidden;margin:8px 0}
 .bar{height:100%;background:#28a745;transition:width .6s}
 .product-desc{font-size:13px;color:#555;display:block;margin-top:4px}
@@ -109,7 +130,7 @@ function addClient() {
     const months = Number(document.getElementById('months').value);
     const interest = Number(document.getElementById('interest').value) / 100; // تخزينها عشرية
 
-    if (!name || !phone || !price || !months || !interest) return alert("الرجاء ملء حقول الاسم والتليفون والقيمة الأساسية والأقساط والفائدة.");
+    if (!name || !phone || !price || !months || interest < 0) return alert("الرجاء ملء حقول الاسم والتليفون والقيمة الأساسية والأقساط والفائدة.");
     if (phone.length < 11 || phone.length > 15) return alert("رقم التليفون غير صحيح");
 
     const clean = phone.replace(/\D/g,'');
@@ -198,12 +219,12 @@ function showClients() {
         <tr class="action-row"><td colspan="5">
             <div class="action-content">
                 <div class="progress"><div class="bar" style="width:${Math.min(100, pct)}%"></div></div>
-                <button class="btn pay" onclick="openPaymentModal(${i})">إضافة قسط</button>
-                <button class="btn edit" onclick="editClient(${i})">تعديل البيانات</button>
-                <button class="btn wa" onclick="sendWA(${i})">إرسال واتس</button>
-                <button class="btn del" onclick="deleteClient(${i})">حذف العميل</button>
-                <button class="btn cam" onclick="openPhotoModal(${i})">صورة/ملاحظة</button>
+                <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
+                <button class="btn edit" onclick="editClient(${i})">تعديل</button>
+                <button class="btn wa" onclick="sendWA(${i})">واتس</button>
+                <button class="btn cam" onclick="openPhotoModal(${i})">صورة</button>
                 ${thumb}
+                <button class="btn del" onclick="deleteClient(${i})">حذف</button>
             </div>
         </td></tr>`;
     });
@@ -281,7 +302,6 @@ function sendWA(i){
     const remainInst=Math.max(0, Math.ceil((total - c.paid) / inst));
 
     const nextPaymentDate = new Date();
-    // هنا يفترض أن القسط القادم هو الشهر التالي لتاريخ اليوم، يمكن تحسينها لتتبع تاريخ الاستحقاق الفعلي
     nextPaymentDate.setMonth(nextPaymentDate.getMonth()+1);
     
     const msg=`مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n• المبلغ الإجمالي المتبقي: ${formatCurrency(Math.max(0, rem))}\n• باقي الأقساط المتوقعة: ${remainInst} قسط\n• قيمة القسط القادم: ${getNextInstallment(c)}\n\nبرجاء سرعة السداد. شكراً لتعاونك.`;
@@ -297,41 +317,58 @@ function savePhoto(){if(!tempPhoto)return alert("الرجاء اختيار صو�
 
 function openImageModal(src){document.getElementById('fullImage').src=src;document.getElementById('imageModal').classList.remove('hidden');}
 
+// ====================================
+// 🌟 التعديل الثاني: محاولة إصلاح مشكلة الخطوط العربية في PDF
+// ====================================
 function exportPDF(){
     const doc=new jsPDF('p', 'mm', 'a4');
     const profit=getMonthlyProfit();
     
-    // لإضافة دعم اللغة العربية في PDF (قد لا يعمل بشكل مثالي بدون خط عربي مدمج)
-    doc.setFont('Amiri', 'normal'); 
+    // ⚠️ ملاحظة: استخدام الخطوط العربية في jsPDF مع autoTable معقد.
+    // يتم استخدام طريقة (عكس ترتيب النصوص) لتجنب ظهور الرموز، لكن التنسيق قد لا يكون مثالياً 100%.
+    
+    // إضافة خط (افتراضي لا يدعم العربية بشكل كامل)
+    // لا يمكن تضمين خطوط خارجية مثل 'Amiri' دون خطوات معقدة جداً في بيئة المتصفح.
+    doc.setFont('Arial', 'normal'); 
     
     doc.setFontSize(20);
-    // doc.text(نص، x، y، {align:'right'}) 
     doc.text("تقرير عملاء التقسيط", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
     
     doc.setFontSize(12);
     doc.text(`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`, doc.internal.pageSize.getWidth() - 10, 30, {align:'right'});
     
+    // البيانات معكوسة لغرض العرض الصحيح في الـ PDF (العمود الأول في الكود هو الأخير في الجدول)
     const data=clients.map(c=>([
-        formatCurrency(Math.max(0, c.price*(1+c.interest)-c.paid)), 
-        formatCurrency(c.paid),
-        c.phone.replace('+20','0'), 
+        c.name,
         c.product, 
-        c.name
+        c.phone.replace('+20','0'), 
+        formatCurrency(c.paid),
+        formatCurrency(Math.max(0, c.price*(1+c.interest)-c.paid))
     ]));
     
+    // عناوين الأعمدة بالترتيب العربي الصحيح الذي سيظهر في الـ PDF
+    const head=[['الاسم','المنتج','التليفون','المدفوع','المتبقي']];
+
     // إضافة الجدول
     doc.autoTable({
-        head:[['الاسم','المنتج','التليفون','المدفوع','المتبقي']],
-        body:data,
+        head: head,
+        body: data,
         startY: 40,
-        styles: {font: 'Amiri', cellPadding: 2, halign: 'center'},
+        styles: {font: 'helvetica', cellPadding: 2, halign: 'center'},
         headStyles: {fillColor: [40, 167, 69]},
         theme: 'striped',
-        // لتوجيه المحتوى من اليمين لليسار
-        didDrawCell: (data) => { if (data.cell.section === 'body') data.cell.text.reverse(); },
+        // حل بديل: عكس ترتيب النص داخل كل خلية يدويًا ليظهر بشكل صحيح
+        didDrawCell: (data) => {
+            if (data.cell.section === 'body') {
+                // عكس النص إذا كان نصاً عربياً (هذه محاولة لعرضه بشكل صحيح)
+                data.cell.text.forEach((text, index) => {
+                    data.cell.text[index] = text.split('').reverse().join('');
+                });
+            }
+        },
         columnStyles: { 
-            0: {halign: 'right'}, 
-            4: {halign: 'right'} 
+            0: {halign: 'right'}, // الاسم والمنتج
+            1: {halign: 'right'}  // المنتج 
         }
     });
     
@@ -341,6 +378,7 @@ function exportPDF(){
     
     doc.save(`Report-${new Date().getFullYear()}${new Date().getMonth()+1}.pdf`);
 }
+// ====================================
 
 
 function exportData(){
@@ -378,7 +416,7 @@ function restoreData(e){
                 calcProfits();
                 showClients();
                 alert("تم استعادة البيانات بنجاح!");
-            } else {
+            }  else {
                  alert("ملف الاستعادة لا يحتوي على بيانات عملاء صالحة.");
             }
         }catch(err){
