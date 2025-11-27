@@ -6,6 +6,8 @@
 <title>محل التقسيط - إدارة العملاء</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
 /* CSS Reset and Global Styles */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -21,34 +23,40 @@ button:hover{background:#1e7e34}
 .backup-btn{background:#ff9800!important}.restore-btn{background:#9c27b0!important}
 
 /* ==================================== */
-/* 🌟 التعديل الأول: تصغير الأزرار وتنظيمها */
+/* 🌟 تعديلات الأزرار (أكثر تجميعاً) */
 /* ==================================== */
 .btn{
-    padding:6px 10px; /* تصغير البادينغ */
-    margin:3px; /* تصغير الهامش */
-    font-size:13px; /* تصغير الخط */
+    padding:8px 5px; /* تصغير البادينغ */
+    margin:3px; 
+    font-size:13px;
     border-radius:8px;
     font-weight:bold;
     cursor:pointer;
-    flex-grow: 1; /* للسماح لهم بالتمدد متساوياً */
-    min-width: 70px; /* حد أدنى للعرض */
+    /* تحديد عرض أساسي صغير للسماح بتجميع 4 أزرار في صف واحد */
+    flex-basis: calc(25% - 6px); 
+    min-width: 60px; 
 }
 .action-content{
     display:flex;
     flex-wrap:wrap;
-    gap:5px; /* تقليل المسافة بين العناصر */
+    gap:5px;
     justify-content:center;
 }
 /* ==================================== */
 
-.pay{background:#007bff}.wa{background:#25D366}.edit{background:#ffc107;color:#000}.del{background:#dc3545}
+.pay{background:#007bff}.wa{background:#25D366}.edit{background:#ffc107;color:#000}.del{background:#dc3545}.cam{background:#6f42c1}
 .wa:hover{background:#1dbe52}.pay:hover{background:#0056b3}.del:hover{background:#c82333}
 
 /* Result and Table Styles */
 .result{background:#d4edda;color:#155724;padding:16px;border-radius:12px;margin:15px 0;text-align:center;font-size:18px;font-weight:bold}
-table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px;border-radius:12px;overflow:hidden}
+/* جعل الجدول معرّفاً لغرض تحويله إلى صورة في PDF */
+table#clientsData{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px;border-radius:12px;overflow:hidden}
 th{background:#28a745;color:#fff;padding:12px}
 td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
+/* إخفاء صف الإجراءات عند طباعة PDF */
+@media print {
+    .action-row, .progress, .client-thumb { display: none !important; }
+}
 .action-row td{background:#e9ecef;padding:12px}
 
 .progress{height:10px;background:#eee;border-radius:5px;overflow:hidden;margin:8px 0}
@@ -91,11 +99,8 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
 </div>
 
 <div id="editModal" class="modal hidden"><div class="modal-content"><h2>تعديل بيانات العميل</h2><input id="editName"><input id="editPhone"><input id="editProduct"><input id="editPrice" type="number"><input id="editMonths" type="number"><input id="editInterest" type="number"><button onclick="saveClient()">حفظ التعديلات</button><button onclick="closeModal('editModal')" style="background:#dc3545">إلغاء وإغلاق</button></div></div>
-
 <div id="paymentModal" class="modal hidden"><div class="modal-content"><h2>إضافة قسط جديد</h2><input id="paymentAmount" type="number" placeholder="قيمة القسط المدفوع"><input id="paymentDate" type="date"><button onclick="addPayment()">إضافة القسط</button><button onclick="closeModal('paymentModal')" style="background:#dc3545">إغلاق</button></div></div>
-
 <div id="photoModal" class="modal hidden"><div class="modal-content"><h2>تحميل صورة (ملاحظة)</h2><img id="previewImage" class="hidden"><button style="background:#17a2b8" onclick="document.getElementById('photoInput').click()">اختر صورة</button><input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(event)" style="display:none"><button onclick="savePhoto()" style="background:#28a745">حفظ الصورة</button><button onclick="closeModal('photoModal')" style="background:#dc3545">إغلاق</button></div></div>
-
 <div id="imageModal" class="modal hidden"><div class="modal-content"><img id="fullImage" style="max-width:100%;border-radius:12px"><br><button onclick="closeModal('imageModal')">إغلاق الصورة</button></div></div>
 
 <script>
@@ -104,7 +109,6 @@ let clients = JSON.parse(localStorage.getItem('clients') || '[]');
 let currentIndex = -1;
 let tempPhoto = null;
 
-// دالة لتنسيق العملة
 const formatCurrency = (num) => Number(num).toLocaleString('ar-EG', { maximumFractionDigits: 0 }) + ' ج.م';
 
 // تهيئة البيانات عند التحميل
@@ -114,7 +118,6 @@ clients = clients.map(c => ({
     product: c.product || "بدون وصف",
     price: Number(c.price) || 0,
     months: Number(c.months) || 10,
-    // التأكد من أن الفائدة مخزنة كنسبة عشرية
     interest: Number(c.interest) >= 1 ? Number(c.interest) / 100 : Number(c.interest) || 0, 
     paid: Number(c.paid) || 0,
     payments: c.payments || [],
@@ -128,20 +131,18 @@ function addClient() {
     const product = document.getElementById('product').value.trim() || "بدون وصف";
     const price = Number(document.getElementById('price').value);
     const months = Number(document.getElementById('months').value);
-    const interest = Number(document.getElementById('interest').value) / 100; // تخزينها عشرية
+    const interest = Number(document.getElementById('interest').value) / 100;
 
     if (!name || !phone || !price || !months || interest < 0) return alert("الرجاء ملء حقول الاسم والتليفون والقيمة الأساسية والأقساط والفائدة.");
     if (phone.length < 11 || phone.length > 15) return alert("رقم التليفون غير صحيح");
 
     const clean = phone.replace(/\D/g,'');
-    // لضمان التنسيق الدولي لـ WhatsApp (+20)
     const full = clean.startsWith('20') ? clean : '20' + clean.replace(/^0/,'');
     const formattedPhone = '+' + full;
 
     clients.push({name, phone:formattedPhone, product, price, months, interest, paid:0, payments:[], photo:null});
     localStorage.setItem('clients', JSON.stringify(clients));
     document.getElementById('name').value = document.getElementById('phone').value = document.getElementById('product').value = '';
-    // إعادة تعيين القيم الافتراضية
     document.getElementById('price').value = 10000;
     document.getElementById('months').value = 10;
     document.getElementById('interest').value = 25;
@@ -151,11 +152,8 @@ function addClient() {
 }
 
 function calcProfits() {
-    // إجمالي الفائدة المتوقعة
     const totalExpectedProfit = clients.reduce((a,c) => a + c.price * c.interest, 0);
     document.getElementById('res').innerHTML = formatCurrency(totalExpectedProfit);
-    
-    // الربح الفعلي للشهر الحالي
     document.getElementById('monthlyRes').innerHTML = formatCurrency(getMonthlyProfit());
 }
 
@@ -164,9 +162,7 @@ function getNextInstallment(c) {
     const inst = total / c.months;
     const remainingAmount = total - c.paid;
 
-    if (remainingAmount <= 0.01) return "تم السداد"; // 0.01 لمعالجة أخطاء تعويم الأرقام
-
-    // القسط القادم قد يكون أقل إذا كان المبلغ المتبقي أصغر من القسط
+    if (remainingAmount <= 0.01) return "تم السداد";
     return formatCurrency(Math.min(inst, remainingAmount));
 }
 
@@ -176,31 +172,28 @@ function getMonthlyProfit() {
     let profit = 0;
     
     clients.forEach(c => {
-        // قيمة القسط بدون فائدة (أصل المبلغ فقط)
         const baseInst = c.price / c.months; 
-        // قيمة القسط الكلية (أصل + فائدة)
         const fullInst = (c.price * (1+c.interest)) / c.months; 
         let paidMonth = 0;
 
         c.payments.forEach(p => {
             const d = new Date(p.date);
-            // حساب المدفوع في الشهر والسنة الحالية
             if (d.getMonth() === m && d.getFullYear() === y) paidMonth += p.amount;
         });
 
         if(fullInst > 0 && paidMonth > 0) {
-             // نسبة الربح من القسط = (قيمة القسط الكلية - أصل المبلغ) / قيمة القسط الكلية
              const profitRatio = (fullInst - baseInst) / fullInst;
-             // الربح الفعلي لهذا الشهر = (المبلغ المدفوع هذا الشهر) * نسبة الربح
              profit += paidMonth * profitRatio;
         }
     });
-    return Math.max(0, profit); // لا يوجد ربح سالب
+    return Math.max(0, profit);
 }
 
 function showClients() {
     document.getElementById('clientsCount').textContent = `العملاء (${clients.length})`;
-    let html = `<table><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم</th></tr>`;
+    
+    // إنشاء HTML للجدول
+    let html = `<table id="clientsData"><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم</th></tr>`;
     
     clients.forEach((c,i) => {
         const total = c.price * (1 + c.interest);
@@ -232,157 +225,90 @@ function showClients() {
     document.getElementById('clientsTable').innerHTML = html;
 }
 
-function deleteClient(i){if(confirm("هل أنت متأكد من حذف العميل؟ لا يمكن التراجع عن هذا الإجراء.")){clients.splice(i,1);localStorage.setItem('clients',JSON.stringify(clients));calcProfits();showClients();}}
-
-function editClient(i){
-    currentIndex=i;
-    const c=clients[i];
-    document.getElementById('editName').value=c.name;
-    document.getElementById('editPhone').value=c.phone.replace('+','');
-    document.getElementById('editProduct').value=c.product;
-    document.getElementById('editPrice').value=c.price;
-    document.getElementById('editMonths').value=c.months;
-    // عرض الفائدة كنسبة مئوية للمستخدم
-    document.getElementById('editInterest').value=Math.round(c.interest*100); 
-    document.getElementById('editModal').classList.remove('hidden');
-}
-
-function saveClient(){
-    const c=clients[currentIndex];
-    const newInterest = Number(document.getElementById('editInterest').value) / 100;
-    
-    c.name=document.getElementById('editName').value.trim();
-    c.phone='+'+document.getElementById('editPhone').value.replace(/\D/g,'');
-    c.product=document.getElementById('editProduct').value.trim()||"بدون وصف";
-    c.price=Number(document.getElementById('editPrice').value);
-    c.months=Number(document.getElementById('editMonths').value);
-    c.interest=newInterest;
-    
-    // التحقق الأساسي من القيم الجديدة
-    if (!c.name || !c.price || !c.months || c.phone.length < 11) return alert("بيانات غير مكتملة أو غير صحيحة");
-
-    localStorage.setItem('clients',JSON.stringify(clients));
-    closeModal('editModal');
-    calcProfits();
-    showClients();
-}
-
-function openPaymentModal(i){
-    currentIndex=i;
-    // وضع التاريخ الافتراضي
-    document.getElementById('paymentDate').value=new Date().toISOString().split('T')[0];
-    const total = clients[i].price * (1 + clients[i].interest);
-    const inst = total / clients[i].months;
-    document.getElementById('paymentAmount').value = Math.round(inst); // قيمة القسط المقترحة
-    document.getElementById('paymentModal').classList.remove('hidden');
-}
-
-function addPayment(){
-    const amt=Number(document.getElementById('paymentAmount').value);
-    const date=document.getElementById('paymentDate').value;
-    
-    if(!amt||!date || amt <= 0) return alert("املأ قيمة القسط والتاريخ بشكل صحيح.");
-
-    clients[currentIndex].payments.push({amount:amt,date});
-    clients[currentIndex].paid+=amt;
-    
-    localStorage.setItem('clients',JSON.stringify(clients));
-    closeModal('paymentModal');
-    calcProfits();
-    showClients();
-}
-
+// ... (باقي الدوال لم تتغير)
+function deleteClient(i){if(confirm("هل أنت متأكد من حذف العميل؟")){clients.splice(i,1);localStorage.setItem('clients',JSON.stringify(clients));calcProfits();showClients();}}
+function editClient(i){currentIndex=i;const c=clients[i];document.getElementById('editName').value=c.name;document.getElementById('editPhone').value=c.phone.replace('+','');document.getElementById('editProduct').value=c.product;document.getElementById('editPrice').value=c.price;document.getElementById('editMonths').value=c.months;document.getElementById('editInterest').value=Math.round(c.interest*100);document.getElementById('editModal').classList.remove('hidden');}
+function saveClient(){const c=clients[currentIndex];const newInterest = Number(document.getElementById('editInterest').value) / 100;c.name=document.getElementById('editName').value.trim();c.phone='+'+document.getElementById('editPhone').value.replace(/\D/g,'');c.product=document.getElementById('editProduct').value.trim()||"بدون وصف";c.price=Number(document.getElementById('editPrice').value);c.months=Number(document.getElementById('editMonths').value);c.interest=newInterest;if (!c.name || !c.price || !c.months || c.phone.length < 11) return alert("بيانات غير مكتملة أو غير صحيحة");localStorage.setItem('clients',JSON.stringify(clients));closeModal('editModal');calcProfits();showClients();}
+function openPaymentModal(i){currentIndex=i;document.getElementById('paymentDate').value=new Date().toISOString().split('T')[0];const total = clients[i].price * (1 + clients[i].interest);const inst = total / clients[i].months;document.getElementById('paymentAmount').value = Math.round(inst);document.getElementById('paymentModal').classList.remove('hidden');}
+function addPayment(){const amt=Number(document.getElementById('paymentAmount').value);const date=document.getElementById('paymentDate').value;if(!amt||!date || amt <= 0) return alert("املأ قيمة القسط والتاريخ بشكل صحيح.");clients[currentIndex].payments.push({amount:amt,date});clients[currentIndex].paid+=amt;localStorage.setItem('clients',JSON.stringify(clients));closeModal('paymentModal');calcProfits();showClients();}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
-
-function sendWA(i){
-    const c=clients[i];
-    const total=c.price*(1+c.interest);
-    const rem=total-c.paid;
-    const inst=total/c.months;
-    const remainInst=Math.max(0, Math.ceil((total - c.paid) / inst));
-
-    const nextPaymentDate = new Date();
-    nextPaymentDate.setMonth(nextPaymentDate.getMonth()+1);
-    
-    const msg=`مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n• المبلغ الإجمالي المتبقي: ${formatCurrency(Math.max(0, rem))}\n• باقي الأقساط المتوقعة: ${remainInst} قسط\n• قيمة القسط القادم: ${getNextInstallment(c)}\n\nبرجاء سرعة السداد. شكراً لتعاونك.`;
-    
-    window.open(`https://wa.me/${c.phone.replace('+','')}/?text=${encodeURIComponent(msg)}`,'_blank');
-}
-
+function sendWA(i){const c=clients[i];const total=c.price*(1+c.interest);const rem=total-c.paid;const inst=total/c.months;const remainInst=Math.max(0, Math.ceil((total - c.paid) / inst));const nextPaymentDate = new Date();nextPaymentDate.setMonth(nextPaymentDate.getMonth()+1);const msg=`مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n• المبلغ الإجمالي المتبقي: ${formatCurrency(Math.max(0, rem))}\n• باقي الأقساط المتوقعة: ${remainInst} قسط\n• قيمة القسط القادم: ${getNextInstallment(c)}\n\nبرجاء سرعة السداد. شكراً لتعاونك.`;window.open(`https://wa.me/${c.phone.replace('+','')}/?text=${encodeURIComponent(msg)}`,'_blank');}
 function openPhotoModal(i){currentIndex=i;tempPhoto=null;const img=document.getElementById('previewImage');if(clients[i].photo){img.src=clients[i].photo;img.classList.remove('hidden');}else{img.classList.add('hidden');}document.getElementById('photoModal').classList.remove('hidden');}
-
 function loadPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{tempPhoto=ev.target.result;document.getElementById('previewImage').src=tempPhoto;document.getElementById('previewImage').classList.remove('hidden');};r.readAsDataURL(f);}
-
 function savePhoto(){if(!tempPhoto)return alert("الرجاء اختيار صورة لحفظها");clients[currentIndex].photo=tempPhoto;localStorage.setItem('clients',JSON.stringify(clients));closeModal('photoModal');showClients();}
-
 function openImageModal(src){document.getElementById('fullImage').src=src;document.getElementById('imageModal').classList.remove('hidden');}
 
+
 // ====================================
-// 🌟 التعديل الثاني: محاولة إصلاح مشكلة الخطوط العربية في PDF
+// 🌟 التعديل الثاني: استخدام html2canvas لحل مشكلة الخطوط العربية
 // ====================================
-function exportPDF(){
+async function exportPDF(){
     const doc=new jsPDF('p', 'mm', 'a4');
     const profit=getMonthlyProfit();
-    
-    // ⚠️ ملاحظة: استخدام الخطوط العربية في jsPDF مع autoTable معقد.
-    // يتم استخدام طريقة (عكس ترتيب النصوص) لتجنب ظهور الرموز، لكن التنسيق قد لا يكون مثالياً 100%.
-    
-    // إضافة خط (افتراضي لا يدعم العربية بشكل كامل)
-    // لا يمكن تضمين خطوط خارجية مثل 'Amiri' دون خطوات معقدة جداً في بيئة المتصفح.
-    doc.setFont('Arial', 'normal'); 
+    const tableElement = document.getElementById('clientsData');
+
+    doc.setFont('helvetica', 'normal');
     
     doc.setFontSize(20);
     doc.text("تقرير عملاء التقسيط", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
     
-    doc.setFontSize(12);
+    doc.setFontSize(14);
     doc.text(`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`, doc.internal.pageSize.getWidth() - 10, 30, {align:'right'});
-    
-    // البيانات معكوسة لغرض العرض الصحيح في الـ PDF (العمود الأول في الكود هو الأخير في الجدول)
-    const data=clients.map(c=>([
-        c.name,
-        c.product, 
-        c.phone.replace('+20','0'), 
-        formatCurrency(c.paid),
-        formatCurrency(Math.max(0, c.price*(1+c.interest)-c.paid))
-    ]));
-    
-    // عناوين الأعمدة بالترتيب العربي الصحيح الذي سيظهر في الـ PDF
-    const head=[['الاسم','المنتج','التليفون','المدفوع','المتبقي']];
 
-    // إضافة الجدول
-    doc.autoTable({
-        head: head,
-        body: data,
-        startY: 40,
-        styles: {font: 'helvetica', cellPadding: 2, halign: 'center'},
-        headStyles: {fillColor: [40, 167, 69]},
-        theme: 'striped',
-        // حل بديل: عكس ترتيب النص داخل كل خلية يدويًا ليظهر بشكل صحيح
-        didDrawCell: (data) => {
-            if (data.cell.section === 'body') {
-                // عكس النص إذا كان نصاً عربياً (هذه محاولة لعرضه بشكل صحيح)
-                data.cell.text.forEach((text, index) => {
-                    data.cell.text[index] = text.split('').reverse().join('');
-                });
-            }
-        },
-        columnStyles: { 
-            0: {halign: 'right'}, // الاسم والمنتج
-            1: {halign: 'right'}  // المنتج 
+    doc.setFontSize(12);
+    doc.text(`إجمالي الأرباح المتوقعة: ${document.getElementById('res').textContent}`, doc.internal.pageSize.getWidth() - 10, 38, {align:'right'});
+    doc.text(`صافي الربح الفعلي لهذا الشهر: ${formatCurrency(profit)}`, doc.internal.pageSize.getWidth() - 10, 45, {align:'right'});
+
+    try {
+        // 1. إنشاء نسخة من الجدول لإزالة صف الإجراءات منه (الصفوف الفردية)
+        const tableClone = tableElement.cloneNode(true);
+        tableClone.removeAttribute('id');
+        // إزالة صفوف الإجراءات (الصف الثاني لكل عميل)
+        tableClone.querySelectorAll('.action-row').forEach(row => row.remove());
+        // إخفاء صورة العميل (الرمز المصغر)
+        tableClone.querySelectorAll('.client-thumb').forEach(thumb => thumb.remove());
+
+        // إضافة النسخة المخفية إلى DOM لتحويلها
+        tableClone.style.visibility = 'hidden';
+        tableClone.style.position = 'absolute';
+        document.body.appendChild(tableClone);
+        
+        // 2. تحويل الجدول إلى صورة باستخدام html2canvas
+        const canvas = await html2canvas(tableClone, { scale: 2 }); // Scale 2 للحصول على دقة أعلى
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        
+        // إزالة النسخة بعد التحويل
+        tableClone.remove();
+
+        // 3. إضافة الصورة إلى PDF
+        const imgWidth = 190; // عرض تقريبي للصفحة A4
+        const pageHeight = doc.internal.pageSize.height;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 55; // بداية وضع الصورة تحت العناوين
+
+        // التعامل مع الجداول الطويلة التي تتجاوز صفحة واحدة
+        doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            doc.addPage();
+            doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
         }
-    });
-    
-    doc.setFontSize(16);
-    doc.setTextColor(0,100,0);
-    doc.text(`صافي الربح الفعلي لهذا الشهر: ${formatCurrency(profit)}`, doc.internal.pageSize.getWidth() / 2, doc.lastAutoTable.finalY + 15, {align:'center'});
-    
-    doc.save(`Report-${new Date().getFullYear()}${new Date().getMonth()+1}.pdf`);
+
+        doc.save(`Report-${new Date().getFullYear()}${new Date().getMonth()+1}.pdf`);
+
+    } catch(error) {
+        console.error("خطأ في إنشاء PDF باستخدام html2canvas:", error);
+        alert("فشل في إنشاء تقرير PDF. قد يكون الخطأ في تحميل الخطوط أو المكتبات.");
+    }
 }
 // ====================================
 
-
 function exportData(){
-    const b=new Blob([JSON.stringify({clients},null,2)],{type:'application/json'}); // تنسيق JSON لسهولة القراءة
+    const b=new Blob([JSON.stringify({clients},null,2)],{type:'application/json'});
     const u=URL.createObjectURL(b);
     const a=document.createElement('a');
     a.href=u;
@@ -401,11 +327,9 @@ function restoreData(e){
         try{
             const restoredClients = JSON.parse(ev.target.result).clients || [];
             
-            // تحقق من أن البيانات المستعادة تبدو صحيحة (تحتوي على مفاتيح أساسية)
             if (restoredClients.length > 0 && restoredClients[0].name !== undefined) {
                  clients = restoredClients.map(c => ({
                     ...c, 
-                    // إعادة تهيئة الفائدة للتأكد من أنها عشرية
                     interest: Number(c.interest) >= 1 ? Number(c.interest) / 100 : Number(c.interest) || 0,
                     price: Number(c.price),
                     months: Number(c.months),
@@ -416,7 +340,7 @@ function restoreData(e){
                 calcProfits();
                 showClients();
                 alert("تم استعادة البيانات بنجاح!");
-            }  else {
+            } else {
                  alert("ملف الاستعادة لا يحتوي على بيانات عملاء صالحة.");
             }
         }catch(err){
