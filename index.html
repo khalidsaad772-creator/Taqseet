@@ -255,7 +255,7 @@
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
         function openPaymentModal(i) { currentClientIndex = i; document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; document.getElementById('paymentModal').classList.remove('hidden'); }
-        function addPayment() {
+        function addPayment() 
             { const amt = +document.getElementById('paymentAmount').value; const date = document.getElementById('paymentDate').value; if(!amt||!date) return alert('املأ الحقول'); clients[currentClientIndex].payments.push({amount:amt,date}); clients[currentClientIndex].paid += amt; localStorage.setItem('clients', JSON.stringify(clients)); closePaymentModal(); calcProfits(); showClients(); alert('تم إضافة القسط'); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
 
