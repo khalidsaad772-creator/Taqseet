@@ -6,8 +6,6 @@
 <title>محل التقسيط - إدارة العملاء</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <style>
 /* CSS Reset and Global Styles */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -23,16 +21,15 @@ button:hover{background:#1e7e34}
 .backup-btn{background:#ff9800!important}.restore-btn{background:#9c27b0!important}
 
 /* ==================================== */
-/* 🌟 تعديلات الأزرار (أكثر تجميعاً) */
+/* 🌟 تعديلات الأزرار المصغرة (تم الحفاظ عليها) */
 /* ==================================== */
 .btn{
-    padding:8px 5px; /* تصغير البادينغ */
+    padding:8px 5px; 
     margin:3px; 
     font-size:13px;
     border-radius:8px;
     font-weight:bold;
     cursor:pointer;
-    /* تحديد عرض أساسي صغير للسماح بتجميع 4 أزرار في صف واحد */
     flex-basis: calc(25% - 6px); 
     min-width: 60px; 
 }
@@ -49,14 +46,9 @@ button:hover{background:#1e7e34}
 
 /* Result and Table Styles */
 .result{background:#d4edda;color:#155724;padding:16px;border-radius:12px;margin:15px 0;text-align:center;font-size:18px;font-weight:bold}
-/* جعل الجدول معرّفاً لغرض تحويله إلى صورة في PDF */
-table#clientsData{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px;border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px;border-radius:12px;overflow:hidden}
 th{background:#28a745;color:#fff;padding:12px}
 td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
-/* إخفاء صف الإجراءات عند طباعة PDF */
-@media print {
-    .action-row, .progress, .client-thumb { display: none !important; }
-}
 .action-row td{background:#e9ecef;padding:12px}
 
 .progress{height:10px;background:#eee;border-radius:5px;overflow:hidden;margin:8px 0}
@@ -81,7 +73,7 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
 <input type="number" id="months" value="10" placeholder="عدد الشهور">
 <input type="number" id="interest" value="25" placeholder="نسبة الفائدة % (مثال: 25)">
 <button onclick="addClient()">إضافة عميل جديد</button>
-<button onclick="exportPDF()">Export PDF Report 📄</button>
+<button onclick="exportPDF()">Export PDF Report 📄 (English)</button>
 <div style="display:flex; gap:10px; margin-top:10px">
     <button class="backup-btn" onclick="exportData()" style="flex:1">نسخة احتياطية 💾</button>
     <button class="restore-btn" onclick="document.getElementById('restoreInput').click()" style="flex:1">استعادة ♻️</button>
@@ -109,7 +101,10 @@ let clients = JSON.parse(localStorage.getItem('clients') || '[]');
 let currentIndex = -1;
 let tempPhoto = null;
 
+// دالة لتنسيق العملة بالجنيه المصري في العرض على الصفحة
 const formatCurrency = (num) => Number(num).toLocaleString('ar-EG', { maximumFractionDigits: 0 }) + ' ج.م';
+// دالة لتنسيق العملة بالدولار في تقرير PDF (ليعمل بشكل صحيح)
+const formatCurrencyEn = (num) => Number(num).toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' EGP';
 
 // تهيئة البيانات عند التحميل
 clients = clients.map(c => ({
@@ -192,8 +187,7 @@ function getMonthlyProfit() {
 function showClients() {
     document.getElementById('clientsCount').textContent = `العملاء (${clients.length})`;
     
-    // إنشاء HTML للجدول
-    let html = `<table id="clientsData"><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم</th></tr>`;
+    let html = `<table><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم</th></tr>`;
     
     clients.forEach((c,i) => {
         const total = c.price * (1 + c.interest);
@@ -225,7 +219,7 @@ function showClients() {
     document.getElementById('clientsTable').innerHTML = html;
 }
 
-// ... (باقي الدوال لم تتغير)
+// ... (باقي الدوال كما هي)
 function deleteClient(i){if(confirm("هل أنت متأكد من حذف العميل؟")){clients.splice(i,1);localStorage.setItem('clients',JSON.stringify(clients));calcProfits();showClients();}}
 function editClient(i){currentIndex=i;const c=clients[i];document.getElementById('editName').value=c.name;document.getElementById('editPhone').value=c.phone.replace('+','');document.getElementById('editProduct').value=c.product;document.getElementById('editPrice').value=c.price;document.getElementById('editMonths').value=c.months;document.getElementById('editInterest').value=Math.round(c.interest*100);document.getElementById('editModal').classList.remove('hidden');}
 function saveClient(){const c=clients[currentIndex];const newInterest = Number(document.getElementById('editInterest').value) / 100;c.name=document.getElementById('editName').value.trim();c.phone='+'+document.getElementById('editPhone').value.replace(/\D/g,'');c.product=document.getElementById('editProduct').value.trim()||"بدون وصف";c.price=Number(document.getElementById('editPrice').value);c.months=Number(document.getElementById('editMonths').value);c.interest=newInterest;if (!c.name || !c.price || !c.months || c.phone.length < 11) return alert("بيانات غير مكتملة أو غير صحيحة");localStorage.setItem('clients',JSON.stringify(clients));closeModal('editModal');calcProfits();showClients();}
@@ -240,72 +234,54 @@ function openImageModal(src){document.getElementById('fullImage').src=src;docume
 
 
 // ====================================
-// 🌟 التعديل الثاني: استخدام html2canvas لحل مشكلة الخطوط العربية
+// 🌟 تعديل دالة PDF إلى اللغة الإنجليزية لتجنب مشكلة الرموز
 // ====================================
-async function exportPDF(){
+function exportPDF(){
     const doc=new jsPDF('p', 'mm', 'a4');
     const profit=getMonthlyProfit();
-    const tableElement = document.getElementById('clientsData');
-
-    doc.setFont('helvetica', 'normal');
     
+    // استخدام خط لاتيني قياسي لضمان عدم ظهور الرموز
+    doc.setFont('helvetica', 'normal'); 
+    
+    // عناوين التقرير باللغة الإنجليزية
     doc.setFontSize(20);
-    doc.text("تقرير عملاء التقسيط", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
+    doc.text("Installment Clients Report", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
     
-    doc.setFontSize(14);
-    doc.text(`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`, doc.internal.pageSize.getWidth() - 10, 30, {align:'right'});
-
     doc.setFontSize(12);
-    doc.text(`إجمالي الأرباح المتوقعة: ${document.getElementById('res').textContent}`, doc.internal.pageSize.getWidth() - 10, 38, {align:'right'});
-    doc.text(`صافي الربح الفعلي لهذا الشهر: ${formatCurrency(profit)}`, doc.internal.pageSize.getWidth() - 10, 45, {align:'right'});
+    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, doc.internal.pageSize.getWidth() / 2, 30, {align:'center'});
+    
+    // تجهيز البيانات باللغة الإنجليزية
+    const data=clients.map(c=>([
+        c.name, 
+        c.product, 
+        c.phone.replace('+20','0'), 
+        formatCurrencyEn(c.paid),
+        formatCurrencyEn(Math.max(0, c.price*(1+c.interest)-c.paid)), 
+        formatCurrencyEn((c.price * (1+c.interest)) / c.months) 
+    ]));
+    
+    // عناوين الأعمدة باللغة الإنجليزية
+    const head=[['Client Name','Product','Phone','Paid Amount','Remaining','Monthly Installment']];
 
-    try {
-        // 1. إنشاء نسخة من الجدول لإزالة صف الإجراءات منه (الصفوف الفردية)
-        const tableClone = tableElement.cloneNode(true);
-        tableClone.removeAttribute('id');
-        // إزالة صفوف الإجراءات (الصف الثاني لكل عميل)
-        tableClone.querySelectorAll('.action-row').forEach(row => row.remove());
-        // إخفاء صورة العميل (الرمز المصغر)
-        tableClone.querySelectorAll('.client-thumb').forEach(thumb => thumb.remove());
-
-        // إضافة النسخة المخفية إلى DOM لتحويلها
-        tableClone.style.visibility = 'hidden';
-        tableClone.style.position = 'absolute';
-        document.body.appendChild(tableClone);
-        
-        // 2. تحويل الجدول إلى صورة باستخدام html2canvas
-        const canvas = await html2canvas(tableClone, { scale: 2 }); // Scale 2 للحصول على دقة أعلى
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        
-        // إزالة النسخة بعد التحويل
-        tableClone.remove();
-
-        // 3. إضافة الصورة إلى PDF
-        const imgWidth = 190; // عرض تقريبي للصفحة A4
-        const pageHeight = doc.internal.pageSize.height;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 55; // بداية وضع الصورة تحت العناوين
-
-        // التعامل مع الجداول الطويلة التي تتجاوز صفحة واحدة
-        doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
-            doc.addPage();
-            doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
-
-        doc.save(`Report-${new Date().getFullYear()}${new Date().getMonth()+1}.pdf`);
-
-    } catch(error) {
-        console.error("خطأ في إنشاء PDF باستخدام html2canvas:", error);
-        alert("فشل في إنشاء تقرير PDF. قد يكون الخطأ في تحميل الخطوط أو المكتبات.");
-    }
+    // إضافة الجدول
+    doc.autoTable({
+        head: head,
+        body: data,
+        startY: 40,
+        styles: {font: 'helvetica', cellPadding: 2, halign: 'center'},
+        headStyles: {fillColor: [40, 167, 69]},
+        theme: 'striped',
+    });
+    
+    // ملخص الربح باللغة الإنجليزية
+    doc.setFontSize(16);
+    doc.setTextColor(0,100,0);
+    doc.text(`Actual Monthly Profit: ${formatCurrencyEn(profit)}`, doc.internal.pageSize.getWidth() / 2, doc.lastAutoTable.finalY + 15, {align:'center'});
+    
+    doc.save(`Report-${new Date().getFullYear()}-${new Date().getMonth()+1}.pdf`);
 }
 // ====================================
+
 
 function exportData(){
     const b=new Blob([JSON.stringify({clients},null,2)],{type:'application/json'});
