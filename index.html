@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>محل التقسيط - إدارة العملاء</title>
+<title>محل التقسيط - إدارة العملاء ورأس المال</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 <style>
 /* CSS Reset and Global Styles */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -19,9 +20,10 @@ input,button{width:100%;padding:14px;margin:8px 0;border:2px solid #28a745;borde
 button{background:#28a745;color:#fff;font-weight:bold;cursor:pointer;transition:background .3s}
 button:hover{background:#1e7e34}
 .backup-btn{background:#ff9800!important}.restore-btn{background:#9c27b0!important}
+.capital-btn{background:#007bff!important}.capital-btn:hover{background:#0056b3!important}
 
 /* ==================================== */
-/* 🌟 تعديلات الأزرار المصغرة (تم الحفاظ عليها) */
+/* 🌟 الأزرار المصغرة (تم الحفاظ عليها) */
 /* ==================================== */
 .btn{
     padding:8px 5px; 
@@ -45,7 +47,7 @@ button:hover{background:#1e7e34}
 .wa:hover{background:#1dbe52}.pay:hover{background:#0056b3}.del:hover{background:#c82333}
 
 /* Result and Table Styles */
-.result{background:#d4edda;color:#155724;padding:16px;border-radius:12px;margin:15px 0;text-align:center;font-size:18px;font-weight:bold}
+.result{background:#d4edda;color:#155524;padding:16px;border-radius:12px;margin:15px 0;text-align:center;font-size:18px;font-weight:bold}
 table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px;border-radius:12px;overflow:hidden}
 th{background:#28a745;color:#fff;padding:12px}
 td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
@@ -69,16 +71,20 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
 <input type="text" id="name" placeholder="* اسم العميل" required>
 <input type="text" id="phone" placeholder="* رقم التليفون (11 رقم)" required>
 <input type="text" id="product" placeholder="وصف المنتج (مثال: هاتف سامسونج A12)">
-<input type="number" id="price" value="10000" placeholder="سعر السلعة (أصل المبلغ)">
-<input type="number" id="months" value="10" placeholder="عدد الشهور">
-<input type="number" id="interest" value="25" placeholder="نسبة الفائدة % (مثال: 25)">
+<input type="number" id="price" value="" placeholder="* سعر السلعة (أصل المبلغ)" required>
+<input type="number" id="months" value="" placeholder="* عدد الشهور" required>
+<input type="number" id="interest" value="" placeholder="* نسبة الفائدة % (مثال: 25)" required>
 <button onclick="addClient()">إضافة عميل جديد</button>
-<button onclick="exportPDF()">Export PDF Report 📄 (English)</button>
+<button onclick="exportPDF()">Export Clients Report 📄 (English)</button>
+
+<h2 style="color:#20B2AA">إدارة رأس المال 💸</h2>
 <div style="display:flex; gap:10px; margin-top:10px">
+    <button class="capital-btn" onclick="openCapitalModal()" style="flex:1">إضافة / تقرير رأس مال</button>
     <button class="backup-btn" onclick="exportData()" style="flex:1">نسخة احتياطية 💾</button>
-    <button class="restore-btn" onclick="document.getElementById('restoreInput').click()" style="flex:1">استعادة ♻️</button>
 </div>
-<input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none">
+
+<h2>إجمالي رأس المال المسحوب 💰</h2>
+<div id="capitalRes" class="result" style="background:#ADD8E6; color:#0056b3;">0 جنيه</div>
 
 <h2>إجمالي أرباح الفائدة المتوقعة</h2>
 <div id="res" class="result">0 جنيه</div>
@@ -95,15 +101,25 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
 <div id="photoModal" class="modal hidden"><div class="modal-content"><h2>تحميل صورة (ملاحظة)</h2><img id="previewImage" class="hidden"><button style="background:#17a2b8" onclick="document.getElementById('photoInput').click()">اختر صورة</button><input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(event)" style="display:none"><button onclick="savePhoto()" style="background:#28a745">حفظ الصورة</button><button onclick="closeModal('photoModal')" style="background:#dc3545">إغلاق</button></div></div>
 <div id="imageModal" class="modal hidden"><div class="modal-content"><img id="fullImage" style="max-width:100%;border-radius:12px"><br><button onclick="closeModal('imageModal')">إغلاق الصورة</button></div></div>
 
+<div id="capitalModal" class="modal hidden"><div class="modal-content">
+    <h2>إضافة رأس مال مسحوب</h2>
+    <input id="capitalAmount" type="number" placeholder="قيمة رأس المال المسحوب" required>
+    <input id="capitalDate" type="date">
+    <button onclick="addCapitalEntry()">إضافة المبلغ</button>
+    <button class="capital-btn" onclick="exportCapitalPDF()">إنشاء تقرير رأس مال PDF</button>
+    <button onclick="closeModal('capitalModal')" style="background:#dc3545">إغلاق</button>
+</div></div>
+
+
 <script>
 const { jsPDF } = window.jspdf;
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+// 🌟 تعريف رأس المال وتخزينه
+let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
 let currentIndex = -1;
 let tempPhoto = null;
 
-// دالة لتنسيق العملة بالجنيه المصري في العرض على الصفحة
 const formatCurrency = (num) => Number(num).toLocaleString('ar-EG', { maximumFractionDigits: 0 }) + ' ج.م';
-// دالة لتنسيق العملة بالدولار في تقرير PDF (ليعمل بشكل صحيح)
 const formatCurrencyEn = (num) => Number(num).toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' EGP';
 
 // تهيئة البيانات عند التحميل
@@ -119,6 +135,70 @@ clients = clients.map(c => ({
     photo: c.photo || null
 }));
 
+// 🌟 دالة حساب وعرض رأس المال
+function calcTotalCapital() {
+    const totalCapital = capitalEntries.reduce((a, c) => a + Number(c.amount), 0);
+    document.getElementById('capitalRes').innerHTML = formatCurrency(totalCapital);
+}
+
+function openCapitalModal() {
+    // تعيين التاريخ الافتراضي
+    document.getElementById('capitalDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('capitalAmount').value = '';
+    document.getElementById('capitalModal').classList.remove('hidden');
+}
+
+function addCapitalEntry() {
+    const amount = Number(document.getElementById('capitalAmount').value);
+    const date = document.getElementById('capitalDate').value;
+    
+    if (!amount || !date || amount <= 0) return alert("الرجاء إدخال مبلغ رأس مال صحيح والتاريخ.");
+
+    capitalEntries.push({ amount, date });
+    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+    
+    document.getElementById('capitalAmount').value = '';
+    
+    calcTotalCapital();
+    alert(`تم إضافة ${formatCurrency(amount)} لرأس المال بنجاح.`);
+}
+
+function exportCapitalPDF() {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const totalCapital = capitalEntries.reduce((a, c) => a + Number(c.amount), 0);
+
+    doc.setFont('helvetica', 'normal'); 
+    doc.setFontSize(20);
+    doc.text("Head Capital Entries Report", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
+    
+    doc.setFontSize(12);
+    doc.text(`Report Date: ${new Date().toLocaleDateString('en-GB')}`, doc.internal.pageSize.getWidth() / 2, 30, {align:'center'});
+
+    // تجهيز بيانات رأس المال
+    const data = capitalEntries.map(c => ([
+        c.date,
+        formatCurrencyEn(c.amount)
+    ]));
+
+    const head = [['Date', 'Amount (EGP)']];
+
+    doc.autoTable({
+        head: head,
+        body: data,
+        startY: 40,
+        styles: {font: 'helvetica', cellPadding: 2, halign: 'center'},
+        headStyles: {fillColor: [0, 123, 255]}, // لون أزرق لرأس المال
+        theme: 'striped',
+    });
+    
+    // إجمالي رأس المال
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 255);
+    doc.text(`Total Head Capital: ${formatCurrencyEn(totalCapital)}`, doc.internal.pageSize.getWidth() / 2, doc.lastAutoTable.finalY + 15, {align:'center'});
+    
+    doc.save(`Capital-Report-${new Date().getFullYear()}-${new Date().getMonth()+1}.pdf`);
+}
+// ------------------------------------
 
 function addClient() {
     const name = document.getElementById('name').value.trim();
@@ -138,9 +218,7 @@ function addClient() {
     clients.push({name, phone:formattedPhone, product, price, months, interest, paid:0, payments:[], photo:null});
     localStorage.setItem('clients', JSON.stringify(clients));
     document.getElementById('name').value = document.getElementById('phone').value = document.getElementById('product').value = '';
-    document.getElementById('price').value = 10000;
-    document.getElementById('months').value = 10;
-    document.getElementById('interest').value = 25;
+    document.getElementById('price').value = document.getElementById('months').value = document.getElementById('interest').value = '';
     
     calcProfits();
     showClients();
@@ -156,7 +234,6 @@ function getNextInstallment(c) {
     const total = c.price * (1 + c.interest);
     const inst = total / c.months;
     const remainingAmount = total - c.paid;
-
     if (remainingAmount <= 0.01) return "تم السداد";
     return formatCurrency(Math.min(inst, remainingAmount));
 }
@@ -220,6 +297,7 @@ function showClients() {
 }
 
 // ... (باقي الدوال كما هي)
+
 function deleteClient(i){if(confirm("هل أنت متأكد من حذف العميل؟")){clients.splice(i,1);localStorage.setItem('clients',JSON.stringify(clients));calcProfits();showClients();}}
 function editClient(i){currentIndex=i;const c=clients[i];document.getElementById('editName').value=c.name;document.getElementById('editPhone').value=c.phone.replace('+','');document.getElementById('editProduct').value=c.product;document.getElementById('editPrice').value=c.price;document.getElementById('editMonths').value=c.months;document.getElementById('editInterest').value=Math.round(c.interest*100);document.getElementById('editModal').classList.remove('hidden');}
 function saveClient(){const c=clients[currentIndex];const newInterest = Number(document.getElementById('editInterest').value) / 100;c.name=document.getElementById('editName').value.trim();c.phone='+'+document.getElementById('editPhone').value.replace(/\D/g,'');c.product=document.getElementById('editProduct').value.trim()||"بدون وصف";c.price=Number(document.getElementById('editPrice').value);c.months=Number(document.getElementById('editMonths').value);c.interest=newInterest;if (!c.name || !c.price || !c.months || c.phone.length < 11) return alert("بيانات غير مكتملة أو غير صحيحة");localStorage.setItem('clients',JSON.stringify(clients));closeModal('editModal');calcProfits();showClients();}
@@ -232,25 +310,16 @@ function loadPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileRea
 function savePhoto(){if(!tempPhoto)return alert("الرجاء اختيار صورة لحفظها");clients[currentIndex].photo=tempPhoto;localStorage.setItem('clients',JSON.stringify(clients));closeModal('photoModal');showClients();}
 function openImageModal(src){document.getElementById('fullImage').src=src;document.getElementById('imageModal').classList.remove('hidden');}
 
-
-// ====================================
-// 🌟 تعديل دالة PDF إلى اللغة الإنجليزية لتجنب مشكلة الرموز
-// ====================================
 function exportPDF(){
     const doc=new jsPDF('p', 'mm', 'a4');
     const profit=getMonthlyProfit();
     
-    // استخدام خط لاتيني قياسي لضمان عدم ظهور الرموز
     doc.setFont('helvetica', 'normal'); 
-    
-    // عناوين التقرير باللغة الإنجليزية
     doc.setFontSize(20);
     doc.text("Installment Clients Report", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
-    
     doc.setFontSize(12);
-    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, doc.internal.pageSize.getWidth() / 2, 30, {align:'center'});
+    doc.text(`Report Date: ${new Date().toLocaleDateString('en-GB')}`, doc.internal.pageSize.getWidth() / 2, 30, {align:'center'});
     
-    // تجهيز البيانات باللغة الإنجليزية
     const data=clients.map(c=>([
         c.name, 
         c.product, 
@@ -260,10 +329,8 @@ function exportPDF(){
         formatCurrencyEn((c.price * (1+c.interest)) / c.months) 
     ]));
     
-    // عناوين الأعمدة باللغة الإنجليزية
     const head=[['Client Name','Product','Phone','Paid Amount','Remaining','Monthly Installment']];
 
-    // إضافة الجدول
     doc.autoTable({
         head: head,
         body: data,
@@ -273,18 +340,20 @@ function exportPDF(){
         theme: 'striped',
     });
     
-    // ملخص الربح باللغة الإنجليزية
     doc.setFontSize(16);
     doc.setTextColor(0,100,0);
     doc.text(`Actual Monthly Profit: ${formatCurrencyEn(profit)}`, doc.internal.pageSize.getWidth() / 2, doc.lastAutoTable.finalY + 15, {align:'center'});
     
     doc.save(`Report-${new Date().getFullYear()}-${new Date().getMonth()+1}.pdf`);
 }
-// ====================================
-
 
 function exportData(){
-    const b=new Blob([JSON.stringify({clients},null,2)],{type:'application/json'});
+    // تضمين بيانات رأس المال في النسخة الاحتياطية
+    const backupData = {
+        clients: clients,
+        capitalEntries: capitalEntries // 🌟 تضمين رأس المال
+    };
+    const b=new Blob([JSON.stringify(backupData,null,2)],{type:'application/json'});
     const u=URL.createObjectURL(b);
     const a=document.createElement('a');
     a.href=u;
@@ -296,14 +365,16 @@ function exportData(){
 
 function restoreData(e){
     const f=e.target.files[0];
-    if(!f||!confirm("تحذير: هل أنت متأكد من استعادة البيانات؟ سيتم مسح البيانات الحالية واستبدالها بالملف المختار."))return;
+    if(!f||!confirm("تحذير: هل أنت متأكد من استعادة البيانات؟ سيتم مسح البيانات الحالية ورأس المال واستبدالها بالملف المختار."))return;
     
     const r=new FileReader();
     r.onload=ev=>{
         try{
-            const restoredClients = JSON.parse(ev.target.result).clients || [];
+            const data = JSON.parse(ev.target.result);
+            const restoredClients = data.clients || [];
+            const restoredCapital = data.capitalEntries || []; // 🌟 استعادة رأس المال
             
-            if (restoredClients.length > 0 && restoredClients[0].name !== undefined) {
+            if (restoredClients.length > 0 || restoredCapital.length > 0) {
                  clients = restoredClients.map(c => ({
                     ...c, 
                     interest: Number(c.interest) >= 1 ? Number(c.interest) / 100 : Number(c.interest) || 0,
@@ -311,13 +382,17 @@ function restoreData(e){
                     months: Number(c.months),
                     paid: Number(c.paid)
                 }));
+                 capitalEntries = restoredCapital; // تحديث رأس المال
 
                 localStorage.setItem('clients',JSON.stringify(clients));
+                localStorage.setItem('capitalEntries',JSON.stringify(capitalEntries)); // حفظ رأس المال المستعاد
+                
                 calcProfits();
+                calcTotalCapital(); // تحديث إجمالي رأس المال
                 showClients();
-                alert("تم استعادة البيانات بنجاح!");
+                alert("تم استعادة البيانات ورأس المال بنجاح!");
             } else {
-                 alert("ملف الاستعادة لا يحتوي على بيانات عملاء صالحة.");
+                 alert("ملف الاستعادة لا يحتوي على بيانات صالحة.");
             }
         }catch(err){
             alert("فشل في قراءة الملف: ملف تالف أو غير صحيح. " + err.message);
@@ -326,7 +401,7 @@ function restoreData(e){
     r.readAsText(f);
 }
 
-window.onload=()=>{calcProfits();showClients();};
+window.onload=()=>{calcProfits();calcTotalCapital();showClients();};
 </script>
 </body>
 </html>
