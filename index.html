@@ -72,7 +72,7 @@ tr.overdue-alert td {
 #previewImage, #fullImage{max-width:100%;margin-top:15px;border-radius:12px;border:3px solid #28a745}
 
 /* ستايل جدول الأقساط داخل النافذة المنبثقة */
-#paymentsTable {
+#paymentsTable, #capitalEntriesTable { /* 🌟 تطبيق الستايل على جدول رأس المال أيضاً */
     max-height: 200px; 
     overflow-y: auto;
     margin-top: 15px;
@@ -81,12 +81,12 @@ tr.overdue-alert td {
     border-radius: 8px;
     padding: 5px;
 }
-#paymentsTable table{
+#paymentsTable table, #capitalEntriesTable table{
     width: 95%;
     font-size: 12px;
     margin: 5px auto;
 }
-#paymentsTable th, #paymentsTable td {
+#paymentsTable th, #paymentsTable td, #capitalEntriesTable th, #capitalEntriesTable td {
     padding: 5px;
 }
 .due-date-text {
@@ -151,10 +151,17 @@ tr.overdue-alert td {
 <div id="imageModal" class="modal hidden"><div class="modal-content"><img id="fullImage" style="max-width:100%;border-radius:12px"><br><button onclick="closeModal('imageModal')">إغلاق الصورة</button></div></div>
 
 <div id="capitalModal" class="modal hidden"><div class="modal-content">
-    <h2>إضافة رأس مال مسحوب</h2>
+    <h2>إضافة رأس مال مسحوب / تعديل السجلات</h2>
     <input id="capitalAmount" type="number" placeholder="قيمة رأس المال المسحوب" required>
     <input id="capitalDate" type="date">
     <button onclick="addCapitalEntry()">إضافة المبلغ</button>
+    
+    <hr style="margin: 15px 0;">
+    <h3>سجل حركات رأس المال</h3>
+    <div id="capitalEntriesTable">
+        </div>
+    <p style="font-size: 14px; font-weight: bold;">ملاحظة: لحذف حركة اضغط على زر الحذف.</p>
+
     <button onclick="closeModal('capitalModal')" style="background:#dc3545">إغلاق</button>
 </div></div>
 
@@ -186,16 +193,50 @@ clients = clients.map(c => ({
 }));
 
 // ====================================
-// دوال إدارة رأس المال
+// 🌟 دوال إدارة رأس المال المُحدثة
 // ====================================
+
 function calcTotalCapital() {
     const totalCapital = capitalEntries.reduce((a, c) => a + Number(c.amount), 0);
     document.getElementById('capitalRes').innerHTML = formatCurrency(totalCapital);
 }
 
+function displayCapitalEntries() {
+    let tableHtml = `
+        <table>
+            <tr>
+                <th>التاريخ</th>
+                <th>المبلغ</th>
+                <th>إجراء</th>
+            </tr>
+    `;
+    
+    if (capitalEntries.length === 0) {
+        tableHtml += `<tr><td colspan="3">لا توجد حركات رأس مال مسجلة.</td></tr>`;
+    } else {
+        // عرض الحركات بترتيب تنازلي (الأحدث أولاً)
+        capitalEntries.slice().reverse().forEach((e, originalIndex) => {
+            // نحتاج إلى معرفة مؤشر العنصر الأصلي في المصفوفة قبل العكس
+            const actualIndex = capitalEntries.length - 1 - originalIndex;
+
+            tableHtml += `
+                <tr>
+                    <td>${e.date}</td>
+                    <td>${formatCurrency(e.amount)}</td>
+                    <td><button class="btn del" onclick="deleteCapitalEntry(${actualIndex})" style="width: auto; padding: 4px 8px; margin: 0; min-width: 50px;">حذف</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    tableHtml += `</table>`;
+    document.getElementById('capitalEntriesTable').innerHTML = tableHtml;
+}
+
 function openCapitalModal() {
     document.getElementById('capitalDate').value = today;
     document.getElementById('capitalAmount').value = '';
+    displayCapitalEntries(); // 🌟 عرض السجلات عند فتح النافذة
     document.getElementById('capitalModal').classList.remove('hidden');
 }
 
@@ -211,27 +252,37 @@ function addCapitalEntry() {
     document.getElementById('capitalAmount').value = '';
     
     calcTotalCapital();
+    displayCapitalEntries(); // 🌟 تحديث السجلات بعد الإضافة
     alert(`تم إضافة ${formatCurrency(amount)} لرأس المال بنجاح.`);
 }
 
+function deleteCapitalEntry(entryIndex) {
+    if (!confirm("هل أنت متأكد من حذف حركة رأس المال هذه؟")) return;
+
+    // حذف الإدخال من مصفوفة capitalEntries
+    capitalEntries.splice(entryIndex, 1);
+    
+    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+
+    // إعادة عرض الإجماليات والسجلات
+    calcTotalCapital();
+    displayCapitalEntries();
+}
+
 function exportCapitalPDF() {
+    // (الدالة لم تتغير)
     const doc = new jsPDF('p', 'mm', 'a4');
     const totalCapital = capitalEntries.reduce((a, c) => a + Number(c.amount), 0);
-
     doc.setFont('helvetica', 'normal'); 
     doc.setFontSize(20);
     doc.text("Head Capital Entries Report", doc.internal.pageSize.getWidth() / 2, 20, {align:'center'}); 
-    
     doc.setFontSize(12);
     doc.text(`Report Date: ${new Date().toLocaleDateString('en-GB')}`, doc.internal.pageSize.getWidth() / 2, 30, {align:'center'});
-
     const data = capitalEntries.map(c => ([
         c.date,
         formatCurrencyEn(c.amount)
     ]));
-
     const head = [['Date', 'Amount (EGP)']];
-
     doc.autoTable({
         head: head,
         body: data,
@@ -240,20 +291,17 @@ function exportCapitalPDF() {
         headStyles: {fillColor: [0, 123, 255]},
         theme: 'striped',
     });
-    
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 255);
     doc.text(`Total Head Capital: ${formatCurrencyEn(totalCapital)}`, doc.internal.pageSize.getWidth() / 2, doc.lastAutoTable.finalY + 15, {align:'center'});
-    
     doc.save(`Capital-Report-${new Date().getFullYear()}-${new Date().getMonth()+1}.pdf`);
 }
 // ------------------------------------
 
 
 // ====================================
-// دوال التواريخ
+// دوال التواريخ (بدون تغيير)
 // ====================================
-
 function getPaidMonthsCount(c) {
     if (!c.payments || c.payments.length === 0) return 0;
     const total = c.price * (1 + c.interest);
@@ -263,26 +311,17 @@ function getPaidMonthsCount(c) {
     const fullyPaidMonths = Math.floor(c.paid / inst);
     return fullyPaidMonths;
 }
-
 function getNextDueDate(c) {
     if (!c.registrationDate) return 'غير محدد';
     const totalPaidAmount = c.paid;
     const fullAmount = c.price * (1 + c.interest);
-
-    if (totalPaidAmount >= fullAmount - 0.01) {
-        return 'تم السداد بالكامل';
-    }
-
+    if (totalPaidAmount >= fullAmount - 0.01) { return 'تم السداد بالكامل'; }
     const paidMonths = getPaidMonthsCount(c);
     const regDate = new Date(c.registrationDate);
-    
     let dueDate = new Date(regDate);
     dueDate.setMonth(dueDate.getMonth() + paidMonths + 1);
-    
-    // تصحيح مشكلة التواريخ المتاخرة إذا تم التعديل يدوياً
     let todayObj = new Date(today);
     todayObj.setHours(0, 0, 0, 0);
-
     if (dueDate < todayObj) {
         let tempDate = new Date(regDate);
         tempDate.setMonth(tempDate.getMonth() + paidMonths); 
@@ -291,27 +330,21 @@ function getNextDueDate(c) {
         }
         dueDate = tempDate;
     }
-
     return formatDate(dueDate.toISOString().split('T')[0]);
 }
-
 function isOverdue(c) {
     const nextDue = getNextDueDate(c);
     if (nextDue === 'تم السداد بالكامل' || nextDue === 'غير محدد') return false;
-
     const dueDateObj = new Date(nextDue);
     const todayObj = new Date(today);
-    
     dueDateObj.setHours(0, 0, 0, 0);
     todayObj.setHours(0, 0, 0, 0);
-
     return dueDateObj < todayObj;
 }
 // ------------------------------------
 
-
 // ====================================
-// دوال إدارة العملاء الأساسية (مختصرة)
+// دوال إدارة العملاء الأساسية (بدون تغيير)
 // ====================================
 function addClient() {
     const name = document.getElementById('name').value.trim();
@@ -321,25 +354,20 @@ function addClient() {
     const months = Number(document.getElementById('months').value);
     const interest = Number(document.getElementById('interest').value) / 100;
     const registrationDate = document.getElementById('regDate').value;
-
     if (!name || !phone || !price || !months || interest < 0 || !registrationDate) return alert("الرجاء ملء جميع الحقول المطلوبة (بما في ذلك تاريخ التسجيل).");
     const clean = phone.replace(/\D/g,'');
     const full = clean.startsWith('20') ? clean : '20' + clean.replace(/^0/,'');
     const formattedPhone = '+' + full;
-
     clients.push({name, phone:formattedPhone, product, price, months, interest, paid:0, payments:[], photo:null, registrationDate});
     localStorage.setItem('clients', JSON.stringify(clients));
     document.getElementById('name').value = document.getElementById('phone').value = document.getElementById('product').value = document.getElementById('price').value = document.getElementById('months').value = document.getElementById('interest').value = '';
     document.getElementById('regDate').value = today;
-
     calcProfits();
     showClients();
 }
-
 function showClients() {
     document.getElementById('clientsCount').textContent = `العملاء (${clients.length})`;
     let html = `<table><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr>`;
-    
     clients.forEach((c,i) => {
         const total = c.price * (1 + c.interest);
         const rem = total - c.paid;
@@ -347,7 +375,6 @@ function showClients() {
         const thumb = c.photo ? `<img src="${c.photo}" class="client-thumb" onclick="openImageModal('${c.photo}')" alt="صورة العميل">` : '';
         const dueDate = getNextDueDate(c);
         const rowClass = isOverdue(c) ? 'overdue-alert' : '';
-
         html += `
         <tr class="${rowClass}">
             <td style="text-align:right"><strong>${c.name}</strong><small class="product-desc">${c.product}</small></td>
@@ -374,7 +401,6 @@ function showClients() {
     html += `</table>`;
     document.getElementById('clientsTable').innerHTML = html;
 }
-
 function sendWA(i){
     const c=clients[i];
     const total=c.price*(1+c.interest);
@@ -382,17 +408,14 @@ function sendWA(i){
     const inst=total/c.months;
     const remainInst=Math.max(0, Math.ceil((total - c.paid) / inst));
     const nextDueDateStr = getNextDueDate(c); 
-
     const msg=`مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n`
               + `• المبلغ الإجمالي المتبقي: ${formatCurrency(Math.max(0, rem))}\n`
               + `• باقي الأقساط المتوقعة: ${remainInst} قسط\n`
               + `• قيمة القسط القادم: ${getNextInstallment(c)}\n`
               + `• تاريخ استحقاق القسط: ${nextDueDateStr}\n\n`
               + `برجاء سرعة السداد. شكراً لتعاونك.`;
-    
     window.open(`https://wa.me/${c.phone.replace('+','')}/?text=${encodeURIComponent(msg)}`,'_blank');
 }
-
 function calculateTotalPaid(client) { return client.payments.reduce((sum, p) => sum + Number(p.amount), 0); }
 function deletePayment(clientIndex, paymentIndex) { if (!confirm("هل أنت متأكد من حذف هذا القسط؟")) return; const c = clients[clientIndex]; c.payments.splice(paymentIndex, 1); c.paid = calculateTotalPaid(c); localStorage.setItem('clients', JSON.stringify(clients)); displayPayments(clientIndex); calcProfits(); showClients(); }
 function displayPayments(clientIndex) { const c = clients[clientIndex]; let tableHtml = `<table><tr><th>التاريخ</th><th>المبلغ</th><th>إجراء</th></tr>`; if (c.payments.length === 0) { tableHtml += `<tr><td colspan="3">لا توجد أقساط مدفوعة لهذا العميل.</td></tr>`; } else { c.payments.slice().reverse().forEach((p, originalIndex) => { const actualIndex = c.payments.length - 1 - originalIndex; tableHtml += `<tr><td>${p.date}</td><td>${formatCurrency(p.amount)}</td><td><button class="btn del" onclick="deletePayment(${clientIndex}, ${actualIndex})" style="width: auto; padding: 4px 8px; margin: 0; min-width: 50px;">حذف</button></td></tr>`; }); } tableHtml += `</table>`; document.getElementById('paymentsTable').innerHTML = tableHtml; }
