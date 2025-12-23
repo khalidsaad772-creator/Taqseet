@@ -3,25 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>محل التقسيط - النظام الأصلي</title>
+<title>نظام التقسيط - نسخة الخزنة ورأس المال</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-    /* إرجاع الاستايل القديم الذي تفضله */
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:Tahoma, Arial, sans-serif;background:#f0f8ff;padding:10px}
-    .container{max-width:550px;margin:0 auto;background:white;border-radius:16px;padding:20px;box-shadow:0 6px 25px rgba(0,0,0,0.15)}
-    h1{color:#28a745;text-align:center;margin:20px 0;font-size:26px}
-    input, button, select{width:100%;padding:14px;margin:8px 0;border:2px solid #28a745;border-radius:12px;font-size:16px;text-align:center}
-    button{background:#28a745;color:#fff;font-weight:bold;cursor:pointer}
-    .result{background:#d4edda;color:#155524;padding:16px;border-radius:12px;margin:15px 0;text-align:center;font-size:18px;font-weight:bold}
-    table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px}
-    th{background:#28a745;color:#fff;padding:12px}
-    td{border:1px solid #ddd;padding:10px;text-align:center}
-    .btn-action{padding:8px; border-radius:8px; color:white; font-weight:bold; cursor:pointer; border:none; margin:2px; font-size:12px}
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:1000}
-    .modal-content{background:white;padding:20px;border-radius:16px;width:90%;max-width:450px;text-align:center}
+    body{font-family:Tahoma, Arial, sans-serif;background:#f0f4f8;padding:10px}
+    .container{max-width:500px;margin:0 auto;background:white;border-radius:15px;padding:20px;box-shadow:0 5px 20px rgba(0,0,0,0.1)}
+    h1{color:#28a745;text-align:center;margin-bottom:20px}
+    input, select, button{width:100%;padding:12px;margin:8px 0;border:2px solid #ddd;border-radius:10px;font-size:16px;outline:none}
+    input:focus{border-color:#28a745}
+    button{background:#28a745;color:white;font-weight:bold;cursor:pointer;border:none}
+    .result-card{padding:15px;border-radius:10px;margin:10px 0;text-align:center;font-weight:bold}
+    .safe-card{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
+    .cap-card{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
+    table{width:100%;border-collapse:collapse;margin-top:15px;background:white}
+    th{background:#28a745;color:white;padding:10px;font-size:14px}
+    td{border:1px solid #eee;padding:10px;text-align:center;font-size:13px}
+    .btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:flex;justify-content:center;align-items:center;z-index:1000}
+    .modal-content{background:white;padding:20px;border-radius:15px;width:90%;max-width:400px}
     .hidden{display:none}
 </style>
 </head>
@@ -31,193 +33,177 @@
     <h1>محل التقسيط 💰</h1>
     
     <input type="text" id="name" placeholder="* اسم العميل">
-    <input type="text" id="phone" placeholder="* رقم التليفون">
-    <input type="text" id="product" placeholder="وصف المنتج">
-    <input type="number" id="price" placeholder="* سعر السلعة">
+    <input type="number" id="price" placeholder="* السعر">
     <input type="number" id="months" placeholder="* عدد الشهور">
-    <input type="number" id="interest" placeholder="* نسبة الفائدة %">
+    <input type="number" id="interest" placeholder="* الفائدة %">
     <input type="date" id="regDate">
-    <button onclick="addClient()">إضافة عميل جديد</button>
+    <button onclick="addClient()">إضافة عميل</button>
 
     <hr style="margin:20px 0">
 
-    <h2 style="font-size:18px; color:#d35400">خزنة المحصلات (الجرد) 🏦</h2>
-    <div id="cashSafeRes" class="result" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba">0 جنيه</div>
-    <button onclick="clearCashSafe()" style="background:#ff9800">جرد وتصفير الخزنة 🧹</button>
+    <div class="result-card safe-card">
+        إجمالي المتحصلات في الخزنة:<br>
+        <span id="cashSafeDisplay" style="font-size:20px">0 ج.م</span>
+    </div>
+    <button onclick="clearSafe()" style="background:#ffc107; color:#333">جرد وتصفير الخزنة 🧹</button>
 
-    <h2 style="font-size:18px; color:#007bff">إدارة رأس المال 💸</h2>
-    <div id="capitalRes" class="result" style="background:#e8f4fd; color:#004085">0 جنيه</div>
-    <div style="display:flex; gap:5px">
-        <button onclick="openCapitalModal()" style="background:#007bff">إيداع / سحب رأس مال</button>
-        <button onclick="exportCapitalPDF()" style="background:#4CAF50">تقرير رأس المال PDF</button>
+    <div class="result-card cap-card">
+        رأس المال الحالي:<br>
+        <span id="capitalDisplay" style="font-size:20px">0 ج.م</span>
+    </div>
+    <div class="btn-grid">
+        <button onclick="openCapModal()" style="background:#17a2b8">إيداع / سحب</button>
+        <button onclick="exportCapPDF()" style="background:#6c757d">تقرير رأس المال</button>
     </div>
 
-    <div style="display:flex; gap:5px; margin-top:10px">
-        <button onclick="exportData()" style="background:#ff9800">نسخة احتياطية 💾</button>
-        <button onclick="document.getElementById('restoreInput').click()" style="background:#9c27b0">استعادة ♻️</button>
+    <div class="btn-grid" style="margin-top:10px">
+        <button onclick="exportBackup()" style="background:#fd7e14">سحب نسخة 💾</button>
+        <button onclick="document.getElementById('importFile').click()" style="background:#6f42c1">إضافة نسخة ♻️</button>
     </div>
-    <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none">
+    <input type="file" id="importFile" hidden onchange="importBackup(event)">
 
-    <h2 id="clientsCount" style="margin-top:20px">العملاء (0)</h2>
-    <div id="clientsTable"></div>
+    <h3 id="cCount" style="margin-top:20px; color:#555">العملاء (0)</h3>
+    <div id="clientsList"></div>
 </div>
 
-<div id="capitalModal" class="modal hidden">
+<div id="capModal" class="modal hidden">
     <div class="modal-content">
-        <h2>حركة رأس مال</h2>
+        <h3>حركة رأس مال</h3>
         <select id="capType">
-            <option value="in">إيداع (+)</option>
-            <option value="out">سحب (-)</option>
+            <option value="in">إيداع (زيادة +)</option>
+            <option value="out">سحب (نقص -)</option>
         </select>
-        <input type="number" id="capAmount" placeholder="المبلغ">
-        <input type="text" id="capReason" placeholder="السبب (مثلاً: إيجار / بضاعة)">
+        <input type="number" id="capAmt" placeholder="المبلغ">
+        <input type="text" id="capReason" placeholder="السبب (مثلاً: شراء بضاعة)">
         <input type="date" id="capDate">
-        <button onclick="addCapitalEntry()">حفظ العملية</button>
-        <div id="capEntriesTable" style="max-height:150px; overflow-y:auto; margin-top:10px"></div>
-        <button onclick="closeModal('capitalModal')" style="background:#dc3545">إغلاق</button>
+        <button onclick="saveCap()">تأكيد العملية</button>
+        <button onclick="closeModal('capModal')" style="background:#dc3545">إلغاء</button>
     </div>
 </div>
 
-<div id="paymentModal" class="modal hidden">
+<div id="payModal" class="modal hidden">
     <div class="modal-content">
-        <h2>إضافة قسط جديد</h2>
-        <input id="payAmt" type="number">
-        <input id="payDate" type="date">
-        <button onclick="savePayment()">تأكيد الدفع</button>
-        <button onclick="closeModal('paymentModal')" style="background:#dc3545">إغلاق</button>
+        <h3>دفع قسط</h3>
+        <input type="number" id="pAmt" placeholder="المبلغ">
+        <input type="date" id="pDate">
+        <button onclick="confirmPay()">تأكيد الدفع</button>
+        <button onclick="closeModal('payModal')" style="background:#dc3545">إلغاء</button>
     </div>
 </div>
 
 <script>
-// استخدام نفس أسماء المتغيرات الأصلية لضمان قراءة البيانات القديمة
+// الأسماء الأصلية لضمان استعادة البيانات
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
 let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
 let cashSafe = Number(localStorage.getItem('cashSafe') || 0);
 let activeIdx = -1;
 
 const today = new Date().toISOString().split('T')[0];
-const fmt = (n) => Number(n).toLocaleString('ar-EG') + ' ج.م';
 
-// دالة حساب التاريخ القادم تلقائياً
-function calcNextDate(c) {
-    const total = c.price * (1 + (Number(c.interest)/100));
-    const instVal = total / c.months;
-    const paidMonths = Math.floor(c.paid / (instVal || 1));
-    const d = new Date(c.registrationDate || today);
-    d.setMonth(d.getMonth() + paidMonths + 1);
-    return d.toISOString().split('T')[0];
+function save() {
+    localStorage.setItem('clients', JSON.stringify(clients));
+    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+    localStorage.setItem('cashSafe', cashSafe);
+    render();
 }
 
 function addClient() {
     const name = document.getElementById('name').value;
     const price = Number(document.getElementById('price').value);
-    if(!name || !price) return alert("أكمل البيانات");
+    if(!name || !price) return alert("يرجى ملء البيانات");
     clients.push({
-        name, phone: document.getElementById('phone').value,
-        product: document.getElementById('product').value || "بضاعة",
-        price, months: Number(document.getElementById('months').value),
+        name, price, months: Number(document.getElementById('months').value),
         interest: Number(document.getElementById('interest').value),
-        registrationDate: document.getElementById('regDate').value || today,
+        regDate: document.getElementById('regDate').value || today,
         paid: 0, payments: []
     });
-    updateAll();
+    save();
 }
 
-function openPaymentModal(i) {
+function openPay(i) {
     activeIdx = i;
     const c = clients[i];
     const inst = (c.price * (1 + (c.interest/100))) / c.months;
-    document.getElementById('payAmt').value = Math.round(inst);
-    document.getElementById('payDate').value = today;
-    document.getElementById('paymentModal').classList.remove('hidden');
+    document.getElementById('pAmt').value = Math.round(inst);
+    document.getElementById('pDate').value = today;
+    document.getElementById('payModal').classList.remove('hidden');
 }
 
-function savePayment() {
-    const amt = Number(document.getElementById('payAmt').value);
+function confirmPay() {
+    const amt = Number(document.getElementById('pAmt').value);
     clients[activeIdx].paid += amt;
-    clients[activeIdx].payments.push({amount: amt, date: document.getElementById('payDate').value});
-    cashSafe += amt; // تزويد الخزنة
-    updateAll();
-    closeModal('paymentModal');
+    clients[activeIdx].payments.push({amt, date: document.getElementById('pDate').value});
+    cashSafe += amt; // تزويد الخزنة تراكمياً
+    save();
+    closeModal('payModal');
 }
 
-function clearCashSafe() {
-    if(confirm("هل تريد تصفير خزنة المحصلات؟")) { cashSafe = 0; updateAll(); }
+function clearSafe() {
+    if(confirm("هل متأكد من جرد وتصفير الخزنة؟")) {
+        cashSafe = 0;
+        save();
+    }
 }
 
-function openCapitalModal() {
+function openCapModal() {
     document.getElementById('capDate').value = today;
-    renderCapTable();
-    document.getElementById('capitalModal').classList.remove('hidden');
+    document.getElementById('capModal').classList.remove('hidden');
 }
 
-function addCapitalEntry() {
-    const amt = Number(document.getElementById('capAmount').value);
+function saveCap() {
+    const amt = Number(document.getElementById('capAmt').value);
     const type = document.getElementById('capType').value;
     const finalAmt = type === 'in' ? amt : -amt;
-    capitalEntries.push({amount: finalAmt, reason: document.getElementById('capReason').value, date: document.getElementById('capDate').value});
-    updateAll(); renderCapTable();
-}
-
-function renderCapTable() {
-    let h = '<table style="font-size:11px"><tr><th>التاريخ</th><th>المبلغ</th><th>السبب</th></tr>';
-    capitalEntries.slice().reverse().slice(0,5).forEach(e => {
-        h += `<tr><td>${e.date}</td><td style="color:${e.amount>0?'green':'red'}">${e.amount}</td><td>${e.reason||''}</td></tr>`;
+    capitalEntries.push({
+        amount: finalAmt, 
+        reason: document.getElementById('capReason').value || "غير محدد", 
+        date: document.getElementById('capDate').value
     });
-    document.getElementById('capEntriesTable').innerHTML = h + '</table>';
+    save();
+    closeModal('capModal');
 }
 
-function sendWA(i) {
-    const c = clients[i];
-    const total = c.price * (1 + (c.interest/100));
-    const msg = `أ/ ${c.name}\nقسط ${c.product}\nموعدك: ${calcNextDate(c)}\nالباقي: ${fmt(total-c.paid)}`;
-    window.open(`https://wa.me/2${c.phone}?text=${encodeURIComponent(msg)}`);
-}
+function render() {
+    document.getElementById('cashSafeDisplay').innerText = cashSafe.toLocaleString() + ' ج.م';
+    const totalCap = capitalEntries.reduce((a, b) => a + Number(b.amount), 0);
+    document.getElementById('capitalDisplay').innerText = totalCap.toLocaleString() + ' ج.م';
+    document.getElementById('cCount').innerText = `العملاء (${clients.length})`;
 
-function updateAll() {
-    localStorage.setItem('clients', JSON.stringify(clients));
-    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
-    localStorage.setItem('cashSafe', cashSafe);
-    renderUI();
-}
-
-function renderUI() {
-    document.getElementById('capitalRes').innerText = fmt(capitalEntries.reduce((a,b)=>a+Number(b.amount),0));
-    document.getElementById('cashSafeRes').innerText = fmt(cashSafe);
-    document.getElementById('clientsCount').innerText = `العملاء (${clients.length})`;
-    
-    let html = `<table><tr><th>العميل</th><th>مدفوع/باقي</th><th>القادم</th></tr>`;
+    let html = `<table><tr><th>العميل</th><th>الباقي</th><th>التحكم</th></tr>`;
     clients.forEach((c, i) => {
         const total = c.price * (1 + (c.interest/100));
-        html += `<tr><td><b>${c.name}</b></td><td>${fmt(c.paid)}<br><small>باقي:${fmt(total-c.paid)}</small></td><td>${calcNextDate(c)}</td></tr>
-        <tr><td colspan="3">
-            <button class="btn-action" style="background:#007bff" onclick="openPaymentModal(${i})">قسط</button>
-            <button class="btn-action" style="background:#25D366" onclick="sendWA(${i})">واتس</button>
-            <button class="btn-action" style="background:#dc3545" onclick="deleteClient(${i})">حذف</button>
-        </td></tr>`;
+        html += `<tr>
+            <td><b>${c.name}</b></td>
+            <td>${Math.round(total - c.paid)}</td>
+            <td><button onclick="openPay(${i})" style="padding:5px; font-size:12px">قسط</button></td>
+        </tr>`;
     });
-    document.getElementById('clientsTable').innerHTML = html + '</table>';
+    document.getElementById('clientsList').innerHTML = html + '</table>';
 }
 
-function exportData(){
-    const b=new Blob([JSON.stringify({clients, capitalEntries, cashSafe})],{type:'application/json'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`backup.json`; a.click();
+function exportBackup() {
+    const blob = new Blob([JSON.stringify({clients, capitalEntries, cashSafe})], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `تقسيط_احتياطي_${today}.json`;
+    a.click();
 }
 
-function restoreData(e){
+function importBackup(e) {
     const reader = new FileReader();
     reader.onload = (ev) => {
         const data = JSON.parse(ev.target.result);
-        clients = data.clients || []; capitalEntries = data.capitalEntries || []; cashSafe = data.cashSafe || 0;
-        updateAll(); alert("تمت الاستعادة");
+        clients = data.clients || [];
+        capitalEntries = data.capitalEntries || [];
+        cashSafe = data.cashSafe || 0;
+        save();
     };
     reader.readAsText(e.target.files[0]);
 }
 
-function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
-function deleteClient(i){ if(confirm("حذف؟")) { clients.splice(i,1); updateAll(); } }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-window.onload = () => { document.getElementById('regDate').value = today; renderUI(); };
+window.onload = () => { document.getElementById('regDate').value = today; render(); };
 </script>
 </body>
 </html>
