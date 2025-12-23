@@ -8,51 +8,46 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-/* الستايلات الأساسية */
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Tahoma, Arial, sans-serif;background:#f4f7f6;padding:10px}
-.container{max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
-h1, h2{text-align:center;margin-bottom:15px}
-h1{color:#2ecc71} h2{color:#3498db;font-size:1.2rem}
+    /* تنسيقات عامة */
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Tahoma, Arial, sans-serif;background:#f4f7f6;padding:10px;color:#333}
+    .container{max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
+    
+    h1, h2{text-align:center;margin-bottom:15px}
+    h1{color:#2ecc71; font-size: 24px} 
+    h2{color:#3498db;font-size:18px; margin-top: 20px; border-bottom: 2px solid #f4f7f6; padding-bottom: 5px}
 
-input, select, button{width:100%;padding:12px;margin:8px 0;border:2px solid #ddd;border-radius:10px;font-size:15px;outline:none}
-input:focus{border-color:#2ecc71}
-button{background:#2ecc71;color:white;font-weight:bold;cursor:pointer;border:none;transition:0.3s}
-button:hover{opacity:0.8}
+    input, select, button{width:100%;padding:12px;margin:8px 0;border:2px solid #ddd;border-radius:10px;font-size:15px;outline:none}
+    button{background:#2ecc71;color:white;font-weight:bold;cursor:pointer;border:none;transition:0.3s}
+    button:hover{opacity:0.8}
 
-/* الأزرار والألوان */
-.btn-red{background:#e74c3c} .btn-blue{background:#3498db} .btn-orange{background:#f39c12} .btn-purple{background:#9b59b6}
-.result-box{padding:15px;border-radius:12px;margin:10px 0;text-align:center;font-weight:bold;font-size:1.1rem}
-.bg-light-blue{background:#e8f4fd;color:#2980b9}
-.bg-light-green{background:#eafaf1;color:#27ae60}
-.bg-light-orange{background:#fef5e7;color:#d35400}
+    .btn-red{background:#e74c3c} .btn-blue{background:#3498db} .btn-orange{background:#f39c12} .btn-purple{background:#9b59b6}
+    .result-box{padding:15px;border-radius:12px;margin:10px 0;text-align:center;font-weight:bold;font-size:1.1rem}
+    .bg-safe{background:#fef5e7;color:#d35400; border: 1px solid #f39c12}
+    .bg-capital{background:#e8f4fd;color:#2980b9; border: 1px solid #3498db}
 
-/* الجدول */
-table{width:100%;border-collapse:collapse;margin-top:15px;font-size:0.85rem}
-th{background:#2ecc71;color:white;padding:10px}
-td{border:1px solid #eee;padding:10px;text-align:center}
-.overdue-alert{background-color:#fdedec !important;color:#c0392b}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+    th{background:#2ecc71;color:white;padding:10px}
+    td{border:1px solid #eee;padding:10px;text-align:center}
+    .overdue-row{background-color:#fdedec !important; color:#c0392b}
 
-/* أزرار الإجراءات المصغرة */
-.action-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:5px;margin-top:10px}
-.btn-small{padding:6px;font-size:0.75rem;margin:0}
+    .action-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:5px;margin-top:10px}
+    .btn-small{padding:8px;font-size:12px;margin:0}
 
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:white;padding:20px;border-radius:15px;width:90%;max-width:400px;max-height:90vh;overflow-y:auto}
-.hidden{display:none}
-
-.flex-row{display:flex;gap:10px}
-.thumb{width:35px;height:35px;border-radius:50%;object-fit:cover;cursor:pointer;border:1px solid #ddd}
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:1000}
+    .modal-content{background:white;padding:20px;border-radius:15px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto}
+    .hidden{display:none}
+    .flex-row{display:flex;gap:10px}
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>محل التقسيط 💰</h1>
+    <h1>محل التقسيط الاحترافي 💰</h1>
     
     <input type="text" id="name" placeholder="* اسم العميل">
     <input type="text" id="phone" placeholder="* رقم التليفون">
-    <input type="text" id="product" placeholder="المنتج (مثال: شاشة LG)">
+    <input type="text" id="product" placeholder="المنتج">
     <div class="flex-row">
         <input type="number" id="price" placeholder="* السعر">
         <input type="number" id="months" placeholder="* الشهور">
@@ -63,248 +58,201 @@ td{border:1px solid #eee;padding:10px;text-align:center}
     </div>
     <button onclick="addClient()">إضافة عميل جديد ✅</button>
 
-    <hr style="margin:20px 0">
+    <hr>
 
     <h2>خزنة المحصلات (الجرد) 🏦</h2>
-    <div id="cashBox" class="result-box bg-light-orange">0 ج.م</div>
+    <div id="cashBoxDisplay" class="result-box bg-safe">0 ج.م</div>
     <button class="btn-orange" onclick="clearCashBox()">جرد وتصفير الخزنة 🧹</button>
 
     <h2>إدارة رأس المال 💸</h2>
-    <div id="capitalTotal" class="result-box bg-light-blue">رأس المال: 0 ج.م</div>
+    <div id="capitalDisplay" class="result-box bg-capital">0 ج.م</div>
     <div class="flex-row">
-        <button class="btn-blue" onclick="openCapitalModal()">إيداع / سحب رأس مال</button>
-        <button class="btn-purple" onclick="exportCapitalPDF()">تقرير رأس المال</button>
+        <button class="btn-blue" onclick="openCapitalModal()">إيداع / سحب</button>
+        <button class="btn-blue" style="background:#8e44ad" onclick="exportCapitalPDF()">تقرير رأس المال</button>
     </div>
 
+    <h2 style="color:#f39c12">النسخ الاحتياطي 💾</h2>
     <div class="flex-row">
-        <div style="flex:1" class="result-box bg-light-green"><small>أرباح متوقعة</small><br><span id="totalProfit">0</span></div>
-        <div style="flex:1" class="result-box bg-light-green"><small>ربح فعلي (الشهر)</small><br><span id="monthlyProfit">0</span></div>
+        <button class="btn-orange" onclick="exportBackup()" style="flex:1">سحب نسخة (Backup)</button>
+        <button class="btn-purple" onclick="document.getElementById('importFile').click()" style="flex:1">إضافة نسخة (Restore)</button>
     </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
 
-    <button class="btn-blue" onclick="exportPDF()">تقرير العملاء (PDF)</button>
+    <button class="btn-red" style="margin-top:20px; background:#27ae60" onclick="exportPDF()">تقرير العملاء الشامل (PDF)</button>
     
-    <h2 id="clientsCount" style="margin-top:20px">العملاء (0)</h2>
+    <h2 id="clientsCount">قائمة العملاء (0)</h2>
     <div id="clientsTable"></div>
 </div>
 
 <div id="capitalModal" class="modal hidden">
     <div class="modal-content">
-        <h3>إدارة حركة رأس المال</h3>
+        <h3>حركة رأس مال</h3>
         <select id="capType">
             <option value="in">إيداع (+)</option>
             <option value="out">سحب (-)</option>
         </select>
         <input type="number" id="capAmount" placeholder="المبلغ">
-        <input type="text" id="capReason" placeholder="السبب (مثال: شراء بضاعة / سداد ديون)">
+        <input type="text" id="capReason" placeholder="السبب">
         <input type="date" id="capDate">
-        <button onclick="saveCapital()">حفظ الحركة</button>
-        <div id="capHistory" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px; font-size:0.8rem"></div>
+        <button onclick="saveCapital()">حفظ</button>
+        <div id="capHistory" style="margin-top:10px"></div>
         <button class="btn-red" onclick="closeModal('capitalModal')">إغلاق</button>
     </div>
 </div>
 
 <div id="paymentModal" class="modal hidden">
     <div class="modal-content">
-        <h3 id="payTitle">تسجيل قسط</h3>
-        <input type="number" id="payAmount" placeholder="قيمة القسط">
+        <h3>تسجيل قسط</h3>
+        <input type="number" id="payAmount">
         <input type="date" id="payDate">
-        <button onclick="processPayment()">تسجيل الدفع</button>
-        <div id="payHistory" style="margin-top:10px"></div>
+        <button onclick="confirmPayment()">تأكيد الدفع</button>
         <button class="btn-red" onclick="closeModal('paymentModal')">إغلاق</button>
     </div>
 </div>
 
 <script>
-// البيانات الأساسية
-let clients = JSON.parse(localStorage.getItem('cl_data') || '[]');
-let capital = JSON.parse(localStorage.getItem('cap_data') || '[]');
-let cashBox = Number(localStorage.getItem('cash_box') || 0);
-let currentIdx = -1;
+// إرجاع الأسماء القديمة لضمان ظهور البيانات
+let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
+let cashSafe = Number(localStorage.getItem('cash_box_safe') || 0);
+let activeIdx = -1;
 
 const today = new Date().toISOString().split('T')[0];
-const cur = (num) => Number(num).toLocaleString('ar-EG') + ' ج.م';
+const fmt = (n) => Number(n).toLocaleString('ar-EG') + ' ج.م';
 
-// دالة حساب تاريخ الاستحقاق القادم بناءً على الأقساط المدفوعة
-function calculateNextDue(client) {
-    const totalWithInterest = client.price * (1 + (client.interest/100));
-    const installmentVal = totalWithInterest / client.months;
-    
-    // عدد الأقساط المدفوعة بالكامل
-    const paidInstallments = Math.floor(client.paid / installmentVal);
-    
-    const d = new Date(client.regDate);
-    // التاريخ القادم = تاريخ التسجيل + (عدد الأقساط المدفوعة + 1) شهور
-    d.setMonth(d.getMonth() + paidInstallments + 1);
-    
+function getNextDueDate(c) {
+    const total = c.price * (1 + (c.interest/100));
+    const inst = total / c.months;
+    const paidCount = Math.floor(c.paid / inst);
+    const d = new Date(c.regDate || today);
+    d.setMonth(d.setMonth() + paidCount + 1);
     return d.toISOString().split('T')[0];
 }
 
-// إضافة عميل
 function addClient() {
     const name = document.getElementById('name').value;
     const price = Number(document.getElementById('price').value);
     const months = Number(document.getElementById('months').value);
     const interest = Number(document.getElementById('interest').value);
-    const phone = document.getElementById('phone').value;
-    const regDate = document.getElementById('regDate').value || today;
-
-    if(!name || !price || !months) return alert("أكمل البيانات المطلوبة");
+    if(!name || !price) return alert("بيانات ناقصة");
 
     clients.push({
-        name, phone, product: document.getElementById('product').value || 'بضاعة',
-        price, months, interest, regDate, paid: 0, payments: [], photo: null
+        name, phone: document.getElementById('phone').value,
+        product: document.getElementById('product').value || 'بضاعة',
+        price, months, interest, regDate: document.getElementById('regDate').value || today,
+        paid: 0, payments: []
     });
-
     save();
     render();
-    alert("تمت إضافة العميل");
-}
-
-// تسجيل قسط
-function processPayment() {
-    const amt = Number(document.getElementById('payAmount').value);
-    const date = document.getElementById('payDate').value;
-    if(!amt || !date) return;
-
-    const c = clients[currentIdx];
-    c.payments.push({amt, date});
-    c.paid += amt;
-    
-    // إضافة المبلغ للخزنة (الجرد)
-    cashBox += amt;
-    
-    save();
-    render();
-    closeModal('paymentModal');
-    alert("تم تسجيل الدفع وتحديث موعد القسط القادم");
-}
-
-// جرد الخزنة
-function clearCashBox() {
-    if(confirm(`هل أنت متأكد من جرد الخزنة؟ سيتم تصفير المبلغ الحالي (${cur(cashBox)})`)) {
-        cashBox = 0;
-        save();
-        render();
-    }
-}
-
-// إدارة رأس المال
-function openCapitalModal() {
-    document.getElementById('capDate').value = today;
-    showCapitalHistory();
-    document.getElementById('capitalModal').classList.remove('hidden');
-}
-
-function saveCapital() {
-    const type = document.getElementById('capType').value;
-    const amt = Number(document.getElementById('capAmount').value);
-    const reason = document.getElementById('capReason').value || (type === 'in' ? 'إيداع' : 'سحب');
-    const date = document.getElementById('capDate').value;
-
-    if(!amt) return;
-
-    // السحب يتم تخزينه كقيمة سالبة
-    const finalAmt = type === 'in' ? amt : -amt;
-    capital.push({amt: finalAmt, reason, date});
-    
-    save();
-    render();
-    showCapitalHistory();
-    document.getElementById('capAmount').value = '';
-}
-
-function showCapitalHistory() {
-    let h = '<table>';
-    capital.slice().reverse().forEach((x, i) => {
-        const color = x.amt >= 0 ? 'green' : 'red';
-        h += `<tr><td>${x.date}</td><td style="color:${color}">${cur(x.amt)}</td><td>${x.reason}</td></tr>`;
-    });
-    document.getElementById('capHistory').innerHTML = h + '</table>';
-}
-
-// الواتساب المطور
-function sendWA(i) {
-    const c = clients[i];
-    const totalWithInterest = c.price * (1 + (c.interest/100));
-    const rem = totalWithInterest - c.paid;
-    const nextDate = calculateNextDue(c);
-    const instVal = totalWithInterest / c.months;
-    const remInst = Math.ceil(rem / instVal);
-
-    const msg = `مرحباً ${c.name} 🌹\nنذكركم بتفاصيل حسابكم لـ (${c.product}):\n\n` +
-                `✅ تم دفع: ${cur(c.paid)}\n` +
-                `💰 المبلغ المتبقي: ${cur(rem)}\n` +
-                `📅 موعد القسط القادم: ${nextDate}\n` +
-                `🔢 عدد الأقساط المتبقية: ${remInst}\n\n` +
-                `شكراً لتعاملكم معنا 🙏`;
-
-    window.open(`https://wa.me/2${c.phone}?text=${encodeURIComponent(msg)}`);
-}
-
-// دوال مساعدة
-function save() {
-    localStorage.setItem('cl_data', JSON.stringify(clients));
-    localStorage.setItem('cap_data', JSON.stringify(capital));
-    localStorage.setItem('cash_box', cashBox);
-}
-
-function render() {
-    // تحديث الأرقام العلوية
-    document.getElementById('cashBox').innerText = `المحصل الحالي في الخزنة: ${cur(cashBox)}`;
-    const totalCap = capital.reduce((a, b) => a + b.amt, 0);
-    document.getElementById('capitalTotal').innerText = `إجمالي رأس المال: ${cur(totalCap)}`;
-    
-    const totalProf = clients.reduce((a, b) => a + (b.price * (b.interest/100)), 0);
-    document.getElementById('totalProfit').innerText = cur(totalProf);
-
-    // بناء جدول العملاء
-    document.getElementById('clientsCount').innerText = `العملاء (${clients.length})`;
-    let html = `<table><tr><th>العميل</th><th>مدفوع/متبقي</th><th>القسط القادم</th></tr>`;
-    
-    clients.forEach((c, i) => {
-        const total = c.price * (1 + (c.interest/100));
-        const nextDate = calculateNextDue(c);
-        const isPast = new Date(nextDate) < new Date();
-        
-        html += `
-        <tr class="${isPast && (total - c.paid > 1) ? 'overdue-alert' : ''}">
-            <td style="text-align:right"><b>${c.name}</b><br><small>${c.product}</small></td>
-            <td>${cur(c.paid)}<br><small>باقي: ${cur(total-c.paid)}</small></td>
-            <td>${nextDate}<br><small>${cur(total/c.months)}</small></td>
-        </tr>
-        <tr><td colspan="3">
-            <div class="action-grid">
-                <button class="btn-small btn-blue" onclick="openPay(${i})">قسط</button>
-                <button class="btn-small btn-orange" onclick="sendWA(${i})">واتس</button>
-                <button class="btn-small btn-red" onclick="deleteClient(${i})">حذف</button>
-            </div>
-        </td></tr>`;
-    });
-    document.getElementById('clientsTable').innerHTML = html + '</table>';
 }
 
 function openPay(i) {
-    currentIdx = i;
+    activeIdx = i;
     const c = clients[i];
-    const instVal = (c.price * (1 + (c.interest/100))) / c.months;
-    document.getElementById('payAmount').value = Math.round(instVal);
+    document.getElementById('payAmount').value = Math.round((c.price*(1+c.interest/100))/c.months);
     document.getElementById('payDate').value = today;
     document.getElementById('paymentModal').classList.remove('hidden');
 }
 
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-function deleteClient(i) { if(confirm("حذف العميل نهائياً؟")) { clients.splice(i, 1); save(); render(); } }
-
-// تقرير رأس المال PDF
-function exportCapitalPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("Report: Head Capital History", 105, 15, { align: "center" });
-    const data = capital.map(x => [x.date, x.amt + " EGP", x.reason]);
-    doc.autoTable({ head: [['Date', 'Amount', 'Reason']], body: data, startY: 25 });
-    doc.save("Capital_Report.pdf");
+function confirmPayment() {
+    const amt = Number(document.getElementById('payAmount').value);
+    clients[activeIdx].paid += amt;
+    clients[activeIdx].payments.push({amt, date: document.getElementById('payDate').value});
+    cashSafe += amt;
+    save();
+    render();
+    closeModal('paymentModal');
 }
+
+function clearCashBox() {
+    if(confirm("تصفير الخزنة؟")) { cashSafe = 0; save(); render(); }
+}
+
+function openCapitalModal() {
+    document.getElementById('capDate').value = today;
+    renderCapHistory();
+    document.getElementById('capitalModal').classList.remove('hidden');
+}
+
+function saveCapital() {
+    const amt = Number(document.getElementById('capAmount').value);
+    const type = document.getElementById('capType').value;
+    const finalAmt = type === 'in' ? amt : -amt;
+    capitalEntries.push({amount: finalAmt, reason: document.getElementById('capReason').value, date: document.getElementById('capDate').value});
+    save();
+    render();
+    renderCapHistory();
+}
+
+function renderCapHistory() {
+    let h = '<table>';
+    capitalEntries.slice().reverse().slice(0,5).forEach(e => {
+        h += `<tr><td>${e.date}</td><td style="color:${e.amount>0?'green':'red'}">${fmt(e.amount)}</td><td>${e.reason||''}</td></tr>`;
+    });
+    document.getElementById('capHistory').innerHTML = h + '</table>';
+}
+
+function sendWA(i) {
+    const c = clients[i];
+    const total = c.price * (1 + (c.interest/100));
+    const msg = `مرحباً أ/ ${c.name}\nقسطك القادم لموعد ${getNextDueDate(c)}\nالباقي: ${fmt(total-c.paid)}`;
+    window.open(`https://wa.me/2${c.phone}?text=${encodeURIComponent(msg)}`);
+}
+
+// --- دوال النسخ الاحتياطي ---
+function exportBackup() {
+    const data = { clients, capitalEntries, cashSafe };
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_${today}.json`;
+    a.click();
+}
+
+function importBackup(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const data = JSON.parse(ev.target.result);
+        clients = data.clients || [];
+        capitalEntries = data.capitalEntries || [];
+        cashSafe = data.cashSafe || 0;
+        save();
+        render();
+        alert("تمت استعادة البيانات بنجاح");
+    };
+    reader.readAsText(file);
+}
+
+function save() {
+    localStorage.setItem('clients', JSON.stringify(clients));
+    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+    localStorage.setItem('cash_box_safe', cashSafe);
+}
+
+function render() {
+    document.getElementById('cashBoxDisplay').innerText = `خزنة المحصلات: ${fmt(cashSafe)}`;
+    const totalCap = capitalEntries.reduce((a, b) => a + Number(b.amount), 0);
+    document.getElementById('capitalDisplay').innerText = `رأس المال الحالي: ${fmt(totalCap)}`;
+    
+    document.getElementById('clientsCount').innerText = `العملاء (${clients.length})`;
+    let html = `<table><tr><th>العميل</th><th>مدفوع/باقي</th><th>الاستحقاق</th></tr>`;
+    clients.forEach((c, i) => {
+        const total = c.price * (1 + (c.interest/100));
+        html += `<tr><td><b>${c.name}</b></td><td>${fmt(c.paid)}<br><small>باقي:${fmt(total-c.paid)}</small></td><td>${getNextDueDate(c)}</td></tr>
+        <tr><td colspan="3"><div class="action-grid">
+            <button class="btn-small btn-blue" onclick="openPay(${i})">قسط</button>
+            <button class="btn-small btn-orange" onclick="sendWA(${i})">واتساب</button>
+            <button class="btn-small btn-red" onclick="deleteClient(${i})">حذف</button>
+        </div></td></tr>`;
+    });
+    document.getElementById('clientsTable').innerHTML = html + '</table>';
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function deleteClient(i) { if(confirm("حذف؟")) { clients.splice(i, 1); save(); render(); } }
 
 window.onload = () => { document.getElementById('regDate').value = today; render(); };
 </script>
