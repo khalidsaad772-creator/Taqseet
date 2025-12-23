@@ -342,7 +342,19 @@ function loadPhoto(e) {
     }; 
     r.readAsDataURL(file); 
 }
-function savePhoto() { if(tempPhoto) clients[currentIndex].photo = tempPhoto; save(); closeModal('photoModal'); }
+    
+function savePhoto() {
+    if (tempPhoto) {
+        clients[currentIndex].photo = tempPhoto;
+        save();
+        showClients();
+        closeModal('photoModal');
+        alert("تم حفظ صورة العميل بنجاح ✓");
+    } else {
+        alert("يرجى اختيار صورة أولاً!");
+    }
+}
+    
 
 function editClient(i) {
     currentIndex = i; const c = clients[i];
