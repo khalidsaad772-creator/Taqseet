@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام التقسيط الاحترافي</title>
+<title>نظام التقسيط الاحترافي - نسخة التقرير المعتمدة</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
@@ -40,19 +40,10 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     <input type="number" id="interest" placeholder="* الفائدة %">
     <input type="date" id="regDate">
     <button onclick="addClient()">إضافة عميل جديد</button>
-    <button onclick="exportPDF()" style="background:#4CAF50">Export Clients Report 📄</button>
+    <button onclick="exportPDF()" style="background:#4CAF50">Export Clients Report 📄 (English)</button>
 
-    <h2 style="color:#20B2AA">إدارة رأس المال 💸</h2>
-    <div style="display:flex; gap:10px;">
-        <button onclick="openCapitalModal()" style="flex:1; background:#007bff">إضافة رأس مال</button>
-        <button onclick="exportCapitalPDF()" style="background:#4CAF50; flex:1">تقرير رأس مال PDF</button>
-    </div>
-
-    <h2>إجمالي الأرباح الشهرية</h2>
+    <h2>إجمالي الربح الشهري الفعلي</h2>
     <div id="monthlyRes" class="result">0 ج.م</div>
-
-    <h2>رصيد الخزنة الحالي 💵</h2>
-    <div id="safeRes" class="result" style="background:#e8f5e9; color:#2e7d32;">0 ج.م</div>
 
     <h2 id="clientsCount">العملاء (0)</h2>
     <div id="clientsTable"></div>
@@ -66,7 +57,7 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
 </div></div>
 
 <div id="photoModal" class="modal hidden"><div class="modal-content">
-    <h3>تحميل صورة</h3>
+    <h3>تحميل صورة العميل</h3>
     <input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(event)">
     <button onclick="savePhoto()">حفظ</button>
     <button onclick="closeModal('photoModal')" style="background:#dc3545">إلغاء</button>
@@ -74,7 +65,6 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
 
 <script>
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
-let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
 let currentIndex = -1;
 let tempPhoto = null;
 
@@ -82,7 +72,6 @@ const formatCurrencyEn = (n) => Number(n).toLocaleString('en-US', {minimumFracti
 
 function save() {
     localStorage.setItem('clients', JSON.stringify(clients));
-    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
     showClients();
 }
 
@@ -101,11 +90,10 @@ function addClient() {
 }
 
 function showClients() {
-    let monthProf = 0, totalSafe = 0;
+    let monthProf = 0;
     const now = new Date();
     
     clients.forEach(c => {
-        totalSafe += (c.paid || 0);
         const profitRatio = (c.interest) / (1 + c.interest);
         c.payments.forEach(p => {
             const pd = new Date(p.date);
@@ -116,7 +104,6 @@ function showClients() {
     });
 
     document.getElementById('monthlyRes').innerText = monthProf.toFixed(2) + " ج.م";
-    document.getElementById('safeRes').innerText = totalSafe + " ج.م";
     document.getElementById('clientsCount').innerText = "العملاء (" + clients.length + ")";
 
     let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط / التاريخ</th></tr></thead><tbody>';
@@ -137,8 +124,8 @@ function showClients() {
             <div class="progress"><div class="bar" style="width:${(c.paid/total)*100}%"></div></div>
             <div class="action-content">
                 <button class="btn pay" onclick="openPaymentModal(${i})">قسط</button>
-                <button class="btn edit" onclick="editClient(${i})">تعديل</button>
-                <button class="btn wa" onclick="sendWA(${i})">واتس</button>
+                <button class="btn edit">تعديل</button>
+                <button class="btn wa">واتس</button>
                 ${thumb}
                 <button class="btn cam" onclick="openPhotoModal(${i})">صورة</button>
                 <button class="btn del" onclick="deleteClient(${i})">حذف</button>
@@ -152,15 +139,14 @@ function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     
-    // حساب الربح الشهري الفعلي كرقـم
-    let monthProf = 0;
+    let totalMonthlyProfit = 0;
     const now = new Date();
     clients.forEach(c => {
         const profitRatio = (c.interest) / (1 + c.interest);
         c.payments.forEach(p => {
             const pd = new Date(p.date);
             if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
-                monthProf += (p.amount * profitRatio);
+                totalMonthlyProfit += (p.amount * profitRatio);
             }
         });
     });
@@ -178,23 +164,22 @@ function exportPDF() {
     ]);
 
     doc.autoTable({
-        head: [['Name', 'Phone', 'Paid', 'Remaining', 'Monthly Installment']],
+        head: [['Name', 'Phone', 'Paid Amount', 'Remaining', 'Monthly Installment']],
         body: data,
         startY: 30,
         headStyles: { fillColor: [40, 167, 69] },
-        styles: { halign: 'center' }
+        styles: { halign: 'center', font: 'helvetica' }
     });
 
-    // إصلاح مشكلة الخط الغريب في خانة الأرباح
     doc.setFontSize(14);
     doc.setTextColor(0, 128, 0);
     const finalY = doc.lastAutoTable.finalY + 15;
-    doc.text("Actual Monthly Profit: " + monthProf.toFixed(2) + " EGP", 105, finalY, {align:'center'});
+    // كتابة الربح بأرقام إنجليزية صريحة لتجنب الرموز الغريبة
+    doc.text("Actual Monthly Profit: " + totalMonthlyProfit.toFixed(2) + " EGP", 105, finalY, {align:'center'});
 
     doc.save("Report.pdf");
 }
 
-// الدوال المساعدة
 function openPaymentModal(i) { currentIndex = i; document.getElementById('paymentModal').classList.remove('hidden'); }
 function addPayment() {
     const amt = Number(document.getElementById('paymentAmount').value);
