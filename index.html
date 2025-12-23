@@ -3,30 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>محل التقسيط - النسخة الاحترافية</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-
+<title>نظام إدارة التقسيط المتكامل</title>
 <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:Tahoma, Arial, sans-serif;background:#f0f8ff;padding:10px}
     .container{max-width:550px;margin:0 auto;background:white;border-radius:16px;padding:20px;box-shadow:0 6px 25px rgba(0,0,0,0.15)}
-    h1{color:#28a745;text-align:center;margin:15px 0;font-size:26px}
-    h2{color:#007bff;text-align:center;margin:15px 0;font-size:18px}
-    input,button,select{width:100%;padding:14px;margin:8px 0;border:2px solid #28a745;border-radius:12px;font-size:16px;text-align:center;outline:none}
+    h1, h2{text-align:center;margin:10px 0}
+    h1{color:#28a745;font-size:26px}
+    h2{color:#007bff;font-size:18px}
+    input,button,select{width:100%;padding:12px;margin:5px 0;border:2px solid #28a745;border-radius:10px;font-size:15px;text-align:center;outline:none}
     button{background:#28a745;color:#fff;font-weight:bold;cursor:pointer;border:none}
-    .btn{padding:8px 5px; margin:3px; font-size:13px; border-radius:8px; font-weight:bold; cursor:pointer; flex: 1; min-width: 60px; color:white; border:none}
+    .btn{padding:8px 5px; margin:2px; font-size:12px; border-radius:8px; font-weight:bold; cursor:pointer; flex: 1; color:white; border:none}
     .pay{background:#007bff}.wa{background:#25D366}.edit{background:#ffc107;color:#000}.del{background:#dc3545}.cam{background:#6f42c1}
-    .action-content{display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center}
-    .result{padding:15px;border-radius:12px;margin:10px 0;text-align:center;font-size:17px;font-weight:bold}
-    table{width:100%;border-collapse:collapse;margin:15px 0;font-size:13px}
-    th{background:#28a745;color:#fff;padding:10px}
-    td{border:1px solid #ddd;padding:10px;text-align:center;background:#f9f9f9}
-    .progress{height:10px;background:#eee;border-radius:5px;overflow:hidden;margin:8px 0;width:100%}
+    .action-content{display:flex; flex-wrap:wrap; gap:2px; justify-content:center; align-items:center}
+    .result{padding:12px;border-radius:10px;margin:8px 0;text-align:center;font-size:16px;font-weight:bold}
+    table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+    th{background:#28a745;color:#fff;padding:8px}
+    td{border:1px solid #ddd;padding:8px;text-align:center;background:#f9f9f9}
+    .progress{height:8px;background:#eee;border-radius:4px;overflow:hidden;margin:5px 0}
     .bar{height:100%;background:#28a745}
-    .client-thumb{width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid #28a745}
+    .client-thumb{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #28a745;margin-left:5px}
     .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:1000}
-    .modal-content{background:white;padding:25px;border-radius:16px;width:90%;max-width:450px}
+    .modal-content{background:white;padding:20px;border-radius:15px;width:90%;max-width:400px}
     .hidden{display:none!important}
 </style>
 </head>
@@ -38,45 +36,34 @@
     <input type="text" id="phone" placeholder="* رقم التليفون">
     <input type="text" id="product" placeholder="وصف المنتج">
     <div style="display:flex; gap:5px">
-        <input type="number" id="price" placeholder="* السعر">
-        <input type="number" id="months" placeholder="* الشهور">
+        <input type="number" id="price" placeholder="السعر">
+        <input type="number" id="months" placeholder="الشهور">
     </div>
-    <input type="number" id="interest" placeholder="* الفائدة %">
+    <input type="number" id="interest" placeholder="الفائدة %">
     <input type="date" id="regDate">
-    <button onclick="addClient()">إضافة عميل جديد</button>
+    <button onclick="addClient()">إضافة العميل ✅</button>
 
-    <hr style="margin:20px 0">
-
-    <h2>إجمالي الأرباح المتوقعة 📈</h2>
-    <div id="totalProfitRes" class="result" style="background:#d4edda; color:#155524;">0 ج.م</div>
-
-    <h2>الربح الشهري الفعلي (المحصل) 💵</h2>
-    <div id="monthlyProfitRes" class="result" style="background:#fff3cd; color:#856404;">0 ج.م</div>
-
-    <h2>خزنة المحصلات تراكمي 🏦</h2>
-    <div id="safeRes" class="result" style="background:#e8f4fd; color:#0056b3;">0 ج.م</div>
-    <button onclick="clearSafe()" style="background:#ff9800; color:white">جرد وتصفير الخزنة 🧹</button>
+    <div class="result" style="background:#d4edda; color:#155524;">الأرباح المتوقعة: <span id="totalProfitRes">0</span></div>
+    <div class="result" style="background:#fff3cd; color:#856404;">ربح الشهر الحالي: <span id="monthlyProfitRes">0</span></div>
+    <div class="result" style="background:#e8f4fd; color:#0056b3;">الخزنة (تحصيل): <span id="safeRes">0</span></div>
+    <button onclick="clearSafe()" style="background:#ff9800; padding:8px; font-size:14px">تصفير الخزنة 🧹</button>
 
     <h2 id="clientsCount">العملاء (0)</h2>
     <div id="clientsTable"></div>
 </div>
 
-<div id="payModal" class="modal hidden">
-    <div class="modal-content">
-        <h3>تسجيل قسط مدفوع</h3>
-        <input type="number" id="pAmt">
-        <input type="date" id="pDate">
-        <button onclick="doPay()">تأكيد الدفع</button>
-        <button onclick="closeModal('payModal')" style="background:#dc3545">إلغاء</button>
-    </div>
-</div>
+<div id="payModal" class="modal hidden"><div class="modal-content"><h3>تسجيل قسط</h3><input type="number" id="pAmt"><input type="date" id="pDate"><button onclick="doPay()">تأكيد</button><button onclick="closeModal('payModal')" style="background:#dc3545">إلغاء</button></div></div>
+
+<div id="editModal" class="modal hidden"><div class="modal-content"><h3>تعديل بيانات</h3><input id="eName"><input id="ePhone"><input id="eProduct"><input id="ePrice" type="number"><input id="eMonths" type="number"><input id="eInterest" type="number"><button onclick="saveEdit()">حفظ</button><button onclick="closeModal('editModal')" style="background:#dc3545">إغلاق</button></div></div>
+
+<div id="photoModal" class="modal hidden"><div class="modal-content"><h3>صورة العميل</h3><input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)"><button onclick="savePhoto()">حفظ</button><button onclick="closeModal('photoModal')" style="background:#dc3545">إغلاق</button></div></div>
 
 <script>
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
 let cashSafe = Number(localStorage.getItem('cashSafe') || 0);
 let activeIdx = -1;
+let tempImg = null;
 const today = new Date().toISOString().split('T')[0];
-
 const fmt = (n) => Number(n).toLocaleString('ar-EG') + ' ج.م';
 
 function save() {
@@ -87,64 +74,61 @@ function save() {
 
 function addClient() {
     const name = document.getElementById('name').value;
-    const price = Number(document.getElementById('price').value);
-    if(!name || !price) return alert("أكمل البيانات");
+    if(!name) return alert("أدخل الاسم");
     clients.push({
         name, phone: document.getElementById('phone').value,
-        product: document.getElementById('product').value || 'بدون وصف',
-        price, months: Number(document.getElementById('months').value || 1),
+        product: document.getElementById('product').value || 'بضاعة',
+        price: Number(document.getElementById('price').value || 0),
+        months: Number(document.getElementById('months').value || 1),
         interest: Number(document.getElementById('interest').value || 0),
         registrationDate: document.getElementById('regDate').value || today,
-        paid: 0, payments: []
+        paid: 0, payments: [], photo: null
     });
     save();
 }
 
 function render() {
-    // 1. حساب الأرباح
-    let totalExpectedProfit = 0;
-    let currentMonthProfit = 0;
+    let totalExp = 0, monthlyAct = 0;
     const now = new Date();
-
     clients.forEach(c => {
-        totalExpectedProfit += (c.price * (c.interest / 100));
-        const instTotal = (c.price * (1 + c.interest/100)) / c.months;
-        const profitRatio = (c.interest / 100) / (1 + c.interest/100);
-        
+        totalExp += (c.price * (c.interest/100));
+        const profitRatio = (c.interest/100) / (1 + c.interest/100);
         c.payments.forEach(p => {
-            const pDate = new Date(p.date);
-            if(pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear()) {
-                currentMonthProfit += (p.amt * profitRatio);
-            }
+            let pd = new Date(p.date);
+            if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) monthlyAct += (p.amt * profitRatio);
         });
     });
 
-    document.getElementById('totalProfitRes').innerText = fmt(totalExpectedProfit);
-    document.getElementById('monthlyProfitRes').innerText = fmt(currentMonthProfit);
+    document.getElementById('totalProfitRes').innerText = fmt(totalExp);
+    document.getElementById('monthlyProfitRes').innerText = fmt(monthlyAct);
     document.getElementById('safeRes').innerText = fmt(cashSafe);
     document.getElementById('clientsCount').innerText = `العملاء (${clients.length})`;
 
-    // 2. بناء الجدول
-    let html = `<table><tr><th>العميل والمنتج</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr>`;
+    let html = `<table><tr><th>العميل والتليفون</th><th>متبقي</th><th>القسط القادم</th></tr>`;
     clients.forEach((c, i) => {
         const total = c.price * (1 + (c.interest/100));
-        const instVal = total / c.months;
+        const inst = total / c.months;
         const rem = total - c.paid;
-        const paidCount = Math.floor(c.paid / (instVal || 1));
         const nextDate = new Date(c.registrationDate);
-        nextDate.setMonth(nextDate.getMonth() + paidCount + 1);
-        const dateStr = nextDate.toLocaleDateString('ar-EG');
+        nextDate.setMonth(nextDate.getMonth() + Math.floor(c.paid / (inst || 1)) + 1);
 
         html += `<tr>
-            <td style="text-align:right"><b>${c.name}</b><br><small>${c.product}</small></td>
+            <td style="text-align:right">
+                <div style="display:flex; align-items:center">
+                    ${c.photo ? `<img src="${c.photo}" class="client-thumb">` : ''}
+                    <div><b>${c.name}</b><br><small>${c.phone}</small><br><i style="font-size:10px">${c.product}</i></div>
+                </div>
+            </td>
             <td>${fmt(rem)}</td>
-            <td><b style="color:#007bff">${fmt(Math.min(instVal, rem))}</b><br><small>${dateStr}</small></td>
+            <td><b>${fmt(Math.min(inst, rem))}</b><br><small>${nextDate.toLocaleDateString('ar-EG')}</small></td>
         </tr>
         <tr><td colspan="3">
             <div class="progress"><div class="bar" style="width:${Math.min(100, (c.paid/total)*100)}%"></div></div>
             <div class="action-content">
-                <button class="btn pay" onclick="openPay(${i})">قسط</button>
+                <button class="btn pay" onclick="activeIdx=${i}; openModal('payModal')">قسط</button>
+                <button class="btn edit" onclick="openEdit(${i})">تعديل</button>
                 <button class="btn wa" onclick="sendWA(${i})">واتس</button>
+                <button class="btn cam" onclick="activeIdx=${i}; openModal('photoModal')">صورة</button>
                 <button class="btn del" onclick="deleteClient(${i})">حذف</button>
             </div>
         </td></tr>`;
@@ -152,22 +136,27 @@ function render() {
     document.getElementById('clientsTable').innerHTML = html + `</table>`;
 }
 
-function openPay(i) {
-    activeIdx = i;
-    const c = clients[i];
-    const inst = (c.price * (1 + c.interest/100)) / c.months;
-    document.getElementById('pAmt').value = Math.round(inst);
-    document.getElementById('pDate').value = today;
-    document.getElementById('payModal').classList.remove('hidden');
+function openEdit(i) {
+    activeIdx = i; const c = clients[i];
+    document.getElementById('eName').value = c.name; document.getElementById('ePhone').value = c.phone;
+    document.getElementById('eProduct').value = c.product; document.getElementById('ePrice').value = c.price;
+    document.getElementById('eMonths').value = c.months; document.getElementById('eInterest').value = c.interest;
+    openModal('editModal');
+}
+
+function saveEdit() {
+    const c = clients[activeIdx];
+    c.name = document.getElementById('eName').value; c.phone = document.getElementById('ePhone').value;
+    c.product = document.getElementById('eProduct').value; c.price = Number(document.getElementById('ePrice').value);
+    c.months = Number(document.getElementById('eMonths').value); c.interest = Number(document.getElementById('eInterest').value);
+    save(); closeModal('editModal');
 }
 
 function doPay() {
     const amt = Number(document.getElementById('pAmt').value);
     clients[activeIdx].paid += amt;
     clients[activeIdx].payments.push({amt, date: document.getElementById('pDate').value});
-    cashSafe += amt;
-    save();
-    closeModal('payModal');
+    cashSafe += amt; save(); closeModal('payModal');
 }
 
 function sendWA(i) {
@@ -175,25 +164,23 @@ function sendWA(i) {
     const total = c.price * (1 + (c.interest/100));
     const inst = total / c.months;
     const rem = total - c.paid;
-    const remainInst = Math.ceil(rem / inst);
-    
-    const paidCount = Math.floor(c.paid / inst);
     const nextDate = new Date(c.registrationDate);
-    nextDate.setMonth(nextDate.getMonth() + paidCount + 1);
+    nextDate.setMonth(nextDate.getMonth() + Math.floor(c.paid/inst) + 1);
 
     const msg = `مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n`
               + `• المبلغ الإجمالي المتبقي: ${fmt(rem)}\n`
-              + `• باقي الأقساط المتوقعة: ${remainInst} قسط\n`
+              + `• باقي الأقساط المتوقعة: ${Math.ceil(rem/inst)} قسط\n`
               + `• قيمة القسط القادم: ${fmt(Math.min(inst, rem))}\n`
               + `• تاريخ استحقاق القسط: ${nextDate.toLocaleDateString('ar-EG')}\n\n`
               + `برجاء سرعة السداد. شكراً لتعاونك.`;
-              
-    const phone = c.phone.startsWith('0') ? '2' + c.phone : c.phone;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`);
+    window.open(`https://wa.me/${c.phone.startsWith('0')?'2'+c.phone:c.phone}?text=${encodeURIComponent(msg)}`);
 }
 
-function deleteClient(i) { if(confirm("حذف العميل؟")) { clients.splice(i,1); save(); } }
+function previewPhoto(e) { const r = new FileReader(); r.onload = ev => tempImg = ev.target.result; r.readAsDataURL(e.target.files[0]); }
+function savePhoto() { if(tempImg) { clients[activeIdx].photo = tempImg; save(); closeModal('photoModal'); } }
+function deleteClient(i) { if(confirm("حذف؟")) { clients.splice(i,1); save(); } }
 function clearSafe() { if(confirm("تصفير الخزنة؟")) { cashSafe = 0; save(); } }
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 window.onload = () => { document.getElementById('regDate').value = today; render(); };
