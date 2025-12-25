@@ -325,14 +325,37 @@ function saveClient() {
     c.registrationDate = document.getElementById('editRegDate').value;
     save(); closeModal('editModal');
 }
+
 function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
+    
+    let currentMonthProf = 0;
+    const now = new Date();
+    clients.forEach(c => {
+        const profitRatio = (c.interest) / (1 + c.interest);
+        if(c.payments){
+            c.payments.forEach(p => {
+                const pd = new Date(p.date);
+                if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
+                    currentMonthProf += (p.amount * profitRatio);
+                }
+            });
+        }
+    });
+
     doc.text("Installment Clients Report", 105, 15, {align:'center'});
     const data = clients.map(c => [c.name, c.product, c.phone, formatCurrencyEn(c.paid || 0), formatCurrencyEn(c.price*(1+c.interest)-(c.paid || 0)), formatCurrencyEn((c.price * (1+c.interest)) / c.months)]);
     doc.autoTable({ head: [['Name','Product','Phone','Paid','Remaining','Monthly']], body: data, startY: 25, headStyles: {fillColor: [40, 167, 69]} });
+    
+    // إعادة الربح الفعلي الشهري للتقرير
+    doc.setFontSize(14);
+    doc.setTextColor(0,100,0);
+    doc.text("Actual Monthly Profit: " + currentMonthProf.toFixed(2) + " EGP", 105, doc.lastAutoTable.finalY + 15, {align:'center'});
+    
     doc.save("Clients_Report.pdf");
 }
+
 function exportData() {
     const blob = new Blob([JSON.stringify({clients, capitalEntries, safeManualEntries})], {type:'application/json'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click();
