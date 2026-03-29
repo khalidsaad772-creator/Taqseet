@@ -6,41 +6,61 @@
     <title>معرض خالد خفاجي للتقسيط</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main-color: #28a745; --secondary-color: #007bff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
-        header { background: var(--main-color); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        :root { --gold: #d4af37; --dark: #1a1a1a; --green: #28a745; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f0f0; margin: 0; padding-bottom: 50px; }
+        
+        /* الهيدر واللوجو */
+        header { background: var(--dark); color: white; padding: 30px 10px; text-align: center; border-bottom: 3px solid var(--gold); }
+        .logo-img { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
+        
+        /* قسم استعلام العميل */
+        .search-section { background: white; padding: 20px; margin: -20px 20px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        .search-section input { width: 80%; padding: 12px; border: 2px solid #ddd; border-radius: 25px; text-align: center; font-size: 16px; }
+        .btn-search { background: var(--gold); color: black; border: none; padding: 10px 25px; border-radius: 25px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+
+        /* معرض المنتجات */
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: auto; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s; position: relative; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-img { width: 100%; height: 250px; object-fit: cover; background: #eee; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        .product-img { width: 100%; height: 230px; object-fit: cover; }
         .product-info { padding: 15px; text-align: center; }
-        .product-name { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 10px; }
-        .price-tag { color: var(--main-color); font-size: 1.1rem; font-weight: bold; }
-        .down-payment { color: #666; font-size: 0.9rem; margin-top: 5px; }
-        .btn-order { background: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 25px; margin-top: 15px; cursor: pointer; width: 100%; font-weight: bold; text-decoration: none; display: inline-block; }
-        .btn-order:hover { background: #0056b3; }
-        .loading { text-align: center; padding: 50px; font-size: 1.2rem; color: #666; }
-        .admin-link { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; opacity: 0.5; }
+        .price-tag { color: var(--green); font-weight: bold; font-size: 1.2rem; }
+        .btn-wa { background: #25D366; color: white; text-decoration: none; padding: 10px; border-radius: 8px; display: block; margin-top: 10px; font-weight: bold; }
+
+        /* زر الإدارة */
+        .admin-lock { position: fixed; bottom: 20px; left: 20px; background: var(--dark); color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; }
+        
+        /* مودال النتيجة */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: right; border-top: 5px solid var(--gold); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>معرض خالد خفاجي للتقسيط 📱</h1>
-    <p>أحدث الموبايلات والأجهزة بأسهل الإجراءات</p>
+    <img src="https://i.ibb.co/h73L3V7m/74837.jpg" alt="Logo" class="logo-img">
+    <h1>معرض خالد خفاجي</h1>
+    <p style="color: var(--gold);">للتقسيط وخدمات المحمول</p>
 </header>
 
-<div class="container" id="productsGrid">
-    <div class="loading">جاري تحميل أحدث العروض...</div>
+<div class="search-section">
+    <h3>استعلم عن أقساطك 💳</h3>
+    <input type="text" id="clientPhone" placeholder="أدخل رقم تليفونك المسجل">
+    <button class="btn-search" onclick="checkInstallments()">بحث الآن</button>
 </div>
 
-<a href="admin.html" class="admin-link"><i class="fa fa-lock"></i></a>
+<div class="container" id="productsGrid">
+    </div>
+
+<button class="admin-lock" onclick="adminLogin()"><i class="fas fa-cog"></i></button>
+
+<div id="resultModal" class="modal">
+    <div class="modal-content" id="modalBody"></div>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // بيانات الفايربيز الخاصة بك
     const firebaseConfig = {
         apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
         authDomain: "taqseet-f4aaf.firebaseapp.com",
@@ -52,37 +72,57 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // سحب البيانات وعرضها
+    // سحب العروض
     const q = query(collection(db, "products"), orderBy("date", "desc"));
-    
     onSnapshot(q, (snapshot) => {
         const grid = document.getElementById('productsGrid');
         grid.innerHTML = '';
-        
-        if (snapshot.empty) {
-            grid.innerHTML = '<div class="loading">لا توجد عروض حالياً، انتظرونا قريباً!</div>';
-            return;
-        }
-
         snapshot.forEach((doc) => {
             const p = doc.data();
-            const card = `
+            grid.innerHTML += `
                 <div class="product-card">
-                    <img src="${p.image}" class="product-img" alt="${p.name}">
+                    <img src="${p.image}" class="product-img">
                     <div class="product-info">
-                        <div class="product-name">${p.name}</div>
-                        <div class="price-tag">كاش: ${p.price} ج.م</div>
-                        <div class="down-payment">مقدم يبدأ من: ${p.downPayment} ج.م</div>
-                        <a href="https://wa.me/201201550299?text=${encodeURIComponent('استفسار عن ' + p.name)}" class="btn-order">
-                            <i class="fab fa-whatsapp"></i> اطلبه الآن
-                        </a>
+                        <h3>${p.name}</h3>
+                        <p class="price-tag">كاش: ${p.price} ج.م</p>
+                        <p>مقدم يبدأ من: ${p.downPayment} ج.م</p>
+                        <a href="https://wa.me/201201550299?text=استفسار عن ${p.name}" class="btn-wa"><i class="fab fa-whatsapp"></i> اطلبه الآن</a>
                     </div>
-                </div>
-            `;
-            grid.innerHTML += card;
+                </div>`;
         });
     });
-</script>
 
+    // وظيفة الاستعلام للعميل (تقرأ من البيانات المحفوظة)
+    window.checkInstallments = function() {
+        const phone = document.getElementById('clientPhone').value;
+        const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+        const client = clients.find(c => c.phone === phone);
+        
+        const modal = document.getElementById('resultModal');
+        const body = document.getElementById('modalBody');
+        modal.style.display = 'flex';
+
+        if(client) {
+            const total = client.price * (1 + client.interest);
+            const rem = total - (client.paid || 0);
+            body.innerHTML = `
+                <h2 style="color:var(--gold)">أهلاً بك يا ${client.name}</h2>
+                <hr><br>
+                <p>📦 المنتج: <b>${client.product}</b></p>
+                <p>✅ المبلغ المدفوع: <b>${client.paid} ج.م</b></p>
+                <p>⚠️ المبلغ المتبقي: <b style="color:red">${rem.toFixed(2)} ج.م</b></p>
+                <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">إغلاق</button>
+            `;
+        } else {
+            body.innerHTML = `<h3>عفواً!</h3><p>هذا الرقم غير مسجل لدينا. تأكد من كتابة الرقم الصحيح.</p>
+            <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">إغلاق</button>`;
+        }
+    }
+
+    window.adminLogin = function() {
+        const p = prompt("كلمة مرور الإدارة:");
+        if(p === "1234") window.location.href = "admin.html";
+    }
+</script>
 </body>
 </html>
