@@ -93,31 +93,68 @@
     });
 
     // وظيفة الاستعلام للعميل (تقرأ من البيانات المحفوظة)
-    window.checkInstallments = function() {
-        const phone = document.getElementById('clientPhone').value;
-        const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-        const client = clients.find(c => c.phone === phone);
-        
-        const modal = document.getElementById('resultModal');
-        const body = document.getElementById('modalBody');
-        modal.style.display = 'flex';
+    window.checkInstallments = async function() {
+    const phoneInput = document.getElementById('clientPhone').value.trim();
+    if(!phoneInput) { alert("من فضلك أدخل رقم التليفون"); return; }
 
-        if(client) {
-            const total = client.price * (1 + client.interest);
-            const rem = total - (client.paid || 0);
+    const modal = document.getElementById('resultModal');
+    const body = document.getElementById('modalBody');
+    modal.style.display = 'flex';
+    body.innerHTML = "<div style='text-align:center'><i class='fas fa-spinner fa-spin'></i> جاري استخراج بياناتك...</div>";
+
+    try {
+        // 1. البحث أولاً في Firebase (للعملاء الجدد أو التعديلات الحديثة)
+        import { getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        const q = query(collection(db, "clients"), where("phone", "==", phoneInput));
+        const querySnapshot = await getDocs(q);
+        
+        let clientData = null;
+
+        if (!querySnapshot.empty) {
+            // وجدنا العميل في البيانات الجديدة
+            clientData = querySnapshot.docs[0].data();
+        } else {
+            // 2. إذا لم يوجد، نبحث في الملف القديم backup.json
+            const response = await fetch('backup.json');
+            if (response.ok) {
+                const data = await response.json();
+                clientData = data.clients.find(c => c.phone === phoneInput);
+            }
+        }
+
+        if(clientData) {
+            const price = parseFloat(clientData.price) || 0;
+            const interest = parseFloat(clientData.interest) || 0;
+            const paid = parseFloat(clientData.paid) || 0;
+            const total = price * (1 + interest);
+            const remaining = total - paid;
+            
             body.innerHTML = `
-                <h2 style="color:var(--gold)">أهلاً بك يا ${client.name}</h2>
-                <hr><br>
-                <p>📦 المنتج: <b>${client.product}</b></p>
-                <p>✅ المبلغ المدفوع: <b>${client.paid} ج.م</b></p>
-                <p>⚠️ المبلغ المتبقي: <b style="color:red">${rem.toFixed(2)} ج.م</b></p>
-                <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">إغلاق</button>
+                <h2 style="color:var(--gold); text-align:center">أهلاً بك يا ${clientData.name}</h2>
+                <div style="border-top:1px solid #eee; padding-top:15px">
+                    <p>📱 رقم الهاتف: <b>${clientData.phone}</b></p>
+                    <p>📦 المنتج: <b>${clientData.product || 'غير محدد'}</b></p>
+                    <p>💰 الإجمالي: <b>${total.toLocaleString()} ج.م</b></p>
+                    <p>✅ المدفوع: <span style="color:green"><b>${paid.toLocaleString()} ج.م</b></span></p>
+                    <p>⚠️ المتبقي: <span style="color:red"><b>${remaining.toLocaleString()} ج.م</b></span></p>
+                </div>
+                <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%; margin-top:20px">إغلاق</button>
             `;
         } else {
-            body.innerHTML = `<h3>عفواً!</h3><p>هذا الرقم غير مسجل لدينا. تأكد من كتابة الرقم الصحيح.</p>
-            <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">إغلاق</button>`;
+            body.innerHTML = `
+                <div style="text-align:center">
+                    <i class="fas fa-exclamation-triangle style="font-size:40px; color:#ffc107"></i>
+                    <h3>عفواً!</h3>
+                    <p>رقم التليفون (${phoneInput}) غير مسجل في النظام الحالي أو القديم.</p>
+                    <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">إغلاق</button>
+                </div>`;
         }
+    } catch (error) {
+        console.error(error);
+        body.innerHTML = "<h3>عذراً، حدث خطأ في الاتصال بالخادم.</h3>";
     }
+}
+
 
     window.adminLogin = function() {
         const p = prompt("كلمة مرور الإدارة:");
