@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إضافة منتج - Taqseet</title>
+    <style>
+        body { font-family: Arial; padding: 20px; text-align: center; background-color: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; width: 90%; max-width: 400px; }
+        input { margin: 10px 0; padding: 12px; width: 90%; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #28a745; color: white; border: none; padding: 12px; width: 95%; cursor: pointer; border-radius: 5px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>إضافة منتج جديد</h2>
+        <input type="text" id="pName" placeholder="اسم الموبايل">
+        <input type="number" id="pPrice" placeholder="السعر الكاش">
+        <input type="number" id="pDown" placeholder="أقل مقدم">
+        <input type="text" id="pImgUrl" placeholder="رابط صورة المنتج (انسخه من موقع رفع صور)">
+        <button onclick="saveProduct()">نشر المنتج الآن</button>
+        <p id="status"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
+            authDomain: "taqseet-f4aaf.firebaseapp.com",
+            projectId: "taqseet-f4aaf",
+            storageBucket: "taqseet-f4aaf.firebasestorage.app",
+            appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.saveProduct = async () => {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const down = document.getElementById('pDown').value;
+            const img = document.getElementById('pImgUrl').value;
+            const status = document.getElementById('status');
+
+            if(!name || !price || !img) { alert("أكمل البيانات"); return; }
+            status.innerText = "جاري الحفظ...";
+
+            try {
+                await addDoc(collection(db, "products"), {
+                    name, price, downPayment: down, image: img, date: new Date()
+                });
+                status.innerText = "تم النشر بنجاح!";
+                document.querySelectorAll('input').forEach(i => i.value = '');
+            } catch (e) {
+                status.innerText = "خطأ في الحفظ";
+            }
+        }
+    </script>
+</body>
+</html>
