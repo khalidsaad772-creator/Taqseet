@@ -69,23 +69,8 @@
     const db = getFirestore(app);
 
     // سحب العروض
-    onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {
-        const grid = document.getElementById('productsGrid');
-        grid.innerHTML = '';
-        snapshot.forEach((doc) => {
-            const p = doc.data();
-            grid.innerHTML += `
-                <div class="product-card">
-                    <img src="${p.image}" class="product-img">
-                    <div class="product-info">
-                        <h3>${p.name}</h3>
-                        <p class="price-tag">كاش: ${p.price} ج.م</p>
-                        <p>مقدم يبدأ من: ${p.downPayment} ج.م</p>
-                        <a href="https://wa.me/201201550299?text=استفسار عن ${p.name}" class="btn-wa"><i class="fab fa-whatsapp"></i> اطلبه الآن</a>
-                    </div>
-                </div>`;
-        });
-    });
+    
+
 
     // وظيفة الاستعلام
     window.checkInstallments = async function() {
