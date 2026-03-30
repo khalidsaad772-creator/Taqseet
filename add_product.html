@@ -63,26 +63,30 @@
         const db = getFirestore(app);
         let editingId = null;
 
+    
         // دالة عرض المنتجات من Firebase وتحديثها لحظياً
-        onSnapshot(collection(db, "products"), (snapshot) => {
-            const tbody = document.getElementById('productsBody');
-            tbody.innerHTML = "";
-            snapshot.forEach((pDoc) => {
-                const p = pDoc.data();
-                tbody.innerHTML += `
-                    <tr>
-                        <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
-                        <td>${p.name}</td>
-                        <td>${p.price} ج.م</td>
-                        <td>
-                            <button class="edit-btn" onclick="prepareEdit('${pDoc.id}', '${p.name}', '${p.price}', '${p.downPayment}', '${p.image}')">تعديل</button>
-                            <button class="del-btn" onclick="deleteProduct('${pDoc.id}')">حذف</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        });
-
+onSnapshot(collection(db, "products"), (snapshot) => {
+    const tbody = document.getElementById('productsBody');
+    tbody.innerHTML = "";
+    snapshot.forEach((pDoc) => {
+        const p = pDoc.data();
+        const id = pDoc.id;
+        
+        // بناء السطر بشكل نظيف
+        let row = `<tr>
+            <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
+            <td>${p.name}</td>
+            <td>${p.price} ج.م</td>
+            <td>
+                <button class="edit-btn" onclick="prepareEdit('${id}', '${p.name}', '${p.price}', '${p.downPayment}', '${p.image}')">تعديل</button>
+                <button class="del-btn" onclick="deleteProduct('${id}')">حذف</button>
+            </td>
+        </tr>`;
+        
+        tbody.innerHTML += row;
+    });
+});
+        
         // دالة الحفظ (إضافة أو تعديل)
         window.saveProduct = async () => {
             const name = document.getElementById('pName').value;
