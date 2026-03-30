@@ -61,26 +61,37 @@
         let editingId = null;
 
         // دالة العرض وتحديث الجدول
+                // دالة العرض المحدثة - استبدل القديمة بها
         onSnapshot(collection(db, "products"), (snapshot) => {
             const tbody = document.getElementById('productsBody');
             tbody.innerHTML = "";
+            
+            if (snapshot.empty) {
+                tbody.innerHTML = "<tr><td colspan='4'>لا توجد منتجات حالياً</td></tr>";
+                return;
+            }
+
             snapshot.forEach((pDoc) => {
                 const p = pDoc.data();
                 const id = pDoc.id;
                 
+                // التأكد من وجود رابط صورة أو وضع صورة مؤقتة
+                const productImg = p.image || 'https://via.placeholder.com/50?text=No+Img';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
-                    <td><b>${p.name}</b></td>
-                    <td>${p.price} ج.م</td>
+                    <td><img src="${productImg}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
+                    <td style="font-weight:bold">${p.name || 'بدون اسم'}</td>
+                    <td>${p.price || 0} ج.م</td>
                     <td>
                         <button class="edit-btn" onclick="prepareEdit('${id}', '${p.name}', '${p.price}', '${p.downPayment}', '${p.image}')">تعديل</button>
                         <button class="del-btn" onclick="deleteProduct('${id}')">حذف</button>
                     </td>
-                `;
+                 `;
                 tbody.appendChild(row);
             });
         });
+
 
         // تعريف الدوال على window عشان الـ HTML يشوفها
         window.saveProduct = async () => {
