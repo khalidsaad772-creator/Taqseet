@@ -60,8 +60,7 @@
         const db = getFirestore(app);
         let editingId = null;
 
-        // دالة العرض وتحديث الجدول
-                // دالة العرض المحدثة - استبدل القديمة بها
+        // دالة العرض الموحدة والنظيفة
         onSnapshot(collection(db, "products"), (snapshot) => {
             const tbody = document.getElementById('productsBody');
             tbody.innerHTML = "";
@@ -75,25 +74,21 @@
                 const p = pDoc.data();
                 const id = pDoc.id;
                 
-                // التأكد من وجود رابط صورة أو وضع صورة مؤقتة
-                const productImg = p.image || 'https://via.placeholder.com/50?text=No+Img';
-                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><img src="${productImg}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
+                    <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
                     <td style="font-weight:bold">${p.name || 'بدون اسم'}</td>
                     <td>${p.price || 0} ج.م</td>
                     <td>
                         <button class="edit-btn" onclick="prepareEdit('${id}', '${p.name}', '${p.price}', '${p.downPayment}', '${p.image}')">تعديل</button>
                         <button class="del-btn" onclick="deleteProduct('${id}')">حذف</button>
                     </td>
-                 `;
+                `;
                 tbody.appendChild(row);
             });
         });
 
-
-        // تعريف الدوال على window عشان الـ HTML يشوفها
+        // تعريف الدوال على window
         window.saveProduct = async () => {
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
@@ -120,80 +115,16 @@
                 }
                 document.querySelectorAll('input').forEach(i => i.value = '');
             } catch (e) {
-                status.innerText = "حدث خطأ في الاتصال";
-
-                    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
-            authDomain: "taqseet-f4aaf.firebaseapp.com",
-            projectId: "taqseet-f4aaf",
-            storageBucket: "taqseet-f4aaf.firebasestorage.app",
-            appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        let editingId = null;
-
-        // دالة العرض - تم تعديلها لتجنب الأخطاء في الصور
-        onSnapshot(collection(db, "products"), (snapshot) => {
-            const tbody = document.getElementById('productsBody');
-            tbody.innerHTML = "";
-            snapshot.forEach((pDoc) => {
-                const p = pDoc.data();
-                const id = pDoc.id;
-                
-                const row = `<tr>
-                    <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
-                    <td style="font-weight:bold">${p.name}</td>
-                    <td>${p.price} ج.م</td>
-                    <td>
-                        <button class="edit-btn" onclick="prepareEdit('${id}', '${p.name}', '${p.price}', '${p.downPayment}', '${p.image}')">تعديل</button>
-                        <button class="del-btn" onclick="deleteProduct('${id}')">حذف</button>
-                    </td>
-                </tr>`;
-                tbody.insertAdjacentHTML('beforeend', row);
-            });
-        });
-
-        // ربط الدوال بـ window عشان تشتغل مع onclick في HTML
-        window.saveProduct = async () => {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const down = document.getElementById('pDown').value;
-            const img = document.getElementById('pImgUrl').value;
-            const status = document.getElementById('status');
-
-            if(!name || !price || !img) { alert("أكمل البيانات"); return; }
-            status.innerText = "جاري الحفظ...";
-
-            try {
-                if (editingId) {
-                    await updateDoc(doc(db, "products", editingId), {
-                        name, price, downPayment: down, image: img
-                    });
-                    editingId = null;
-                    document.getElementById('mainBtn').innerText = "نشر المنتج الآن";
-                    status.innerText = "تم التعديل بنجاح ✅";
-                } else {
-                    await addDoc(collection(db, "products"), {
-                        name, price, downPayment: down, image: img, date: new Date()
-                    });
-                    status.innerText = "تم النشر بنجاح ✅";
-                }
-                document.querySelectorAll('input').forEach(i => i.value = '');
-            } catch (e) {
                 status.innerText = "خطأ في الحفظ";
                 console.error(e);
             }
         };
 
         window.deleteProduct = async (id) => {
-            if(confirm("هل تريد حذف هذا المنتج؟")) {
-                await deleteDoc(doc(db, "products", id));
+            if(confirm("هل تريد حذف هذا المنتج نهائياً؟")) {
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                } catch (e) { alert("فشل الحذف"); }
             }
         };
 
@@ -203,11 +134,10 @@
             document.getElementById('pPrice').value = price;
             document.getElementById('pDown').value = down;
             document.getElementById('pImgUrl').value = img;
-            document.getElementById('mainBtn').innerText = "حفظ التعديلات";
-            document.getElementById('status').innerText = "أنت في وضع التعديل";
+            document.getElementById('mainBtn').innerText = "تأكيد التعديلات";
+            document.getElementById('status').innerText = "أنت الآن في وضع التعديل";
             window.scrollTo(0,0);
         };
     </script>
-    
 </body>
 </html>
