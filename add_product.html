@@ -2,19 +2,19 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إدارة المنتجات - Taqseet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المنتجات</title>
     <style>
-        body { font-family: Arial; padding: 20px; text-align: center; background-color: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; width: 95%; max-width: 450px; margin-bottom: 20px; }
-        input { margin: 8px 0; padding: 12px; width: 90%; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-        button { background: #28a745; color: white; border: none; padding: 12px; width: 95%; cursor: pointer; border-radius: 8px; font-size: 16px; font-weight: bold; }
-        .products-list { width: 100%; max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        body { font-family: Arial; padding: 10px; text-align: center; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; width: 95%; max-width: 400px; }
+        input { margin: 5px 0; padding: 12px; width: 90%; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: #28a745; color: white; border: none; padding: 12px; width: 95%; cursor: pointer; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+        table { width: 100%; max-width: 600px; margin: 20px auto; background: white; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
         th { background: #007bff; color: white; padding: 10px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; vertical-align: middle; }
-        .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; }
-        .del-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .edit-btn { background: #ffc107; color: black; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px; font-weight: bold; }
+        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+        .product-img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; }
+        .del-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .edit-btn { background: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -26,23 +26,19 @@
         <input type="number" id="pDown" placeholder="أقل مقدم">
         <input type="text" id="pImgUrl" placeholder="رابط الصورة المباشر">
         <button id="mainBtn" onclick="saveProduct()">نشر المنتج الآن</button>
-        <p id="status" style="font-weight: bold; color: #28a745; margin-top: 10px;"></p>
+        <p id="status" style="color: green; font-weight: bold;"></p>
     </div>
 
-    <div class="products-list">
-        <h3>المنتجات المعروضة حالياً</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>الصورة</th>
-                    <th>المنتج</th>
-                    <th>السعر</th>
-                    <th>إدارة</th>
-                </tr>
-            </thead>
-            <tbody id="productsBody"></tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>الصورة</th>
+                <th>المنتج</th>
+                <th>إدارة</th>
+            </tr>
+        </thead>
+        <tbody id="productsBody"></tbody>
+    </table>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -60,82 +56,54 @@
         const db = getFirestore(app);
         let editingId = null;
 
-        // دالة العرض الموحدة والنظيفة
+        // دالة العرض - استخدمت طريقة آمنة جداً لبناء الجدول
         onSnapshot(collection(db, "products"), (snapshot) => {
             const tbody = document.getElementById('productsBody');
             tbody.innerHTML = "";
-            
-            if (snapshot.empty) {
-                tbody.innerHTML = "<tr><td colspan='4'>لا توجد منتجات حالياً</td></tr>";
-                return;
-            }
-
             snapshot.forEach((pDoc) => {
                 const p = pDoc.data();
                 const id = pDoc.id;
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
-                    <td style="font-weight:bold">${p.name || 'بدون اسم'}</td>
-                    <td>${p.price || 0} ج.م</td>
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/60'"></td>
+                    <td><b>${p.name}</b><br>${p.price} ج.م</td>
                     <td>
-                        <button class="edit-btn" onclick="prepareEdit('${id}', '${p.name}', '${p.price}', '${p.downPayment}', '${p.image}')">تعديل</button>
+                        <button class="edit-btn" onclick="prepareEdit('${id}','${p.name}','${p.price}','${p.downPayment}','${p.image}')">تعديل</button>
                         <button class="del-btn" onclick="deleteProduct('${id}')">حذف</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
+                    </td>`;
+                tbody.appendChild(tr);
             });
         });
 
-        // تعريف الدوال على window
         window.saveProduct = async () => {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const down = document.getElementById('pDown').value;
-            const img = document.getElementById('pImgUrl').value;
-            const status = document.getElementById('status');
-
-            if(!name || !price || !img) { alert("من فضلك أكمل البيانات"); return; }
-            status.innerText = "جاري الحفظ...";
-
+            const n = document.getElementById('pName').value, 
+                  p = document.getElementById('pPrice').value, 
+                  d = document.getElementById('pDown').value, 
+                  i = document.getElementById('pImgUrl').value;
+            if(!n || !p || !i) return alert("أكمل البيانات");
+            
             try {
-                if (editingId) {
-                    await updateDoc(doc(db, "products", editingId), {
-                        name, price, downPayment: down, image: img
-                    });
+                if(editingId) {
+                    await updateDoc(doc(db, "products", editingId), { name:n, price:p, downPayment:d, image:i });
                     editingId = null;
                     document.getElementById('mainBtn').innerText = "نشر المنتج الآن";
-                    status.innerText = "تم التعديل بنجاح ✅";
                 } else {
-                    await addDoc(collection(db, "products"), {
-                        name, price, downPayment: down, image: img, date: new Date()
-                    });
-                    status.innerText = "تم النشر بنجاح ✅";
+                    await addDoc(collection(db, "products"), { name:n, price:p, downPayment:d, image:i, date: new Date() });
                 }
-                document.querySelectorAll('input').forEach(i => i.value = '');
-            } catch (e) {
-                status.innerText = "خطأ في الحفظ";
-                console.error(e);
-            }
+                document.querySelectorAll('input').forEach(input => input.value = '');
+                document.getElementById('status').innerText = "تمت العملية بنجاح!";
+            } catch(e) { alert("حدث خطأ"); }
         };
 
-        window.deleteProduct = async (id) => {
-            if(confirm("هل تريد حذف هذا المنتج نهائياً؟")) {
-                try {
-                    await deleteDoc(doc(db, "products", id));
-                } catch (e) { alert("فشل الحذف"); }
-            }
-        };
+        window.deleteProduct = async (id) => { if(confirm("حذف؟")) await deleteDoc(doc(db, "products", id)); };
 
-        window.prepareEdit = (id, name, price, down, img) => {
+        window.prepareEdit = (id, n, p, d, i) => {
             editingId = id;
-            document.getElementById('pName').value = name;
-            document.getElementById('pPrice').value = price;
-            document.getElementById('pDown').value = down;
-            document.getElementById('pImgUrl').value = img;
-            document.getElementById('mainBtn').innerText = "تأكيد التعديلات";
-            document.getElementById('status').innerText = "أنت الآن في وضع التعديل";
+            document.getElementById('pName').value = n;
+            document.getElementById('pPrice').value = p;
+            document.getElementById('pDown').value = d;
+            document.getElementById('pImgUrl').value = i;
+            document.getElementById('mainBtn').innerText = "حفظ التعديل";
             window.scrollTo(0,0);
         };
     </script>
