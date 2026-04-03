@@ -1,531 +1,374 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>محل التقسيط - النسخة الاحترافية الشاملة</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Tahoma, Arial, sans-serif;background:#f0f8ff;padding:10px}
-.container{max-width:550px;margin:0 auto;background:white;border-radius:16px;padding:20px;box-shadow:0 6px 25px rgba(0,0,0,0.15)}
-h1{color:#28a745;text-align:center;margin:20px 0;font-size:26px}
-h2{color:#007bff;text-align:center;margin:15px 0;font-size:18px}
-input,button,select{width:100%;padding:14px;margin:8px 0;border:2px solid #28a745;border-radius:12px;font-size:16px;text-align:center}
-button{background:#28a745;color:#fff;font-weight:bold;cursor:pointer;transition:background .3s;border:none}
-button:hover{background:#1e7e34}
-.backup-btn{background:#ff9800!important}.restore-btn{background:#9c27b0!important}
-.capital-btn{background:#007bff!important}
-.safe-btn{background:#2e7d32!important}
-.pdf-btn{background:#4CAF50!important; font-size: 14px!important; padding: 10px!important}
-.btn{padding:8px 5px; margin:3px; font-size:13px; border-radius:8px; font-weight:bold; cursor:pointer; flex-basis: calc(25% - 6px); min-width: 65px; color:#fff; border:none}
-.action-content{display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; padding:10px 0}
-.pay{background:#007bff}.wa{background:#25D366}.edit{background:#ffc107;color:#000}.del{background:#dc3545}.cam{background:#6f42c1}
-.result{background:#d4edda;color:#155524;padding:16px;border-radius:12px;margin:10px 0;text-align:center;font-size:18px;font-weight:bold}
-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;border-radius:12px;overflow:hidden; border:1px solid #ddd}
-th{background:#28a745;color:#fff;padding:12px; text-align:center}
-td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
-.progress{height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:8px;width:100%}
-.bar{height:100%;background:#28a745;transition:width .6s}
-.client-thumb{width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid #28a745; margin:0 5px}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:white;padding:20px;border-radius:16px;width:95%;max-width:400px;text-align:center}
-.hidden{display:none!important}
-#paymentsTable, #capitalEntriesTable, #safeEntriesTable { max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px;}
-</style>
-</head>
-<body>
-<div class="container">
-    <h1>محل التقسيط 💰</h1>
-    <input type="text" id="name" placeholder="* اسم العميل">
-    <input type="text" id="phone" placeholder="* رقم التليفون">
-    <input type="text" id="product" placeholder="وصف المنتج">
-    <div style="display:flex; gap:5px">
-        <input type="number" id="price" placeholder="* السعر">
-        <input type="number" id="months" placeholder="* الشهور">
-    </div>
-    <input type="number" id="interest" placeholder="* الفائدة %">
-    <input type="date" id="regDate">
-    <button onclick="addClient()">إضافة عميل جديد</button>
-    <button onclick="exportPDF()" style="background:#4CAF50">تقرير العملاء PDF 📄</button>
-
-    <h2 style="color:#20B2AA">إدارة الأموال 💸</h2>
-    <div style="display:flex; gap:10px;">
-        <button class="capital-btn" onclick="openCapitalModal()" style="flex:1">إدارة رأس المال</button>
-        <button class="safe-btn" onclick="openSafeModal()" style="flex:1">إدارة الخزنة</button>
-    </div>
-    <div style="display:flex; gap:10px; margin-top: 5px;">
-        <button class="pdf-btn" onclick="exportCapitalPDF()" style="flex:1">تقرير رأس المال PDF</button>
-        <button class="pdf-btn" onclick="exportSafePDF()" style="flex:1">تقرير الخزنة PDF</button>
-    </div>
-
-    <div style="display:flex; gap:10px; margin-top:10px">
-        <button class="backup-btn" onclick="exportData()" style="flex:1">نسخة احتياطية 💾</button>
-        <button class="restore-btn" onclick="document.getElementById('restoreInput').click()" style="flex:1">استعادة ♻️</button>
-    </div>
-    <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none">
-
-    <h2>إجمالي رأس المال المسحوب 💰</h2>
-    <div id="capitalRes" class="result" style="background:#ADD8E6; color:#0056b3;">0 ج.م</div>
-
-    <h2>إجمالي أرباح الفائدة المتوقعة</h2>
-    <div id="res" class="result">0 ج.م</div>
-
-    <h2>إجمالي الربح الشهري الفعلي</h2>
-    <div id="monthlyRes" class="result" style="background:#fff3cd; color:#856404;">0 ج.م</div>
-
-    <h2>رصيد الخزنة الحالي 💵 (تحصيل + يدوي)</h2>
-    <div id="safeRes" class="result" style="background:#e8f5e9; color:#2e7d32; border: 2px dashed #28a745;">0 ج.م</div>
-
-    <h2 id="clientsCount">العملاء (0)</h2>
-    <div id="clientsTable"></div>
-</div>
-
-<div id="capitalModal" class="modal hidden"><div class="modal-content">
-    <h3>إدارة رأس المال</h3>
-    <select id="capType"><option value="in">إيداع (+)</option><option value="out">سحب (-)</option></select>
-    <input id="capitalAmount" type="number" placeholder="المبلغ">
-    <input id="capitalReason" type="text" placeholder="السبب">
-    <input id="capitalDate" type="date">
-    <button onclick="addCapitalEntry()">إضافة</button>
-    <div id="capitalEntriesTable"></div>
-    <button onclick="closeModal('capitalModal')" style="background:#dc3545">إغلاق</button>
-</div></div>
-
-<div id="safeModal" class="modal hidden"><div class="modal-content">
-    <h3>إدارة الخزنة (يدوي)</h3>
-    <select id="safeEntryType"><option value="in">إيداع يدوي (+)</option><option value="out">سحب من الخزنة (-)</option></select>
-    <input id="safeEntryAmount" type="number" placeholder="المبلغ">
-    <input id="safeEntryReason" type="text" placeholder="السبب">
-    <input id="safeEntryDate" type="date">
-    <button onclick="addSafeManualEntry()">تسجيل الحركة</button>
-    <div id="safeEntriesTable"></div>
-    <button onclick="closeModal('safeModal')" style="background:#dc3545">إغلاق</button>
-</div></div>
-
-<div id="paymentModal" class="modal hidden"><div class="modal-content">
-    <h3>إضافة قسط جديد</h3>
-    <input id="paymentAmount" type="number" placeholder="المبلغ"><input id="paymentDate" type="date">
-    <button onclick="addPayment()">تأكيد القسط</button>
-    <div id="paymentsTable"></div>
-    <button onclick="closeModal('paymentModal')" style="background:#dc3545">إغلاق</button>
-</div></div>
-
-<div id="photoModal" class="modal hidden"><div class="modal-content">
-    <h3>تحميل صورة العميل</h3>
-    <img id="previewImage" style="max-width:120px; border-radius:10px; display:none; margin: 10px auto; border: 2px solid #28a745">
-    <button onclick="document.getElementById('photoInput').click()" style="background:#17a2b8">اختر صورة</button>
-    <input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(event)" style="display:none">
-    <button onclick="savePhoto()" style="background:#28a745">حفظ الصورة</button>
-    <button onclick="closeModal('photoModal')" style="background:#dc3545">إلغاء</button>
-</div></div>
-
-<div id="editModal" class="modal hidden"><div class="modal-content">
-    <h3>تعديل بيانات العميل</h3>
-    <input id="editName"><input id="editPhone"><input id="editProduct"><input id="editPrice" type="number"><input id="editMonths" type="number"><input id="editInterest" type="number"><input id="editRegDate" type="date">
-    <button onclick="saveClient()">حفظ التعديلات</button>
-    <button onclick="closeModal('editModal')" style="background:#dc3545">إلغاء</button>
-</div></div>
-
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
-        authDomain: "taqseet-f4aaf.firebaseapp.com",
-        projectId: "taqseet-f4aaf",
-        storageBucket: "taqseet-f4aaf.firebasestorage.app",
-        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // 1. دالة المزامنة (بترفع كل تفاصيل العميل)
-    window.syncToFirebase = async (client) => {
-        try {
-            // ملاحظة: لو الصورة كبيرة جداً السيرفر هيرفض، بس باقي البيانات هتترفع
-            await setDoc(doc(db, "clients", String(client.phone)), {
-                ...client, 
-                lastUpdate: new Date().toISOString()
-            });
-            console.log("تمت المزامنة للسحاب ✅");
-        } catch (e) { 
-            console.error("خطأ في المزامنة:", e);
-        }
-    };
-
-    // 2. دالة جلب البيانات من السحاب (عشان تفتح من أي جهاز)
-    window.loadFromCloud = async () => {
-        try {
-            const querySnapshot = await getDocs(collection(db, "clients"));
-            const cloudClients = [];
-            querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
-            
-            if(cloudClients.length > 0) {
-                clients = cloudClients;
-                localStorage.setItem('clients', JSON.stringify(clients));
-            }
-
-            const adminDoc = await getDoc(doc(db, "admin_data", "finances"));
-            if (adminDoc.exists()) {
-                const adminData = adminDoc.data();
-                capitalEntries = adminData.capitalEntries || [];
-                safeManualEntries = adminData.safeManualEntries || [];
-                localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
-                localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
-            }
-
-            showClients(); // تحديث الجدول في الصفحة
-            console.log("تم جلب أحدث بيانات من السحاب ☁️");
-        } catch (e) {
-            console.error("خطأ في جلب البيانات:", e);
-        }
-    };
-
-    window.deleteFromFirebase = async (phone) => {
-        try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
-    };
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
-        authDomain: "taqseet-f4aaf.firebaseapp.com",
-        projectId: "taqseet-f4aaf",
-        storageBucket: "taqseet-f4aaf.firebasestorage.app",
-        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.syncToFirebase = async (client) => {
-        try {
-            await setDoc(doc(db, "clients", String(client.phone)), {
-                ...client, 
-                lastUpdate: new Date().toISOString()
-            });
-            console.log("تمت المزامنة ✅");
-        } catch (e) { console.error("Cloud Error:", e); }
-    };
-
-    window.loadFromCloud = async () => {
-        try {
-            const querySnapshot = await getDocs(collection(db, "clients"));
-            const cloudClients = [];
-            querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
-            
-            // التعديل الجوهري: لا تمسح المتصفح إلا لو السحاب فيه بيانات "أكثر" أو "أحدث"
-            let localClients = JSON.parse(localStorage.getItem('clients') || '[]');
-            if(cloudClients.length >= localClients.length && cloudClients.length > 0) {
-                clients = cloudClients;
-                localStorage.setItem('clients', JSON.stringify(clients));
-                console.log("تم التحديث من السحاب بنجاح ☁️");
-            } else {
-                console.log("تم الاعتماد على البيانات المحلية لأنها أشمل 💻");
-            }
-
-            const adminDoc = await getDoc(doc(db, "admin_data", "finances"));
-            if (adminDoc.exists()) {
-                const adminData = adminDoc.data();
-                capitalEntries = adminData.capitalEntries || [];
-                safeManualEntries = adminData.safeManualEntries || [];
-                localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
-                localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
-            }
-            showClients(); 
-        } catch (e) { console.error("خطأ جلب البيانات:", e); }
-    };
-
-    window.deleteFromFirebase = async (phone) => {
-        try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
-    };
-
-    window.onload = async () => {
-        // 1. عرض البيانات اللي إنت عملت لها استعادة الأول
-        showClients();
-        document.getElementById('regDate').value = today;
-        document.getElementById('safeEntryDate').value = today;
-        
-        // 2. بعد كدة روح شوف السحاب فيه إيه (من غير ما تمسح اللي قدامك لو السحاب فاضي)
-        await window.loadFromCloud();
-    };
-</script>
-
-
-<script>
-let clients = JSON.parse(localStorage.getItem('clients') || '[]');
-let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
-let safeManualEntries = JSON.parse(localStorage.getItem('safeManualEntries') || '[]');
-let currentIndex = -1;
-let tempPhoto = null;
-const today = new Date().toISOString().split('T')[0];
-
-const formatCurrency = (n) => Number(n).toLocaleString('ar-EG') + ' ج.م';
-const formatCurrencyEn = (n) => Number(n).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' EGP';
-
-function save() {
-    localStorage.setItem('clients', JSON.stringify(clients));
-    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
-    localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
-    showClients();
-}
-
-function addClient() {
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    if(!name || !document.getElementById('price').value) return alert("أكمل البيانات المطلوبة");
-    
-    const newClient = {
-        name, phone: phone,
-        product: document.getElementById('product').value || "بدون وصف",
-        price: Number(document.getElementById('price').value),
-        months: Number(document.getElementById('months').value),
-        interest: Number(document.getElementById('interest').value) / 100,
-        paid: 0, payments: [], photo: null, registrationDate: document.getElementById('regDate').value || today
-    };
-    
-    clients.push(newClient);
-    save();
-    if(window.syncToFirebase) window.syncToFirebase(newClient);
-}
-
-function showClients() {
-    let totalInt = 0, monthProf = 0, totalInstallmentsCollected = 0;
-    const now = new Date();
-    clients.forEach(c => {
-        totalInt += (c.price * c.interest);
-        totalInstallmentsCollected += (c.paid || 0);
-        const profitRatio = (c.interest) / (1 + c.interest);
-        if(c.payments){
-            c.payments.forEach(p => {
-                const pd = new Date(p.date);
-                if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
-                    monthProf += (p.amount * profitRatio);
-                }
-            });
-        }
-    });
-
-    let manualSafeTotal = safeManualEntries.reduce((a,c)=> a + Number(c.amount), 0);
-    let finalSafeBalance = totalInstallmentsCollected + manualSafeTotal;
-
-    document.getElementById('res').innerText = formatCurrency(totalInt);
-    document.getElementById('monthlyRes').innerText = formatCurrency(monthProf);
-    document.getElementById('safeRes').innerText = formatCurrency(finalSafeBalance);
-    document.getElementById('capitalRes').innerText = formatCurrency(capitalEntries.reduce((a,c)=>a+Number(c.amount),0));
-    document.getElementById('clientsCount').innerText = "العملاء (" + clients.length + ")";
-
-    let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr></thead><tbody>';
-    clients.forEach((c, i) => {
-        const total = c.price * (1 + c.interest);
-        const inst = total / c.months;
-        const rem = total - (c.paid || 0);
-        const nextDate = new Date(c.registrationDate);
-        nextDate.setMonth(nextDate.getMonth() + Math.floor((c.paid || 0) / (inst || 1)) + 1);
-        const thumbImg = c.photo ? `<img src="${c.photo}" class="client-thumb">` : `<div class="client-thumb" style="background:#eee; display:inline-block; line-height:45px; color:#999; font-size:10px">صورة</div>`;
-        html += `<tr><td style="text-align:right"><b>${c.name}</b><br><small style="color:#666">${c.product}</small></td><td>${c.phone}</td><td>${formatCurrency(c.paid || 0)}</td><td>${formatCurrency(rem)}</td><td><b style="color:#007bff">${formatCurrency(Math.min(inst, rem))}</b><br><small>${nextDate.toLocaleDateString('ar-EG')}</small></td></tr><tr style="background:#f8f9fa"><td colspan="5"><div class="progress"><div class="bar" style="width:${Math.min(100, ((c.paid || 0)/total)*100)}%"></div></div><div class="action-content"><button class="btn pay" onclick="openPaymentModal(${i})">قسط</button><button class="btn edit" onclick="editClient(${i})">تعديل</button><button class="btn wa" onclick="sendWA(${i})">واتس</button>${thumbImg}<button class="btn cam" onclick="openPhotoModal(${i})">صورة</button><button class="btn del" onclick="deleteClient(${i})">حذف</button></div></td></tr>`;
-    });
-    document.getElementById('clientsTable').innerHTML = html + '</tbody></table>';
-}
-
-// الدوال المتبقية (نفس الكود الأصلي بالمللي)
-function sendWA(i) {
-    const c = clients[i];
-    const total = c.price * (1 + c.interest);
-    const inst = total / c.months;
-    const rem = total - c.paid;
-    const paidInstCount = Math.floor(c.paid / inst);
-    const nextDate = new Date(c.registrationDate);
-    nextDate.setMonth(nextDate.getMonth() + paidInstCount + 1);
-    const msg = `مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n• المبلغ الإجمالي المتبقي: ${formatCurrency(rem)}\n• باقي الأقساط المتوقعة: ${c.months - paidInstCount} قسط\n• قيمة القسط القادم: ${formatCurrency(Math.min(inst, rem))}\n• تاريخ استحقاق القسط: ${nextDate.toLocaleDateString('ar-EG')}\n\nبرجاء سرعة السداد. شكراً لتعاونك.`;
-    window.open("https://wa.me/" + c.phone.replace(/\D/g,'') + "/?text=" + encodeURIComponent(msg));
-}
-
-function openSafeModal() { displaySafeEntries(); document.getElementById('safeModal').classList.remove('hidden'); }
-function addSafeManualEntry() {
-    const amt = Number(document.getElementById('safeEntryAmount').value);
-    const type = document.getElementById('safeEntryType').value;
-    safeManualEntries.push({ amount: type==='in'?amt:-amt, date: document.getElementById('safeEntryDate').value || today, reason: document.getElementById('safeEntryReason').value || "بدون سبب" });
-    save(); displaySafeEntries();
-}
-function displaySafeEntries() {
-    let h = '<table><tr><th>التاريخ</th><th>المبلغ</th><th>السبب</th><th>حذف</th></tr>';
-    safeManualEntries.slice().reverse().forEach((e, i) => {
-        const actualIdx = safeManualEntries.length - 1 - i;
-        h += `<tr><td>${e.date}</td><td>${e.amount}</td><td>${e.reason}</td><td><button onclick="delSafeEntry(${actualIdx})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px">X</button></td></tr>`;
-    });
-    document.getElementById('safeEntriesTable').innerHTML = h + '</table>';
-}
-function delSafeEntry(i) { safeManualEntries.splice(i,1); save(); displaySafeEntries(); }
-
-function openCapitalModal() { displayCapitalEntries(); document.getElementById('capitalModal').classList.remove('hidden'); }
-function addCapitalEntry() {
-    const amt = Number(document.getElementById('capitalAmount').value);
-    const type = document.getElementById('capType').value;
-    capitalEntries.push({ amount: type==='in'?amt:-amt, date: document.getElementById('capitalDate').value || today, reason: document.getElementById('capitalReason').value });
-    save(); displayCapitalEntries();
-}
-function displayCapitalEntries() {
-    let h = '<table><tr><th>مبلغ</th><th>سبب</th><th>حذف</th></tr>';
-    capitalEntries.slice().reverse().forEach((e, i) => {
-        const actualIdx = capitalEntries.length - 1 - i;
-        h += `<tr><td>${e.amount}</td><td>${e.reason}</td><td><button onclick="delCap(${actualIdx})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px">X</button></td></tr>`;
-    });
-    document.getElementById('capitalEntriesTable').innerHTML = h + '</table>';
-}
-function delCap(i) { capitalEntries.splice(i,1); save(); displayCapitalEntries(); }
-
-function openPaymentModal(i) { currentIndex = i; displayPayments(i); document.getElementById('paymentModal').classList.remove('hidden'); }
-function addPayment() {
-    const amt = Number(document.getElementById('paymentAmount').value);
-    if(!amt) return;
-    if(!clients[currentIndex].payments) clients[currentIndex].payments = [];
-    clients[currentIndex].payments.push({amount: amt, date: document.getElementById('paymentDate').value || today});
-    clients[currentIndex].paid = (clients[currentIndex].paid || 0) + amt;
-    save(); 
-    if(window.syncToFirebase) window.syncToFirebase(clients[currentIndex]);
-    closeModal('paymentModal');
-}
-function displayPayments(idx) {
-    let h = '<table><tr><th>التاريخ</th><th>المبلغ</th><th>حذف</th></tr>';
-    if(clients[idx].payments){
-        clients[idx].payments.slice().reverse().forEach((p, i) => {
-            const actualIdx = clients[idx].payments.length - 1 - i;
-            h += `<tr><td>${p.date}</td><td>${p.amount}</td><td><button onclick="delPay(${idx},${actualIdx})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px">X</button></td></tr>`;
-        });
-    }
-    document.getElementById('paymentsTable').innerHTML = h + '</table>';
-}
-function delPay(cIdx, pIdx) {
-    clients[cIdx].paid -= clients[cIdx].payments[pIdx].amount;
-    clients[cIdx].payments.splice(pIdx, 1);
-    save(); 
-    if(window.syncToFirebase) window.syncToFirebase(clients[cIdx]);
-    displayPayments(cIdx);
-}
-
-function openPhotoModal(i) { 
-    currentIndex = i; 
-    tempPhoto = clients[i].photo || null; 
-    const img = document.getElementById('previewImage');
-    if(tempPhoto) { img.src = tempPhoto; img.style.display = "block"; } else { img.style.display = "none"; }
-    document.getElementById('photoModal').classList.remove('hidden'); 
-}
-function loadPhoto(e) { 
-    const file = e.target.files[0];
-    if(!file) return;
-    const r = new FileReader(); 
-    r.onload = ev => { tempPhoto = ev.target.result; document.getElementById('previewImage').src = tempPhoto; document.getElementById('previewImage').style.display = "block"; }; 
-    r.readAsDataURL(file); 
-}
-function savePhoto() { if(tempPhoto) clients[currentIndex].photo = tempPhoto; save(); closeModal('photoModal'); }
-
-function editClient(i) {
-    currentIndex = i; const c = clients[i];
-    document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone;
-    document.getElementById('editProduct').value = c.product; document.getElementById('editPrice').value = c.price;
-    document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = Math.round(c.interest*100);
-    document.getElementById('editRegDate').value = c.registrationDate;
-    document.getElementById('editModal').classList.remove('hidden');
-}
-function saveClient() {
-    const c = clients[currentIndex];
-    c.name = document.getElementById('editName').value; c.phone = document.getElementById('editPhone').value;
-    c.product = document.getElementById('editProduct').value; c.price = Number(document.getElementById('editPrice').value);
-    c.months = Number(document.getElementById('editMonths').value); c.interest = Number(document.getElementById('editInterest').value)/100;
-    c.registrationDate = document.getElementById('editRegDate').value;
-    save(); 
-    if(window.syncToFirebase) window.syncToFirebase(c);
-    closeModal('editModal');
-}
-
-function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    let currentMonthProf = 0;
-    const now = new Date();
-    clients.forEach(c => {
-        const profitRatio = (c.interest) / (1 + c.interest);
-        if(c.payments){
-            c.payments.forEach(p => {
-                const pd = new Date(p.date);
-                if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
-                    currentMonthProf += (p.amount * profitRatio);
-                }
-            });
-        }
-    });
-    doc.text("Installment Clients Report", 105, 15, {align:'center'});
-    const data = clients.map(c => [c.name, c.product, c.phone, formatCurrencyEn(c.paid || 0), formatCurrencyEn(c.price*(1+c.interest)-(c.paid || 0)), formatCurrencyEn((c.price * (1+c.interest)) / c.months)]);
-    doc.autoTable({ head: [['Name','Product','Phone','Paid','Remaining','Monthly']], body: data, startY: 25, headStyles: {fillColor: [40, 167, 69]} });
-    doc.setFontSize(14); doc.setTextColor(0,100,0);
-    doc.text("Actual Monthly Profit: " + currentMonthProf.toFixed(2) + " EGP", 105, doc.lastAutoTable.finalY + 15, {align:'center'});
-    doc.save("Clients_Report.pdf");
-}
-
-function exportCapitalPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    doc.text("Capital Report - تقرير رأس المال", 105, 15, {align:'center'});
-    const data = capitalEntries.map(e => [e.date, formatCurrencyEn(e.amount), e.reason]);
-    doc.autoTable({ head: [['Date', 'Amount', 'Reason']], body: data, startY: 25, headStyles: {fillColor: [0, 123, 255]} });
-    doc.save("Capital_Report.pdf");
-}
-
-function exportSafePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    doc.text("Safe Report - تقرير الخزنة", 105, 15, {align:'center'});
-    let collected = clients.reduce((a,c)=>a+(c.paid||0),0);
-    let manual = safeManualEntries.map(e => [e.date, formatCurrencyEn(e.amount), e.reason]);
-    doc.autoTable({ head: [['Date', 'Manual Amount', 'Reason']], body: manual, startY: 25, headStyles: {fillColor: [46, 125, 50]} });
-    let finalY = doc.lastAutoTable.finalY + 10;
-    doc.text(`Total Installments Collected: ${formatCurrencyEn(collected)}`, 20, finalY);
-    doc.text(`Net Safe Balance: ${formatCurrencyEn(collected + safeManualEntries.reduce((a,c)=>a+Number(c.amount),0))}`, 20, finalY + 10);
-    doc.save("Safe_Report.pdf");
-}
-
-function exportData() {
-    const blob = new Blob([JSON.stringify({clients, capitalEntries, safeManualEntries})], {type:'application/json'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click();
-}
-function restoreData(e) {
-    const reader = new FileReader();
-    reader.onload = ev => { 
-        const d = JSON.parse(ev.target.result); 
-        clients = d.clients || []; 
-        capitalEntries = d.capitalEntries || []; 
-        safeManualEntries = d.safeManualEntries || []; 
-        
-        // حفظ نهائي في المتصفح عشان التحديث ميمسحش حاجة
-        localStorage.setItem('clients', JSON.stringify(clients));
-        localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
-        localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
-        
-        showClients(); 
-        alert("تمت الاستعادة بنجاح.. البيانات الآن ثابتة في المتصفح ✅"); 
-    };
-    reader.readAsText(e.target.files[0]);
-}
-
-
-function deleteClient(i) { 
-    if(confirm("حذف نهائي؟")) { 
-        const phone = clients[i].phone;
-        clients.splice(i,1); 
-        save(); 
-        if(window.deleteFromFirebase) window.deleteFromFirebase(phone);
-    } 
-}
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-</script>
-</body>
-</html>
+‏<!DOCTYPE html>
+‏<html lang="ar" dir="rtl">
+‏<head>
+‏<meta charset="UTF-8">
+‏<meta name="viewport" content="width=device-width, initial-scale=1.0">
+‏<title>محل التقسيط - النسخة الاحترافية الشاملة</title>
+‏<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+‏<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+‏
+‏<style>
+‏*{margin:0;padding:0;box-sizing:border-box}
+‏body{font-family:Tahoma, Arial, sans-serif;background:#f0f8ff;padding:10px}
+‏.container{max-width:550px;margin:0 auto;background:white;border-radius:16px;padding:20px;box-shadow:0 6px 25px rgba(0,0,0,0.15)}
+‏h1{color:#28a745;text-align:center;margin:20px 0;font-size:26px}
+‏h2{color:#007bff;text-align:center;margin:15px 0;font-size:18px}
+‏input,button,select{width:100%;padding:14px;margin:8px 0;border:2px solid #28a745;border-radius:12px;font-size:16px;text-align:center}
+‏button{background:#28a745;color:#fff;font-weight:bold;cursor:pointer;transition:background .3s;border:none}
+‏button:hover{background:#1e7e34}
+‏.backup-btn{background:#ff9800!important}.restore-btn{background:#9c27b0!important}
+‏.capital-btn{background:#007bff!important}
+‏.safe-btn{background:#2e7d32!important}
+‏.pdf-btn{background:#4CAF50!important; font-size: 14px!important; padding: 10px!important}
+‏.btn{padding:8px 5px; margin:3px; font-size:13px; border-radius:8px; font-weight:bold; cursor:pointer; flex-basis: calc(25% - 6px); min-width: 65px; color:#fff; border:none}
+‏.action-content{display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; padding:10px 0}
+‏.pay{background:#007bff}.wa{background:#25D366}.edit{background:#ffc107;color:#000}.del{background:#dc3545}.cam{background:#6f42c1}
+‏.result{background:#d4edda;color:#155524;padding:16px;border-radius:12px;margin:10px 0;text-align:center;font-size:18px;font-weight:bold}
+‏table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;border-radius:12px;overflow:hidden; border:1px solid #ddd}
+‏th{background:#28a745;color:#fff;padding:12px; text-align:center}
+‏td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
+‏.progress{height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:8px;width:100%}
+‏.bar{height:100%;background:#28a745;transition:width .6s}
+‏.client-thumb{width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid #28a745; margin:0 5px}
+‏.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:1000}
+‏.modal-content{background:white;padding:20px;border-radius:16px;width:95%;max-width:400px;text-align:center}
+‏.hidden{display:none!important}
+‏#paymentsTable, #capitalEntriesTable, #safeEntriesTable { max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px;}
+‏</style>
+‏</head>
+‏<body>
+‏<div class="container">
+‏    <h1>محل التقسيط 💰</h1>
+‏    <input type="text" id="name" placeholder="* اسم العميل">
+‏    <input type="text" id="phone" placeholder="* رقم التليفون">
+‏    <input type="text" id="product" placeholder="وصف المنتج">
+‏    <div style="display:flex; gap:5px">
+‏        <input type="number" id="price" placeholder="* السعر">
+‏        <input type="number" id="months" placeholder="* الشهور">
+‏    </div>
+‏    <input type="number" id="interest" placeholder="* الفائدة %">
+‏    <input type="date" id="regDate">
+‏    <button onclick="addClient()">إضافة عميل جديد</button>
+‏    <button onclick="exportPDF()" style="background:#4CAF50">تقرير العملاء PDF 📄</button>
+‏
+‏    <h2 style="color:#20B2AA">إدارة الأموال 💸</h2>
+‏    <div style="display:flex; gap:10px;">
+‏        <button class="capital-btn" onclick="openCapitalModal()" style="flex:1">إدارة رأس المال</button>
+‏        <button class="safe-btn" onclick="openSafeModal()" style="flex:1">إدارة الخزنة</button>
+‏    </div>
+‏    <div style="display:flex; gap:10px; margin-top: 5px;">
+‏        <button class="pdf-btn" onclick="exportCapitalPDF()" style="flex:1">تقرير رأس المال PDF</button>
+‏        <button class="pdf-btn" onclick="exportSafePDF()" style="flex:1">تقرير الخزنة PDF</button>
+‏    </div>
+‏
+‏    <div style="display:flex; gap:10px; margin-top:10px">
+‏        <button class="backup-btn" onclick="exportData()" style="flex:1">نسخة احتياطية 💾</button>
+‏        <button class="restore-btn" onclick="document.getElementById('restoreInput').click()" style="flex:1">استعادة ♻️</button>
+‏    </div>
+‏    <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none">
+‏
+‏    <h2>إجمالي رأس المال المسحوب 💰</h2>
+‏    <div id="capitalRes" class="result" style="background:#ADD8E6; color:#0056b3;">0 ج.م</div>
+‏
+‏    <h2>إجمالي أرباح الفائدة المتوقعة</h2>
+‏    <div id="res" class="result">0 ج.م</div>
+‏
+‏    <h2>إجمالي الربح الشهري الفعلي</h2>
+‏    <div id="monthlyRes" class="result" style="background:#fff3cd; color:#856404;">0 ج.م</div>
+‏
+‏    <h2>رصيد الخزنة الحالي 💵 (تحصيل + يدوي)</h2>
+‏    <div id="safeRes" class="result" style="background:#e8f5e9; color:#2e7d32; border: 2px dashed #28a745;">0 ج.م</div>
+‏
+‏    <h2 id="clientsCount">العملاء (0)</h2>
+‏    <div id="clientsTable"></div>
+‏</div>
+‏
+‏<div id="capitalModal" class="modal hidden"><div class="modal-content">
+‏    <h3>إدارة رأس المال</h3>
+‏    <select id="capType"><option value="in">إيداع (+)</option><option value="out">سحب (-)</option></select>
+‏    <input id="capitalAmount" type="number" placeholder="المبلغ">
+‏    <input id="capitalReason" type="text" placeholder="السبب">
+‏    <input id="capitalDate" type="date">
+‏    <button onclick="addCapitalEntry()">إضافة</button>
+‏    <div id="capitalEntriesTable"></div>
+‏    <button onclick="closeModal('capitalModal')" style="background:#dc3545">إغلاق</button>
+‏</div></div>
+‏
+‏<div id="safeModal" class="modal hidden"><div class="modal-content">
+‏    <h3>إدارة الخزنة (يدوي)</h3>
+‏    <select id="safeEntryType"><option value="in">إيداع يدوي (+)</option><option value="out">سحب من الخزنة (-)</option></select>
+‏    <input id="safeEntryAmount" type="number" placeholder="المبلغ">
+‏    <input id="safeEntryReason" type="text" placeholder="السبب">
+‏    <input id="safeEntryDate" type="date">
+‏    <button onclick="addSafeManualEntry()">تسجيل الحركة</button>
+‏    <div id="safeEntriesTable"></div>
+‏    <button onclick="closeModal('safeModal')" style="background:#dc3545">إغلاق</button>
+‏</div></div>
+‏
+‏<div id="paymentModal" class="modal hidden"><div class="modal-content">
+‏    <h3>إضافة قسط جديد</h3>
+‏    <input id="paymentAmount" type="number" placeholder="المبلغ"><input id="paymentDate" type="date">
+‏    <button onclick="addPayment()">تأكيد القسط</button>
+‏    <div id="paymentsTable"></div>
+‏    <button onclick="closeModal('paymentModal')" style="background:#dc3545">إغلاق</button>
+‏</div></div>
+‏
+‏<div id="photoModal" class="modal hidden"><div class="modal-content">
+‏    <h3>تحميل صورة العميل</h3>
+‏    <img id="previewImage" style="max-width:120px; border-radius:10px; display:none; margin: 10px auto; border: 2px solid #28a745">
+‏    <button onclick="document.getElementById('photoInput').click()" style="background:#17a2b8">اختر صورة</button>
+‏    <input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(event)" style="display:none">
+‏    <button onclick="savePhoto()" style="background:#28a745">حفظ الصورة</button>
+‏    <button onclick="closeModal('photoModal')" style="background:#dc3545">إلغاء</button>
+‏</div></div>
+‏
+‏<div id="editModal" class="modal hidden"><div class="modal-content">
+‏    <h3>تعديل بيانات العميل</h3>
+‏    <input id="editName"><input id="editPhone"><input id="editProduct"><input id="editPrice" type="number"><input id="editMonths" type="number"><input id="editInterest" type="number"><input id="editRegDate" type="date">
+‏    <button onclick="saveClient()">حفظ التعديلات</button>
+‏    <button onclick="closeModal('editModal')" style="background:#dc3545">إلغاء</button>
+‏</div></div>
+‏
+‏<script>
+‏let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+‏let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
+‏let safeManualEntries = JSON.parse(localStorage.getItem('safeManualEntries') || '[]');
+‏let currentIndex = -1;
+‏let tempPhoto = null;
+‏const today = new Date().toISOString().split('T')[0];
+‏
+‏const formatCurrency = (n) => Number(n).toLocaleString('ar-EG') + ' ج.م';
+‏const formatCurrencyEn = (n) => Number(n).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' EGP';
+‏
+‏function save() {
+‏    localStorage.setItem('clients', JSON.stringify(clients));
+‏    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+‏    localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
+‏    showClients();
+‏}
+‏
+‏function addClient() {
+‏    const name = document.getElementById('name').value;
+‏    if(!name || !document.getElementById('price').value) return alert("أكمل البيانات المطلوبة");
+‏    clients.push({
+‏        name, phone: document.getElementById('phone').value,
+‏        product: document.getElementById('product').value || "بدون وصف",
+‏        price: Number(document.getElementById('price').value),
+‏        months: Number(document.getElementById('months').value),
+‏        interest: Number(document.getElementById('interest').value) / 100,
+‏        paid: 0, payments: [], photo: null, registrationDate: document.getElementById('regDate').value || today
+‏    });
+‏    save();
+‏}
+‏
+‏function showClients() {
+‏    let totalInt = 0, monthProf = 0, totalInstallmentsCollected = 0;
+‏    const now = new Date();
+‏    clients.forEach(c => {
+‏        totalInt += (c.price * c.interest);
+‏        totalInstallmentsCollected += (c.paid || 0);
+‏        const profitRatio = (c.interest) / (1 + c.interest);
+‏        if(c.payments){
+‏            c.payments.forEach(p => {
+‏                const pd = new Date(p.date);
+‏                if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
+‏                    monthProf += (p.amount * profitRatio);
+‏                }
+‏            });
+‏        }
+‏    });
+‏
+‏    let manualSafeTotal = safeManualEntries.reduce((a,c)=> a + Number(c.amount), 0);
+‏    let finalSafeBalance = totalInstallmentsCollected + manualSafeTotal;
+‏
+‏    document.getElementById('res').innerText = formatCurrency(totalInt);
+‏    document.getElementById('monthlyRes').innerText = formatCurrency(monthProf);
+‏    document.getElementById('safeRes').innerText = formatCurrency(finalSafeBalance);
+‏    document.getElementById('capitalRes').innerText = formatCurrency(capitalEntries.reduce((a,c)=>a+Number(c.amount),0));
+‏    document.getElementById('clientsCount').innerText = "العملاء (" + clients.length + ")";
+‏
+‏    let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr></thead><tbody>';
+‏    clients.forEach((c, i) => {
+‏        const total = c.price * (1 + c.interest);
+‏        const inst = total / c.months;
+‏        const rem = total - (c.paid || 0);
+‏        const nextDate = new Date(c.registrationDate);
+‏        nextDate.setMonth(nextDate.getMonth() + Math.floor((c.paid || 0) / (inst || 1)) + 1);
+‏        const thumbImg = c.photo ? `<img src="${c.photo}" class="client-thumb">` : `<div class="client-thumb" style="background:#eee; display:inline-block; line-height:45px; color:#999; font-size:10px">صورة</div>`;
+‏        html += `<tr><td style="text-align:right"><b>${c.name}</b><br><small style="color:#666">${c.product}</small></td><td>${c.phone}</td><td>${formatCurrency(c.paid || 0)}</td><td>${formatCurrency(rem)}</td><td><b style="color:#007bff">${formatCurrency(Math.min(inst, rem))}</b><br><small>${nextDate.toLocaleDateString('ar-EG')}</small></td></tr><tr style="background:#f8f9fa"><td colspan="5"><div class="progress"><div class="bar" style="width:${Math.min(100, ((c.paid || 0)/total)*100)}%"></div></div><div class="action-content"><button class="btn pay" onclick="openPaymentModal(${i})">قسط</button><button class="btn edit" onclick="editClient(${i})">تعديل</button><button class="btn wa" onclick="sendWA(${i})">واتس</button>${thumbImg}<button class="btn cam" onclick="openPhotoModal(${i})">صورة</button><button class="btn del" onclick="deleteClient(${i})">حذف</button></div></td></tr>`;
+‏    });
+‏    document.getElementById('clientsTable').innerHTML = html + '</tbody></table>';
+‏}
+‏
+‏function sendWA(i) {
+‏    const c = clients[i];
+‏    const total = c.price * (1 + c.interest);
+‏    const inst = total / c.months;
+‏    const rem = total - c.paid;
+‏    const paidInstCount = Math.floor(c.paid / inst);
+‏    const nextDate = new Date(c.registrationDate);
+‏    nextDate.setMonth(nextDate.getMonth() + paidInstCount + 1);
+‏    const msg = `مرحباً ${c.name}، إليك تفاصيل تقسيط ${c.product}:\n\n• المبلغ الإجمالي المتبقي: ${formatCurrency(rem)}\n• باقي الأقساط المتوقعة: ${c.months - paidInstCount} قسط\n• قيمة القسط القادم: ${formatCurrency(Math.min(inst, rem))}\n• تاريخ استحقاق القسط: ${nextDate.toLocaleDateString('ar-EG')}\n\nبرجاء سرعة السداد. شكراً لتعاونك.`;
+‏    window.open("https://wa.me/" + c.phone.replace(/\D/g,'') + "/?text=" + encodeURIComponent(msg));
+‏}
+‏
+‏function openSafeModal() { displaySafeEntries(); document.getElementById('safeModal').classList.remove('hidden'); }
+‏function addSafeManualEntry() {
+‏    const amt = Number(document.getElementById('safeEntryAmount').value);
+‏    const type = document.getElementById('safeEntryType').value;
+‏    safeManualEntries.push({ amount: type==='in'?amt:-amt, date: document.getElementById('safeEntryDate').value || today, reason: document.getElementById('safeEntryReason').value || "بدون سبب" });
+‏    save(); displaySafeEntries();
+‏}
+‏function displaySafeEntries() {
+‏    let h = '<table><tr><th>التاريخ</th><th>المبلغ</th><th>السبب</th><th>حذف</th></tr>';
+‏    safeManualEntries.slice().reverse().forEach((e, i) => {
+‏        const actualIdx = safeManualEntries.length - 1 - i;
+‏        h += `<tr><td>${e.date}</td><td>${e.amount}</td><td>${e.reason}</td><td><button onclick="delSafeEntry(${actualIdx})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px">X</button></td></tr>`;
+‏    });
+‏    document.getElementById('safeEntriesTable').innerHTML = h + '</table>';
+‏}
+‏function delSafeEntry(i) { safeManualEntries.splice(i,1); save(); displaySafeEntries(); }
+‏
+‏function openCapitalModal() { displayCapitalEntries(); document.getElementById('capitalModal').classList.remove('hidden'); }
+‏function addCapitalEntry() {
+‏    const amt = Number(document.getElementById('capitalAmount').value);
+‏    const type = document.getElementById('capType').value;
+‏    capitalEntries.push({ amount: type==='in'?amt:-amt, date: document.getElementById('capitalDate').value || today, reason: document.getElementById('capitalReason').value });
+‏    save(); displayCapitalEntries();
+‏}
+‏function displayCapitalEntries() {
+‏    let h = '<table><tr><th>مبلغ</th><th>سبب</th><th>حذف</th></tr>';
+‏    capitalEntries.slice().reverse().forEach((e, i) => {
+‏        const actualIdx = capitalEntries.length - 1 - i;
+‏        h += `<tr><td>${e.amount}</td><td>${e.reason}</td><td><button onclick="delCap(${actualIdx})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px">X</button></td></tr>`;
+‏    });
+‏    document.getElementById('capitalEntriesTable').innerHTML = h + '</table>';
+‏}
+‏function delCap(i) { capitalEntries.splice(i,1); save(); displayCapitalEntries(); }
+‏
+‏function exportCapitalPDF() {
+‏    const { jsPDF } = window.jspdf;
+‏    const doc = new jsPDF('p', 'mm', 'a4');
+‏    doc.text("Capital Report - تقرير رأس المال", 105, 15, {align:'center'});
+‏    const data = capitalEntries.map(e => [e.date, formatCurrencyEn(e.amount), e.reason]);
+‏    doc.autoTable({ head: [['Date', 'Amount', 'Reason']], body: data, startY: 25, headStyles: {fillColor: [0, 123, 255]} });
+‏    doc.save("Capital_Report.pdf");
+‏}
+‏
+‏function exportSafePDF() {
+‏    const { jsPDF } = window.jspdf;
+‏    const doc = new jsPDF('p', 'mm', 'a4');
+‏    doc.text("Safe Report - تقرير الخزنة", 105, 15, {align:'center'});
+‏    let collected = clients.reduce((a,c)=>a+(c.paid||0),0);
+‏    let manual = safeManualEntries.map(e => [e.date, formatCurrencyEn(e.amount), e.reason]);
+‏    doc.autoTable({ head: [['Date', 'Manual Amount', 'Reason']], body: manual, startY: 25, headStyles: {fillColor: [46, 125, 50]} });
+‏    let finalY = doc.lastAutoTable.finalY + 10;
+‏    doc.text(`Total Installments Collected: ${formatCurrencyEn(collected)}`, 20, finalY);
+‏    doc.text(`Net Safe Balance: ${formatCurrencyEn(collected + safeManualEntries.reduce((a,c)=>a+Number(c.amount),0))}`, 20, finalY + 10);
+‏    doc.save("Safe_Report.pdf");
+‏}
+‏
+‏function openPaymentModal(i) { currentIndex = i; displayPayments(i); document.getElementById('paymentModal').classList.remove('hidden'); }
+‏function addPayment() {
+‏    const amt = Number(document.getElementById('paymentAmount').value);
+‏    if(!amt) return;
+‏    if(!clients[currentIndex].payments) clients[currentIndex].payments = [];
+‏    clients[currentIndex].payments.push({amount: amt, date: document.getElementById('paymentDate').value || today});
+‏    clients[currentIndex].paid = (clients[currentIndex].paid || 0) + amt;
+‏    save(); closeModal('paymentModal');
+‏}
+‏function displayPayments(idx) {
+‏    let h = '<table><tr><th>التاريخ</th><th>المبلغ</th><th>حذف</th></tr>';
+‏    if(clients[idx].payments){
+‏        clients[idx].payments.slice().reverse().forEach((p, i) => {
+‏            const actualIdx = clients[idx].payments.length - 1 - i;
+‏            h += `<tr><td>${p.date}</td><td>${p.amount}</td><td><button onclick="delPay(${idx},${actualIdx})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px">X</button></td></tr>`;
+‏        });
+‏    }
+‏    document.getElementById('paymentsTable').innerHTML = h + '</table>';
+‏}
+‏function delPay(cIdx, pIdx) {
+‏    clients[cIdx].paid -= clients[cIdx].payments[pIdx].amount;
+‏    clients[cIdx].payments.splice(pIdx, 1);
+‏    save(); displayPayments(cIdx);
+‏}
+‏
+‏function openPhotoModal(i) { 
+‏    currentIndex = i; 
+‏    tempPhoto = clients[i].photo || null; 
+‏    const img = document.getElementById('previewImage');
+‏    if(tempPhoto) { img.src = tempPhoto; img.style.display = "block"; } else { img.style.display = "none"; }
+‏    document.getElementById('photoModal').classList.remove('hidden'); 
+‏}
+‏function loadPhoto(e) { 
+‏    const file = e.target.files[0];
+‏    if(!file) return;
+‏    const r = new FileReader(); 
+‏    r.onload = ev => { tempPhoto = ev.target.result; document.getElementById('previewImage').src = tempPhoto; document.getElementById('previewImage').style.display = "block"; }; 
+‏    r.readAsDataURL(file); 
+‏}
+‏function savePhoto() { if(tempPhoto) clients[currentIndex].photo = tempPhoto; save(); closeModal('photoModal'); }
+‏
+‏function editClient(i) {
+‏    currentIndex = i; const c = clients[i];
+‏    document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone;
+‏    document.getElementById('editProduct').value = c.product; document.getElementById('editPrice').value = c.price;
+‏    document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = Math.round(c.interest*100);
+‏    document.getElementById('editRegDate').value = c.registrationDate;
+‏    document.getElementById('editModal').classList.remove('hidden');
+‏}
+‏function saveClient() {
+‏    const c = clients[currentIndex];
+‏    c.name = document.getElementById('editName').value; c.phone = document.getElementById('editPhone').value;
+‏    c.product = document.getElementById('editProduct').value; c.price = Number(document.getElementById('editPrice').value);
+‏    c.months = Number(document.getElementById('editMonths').value); c.interest = Number(document.getElementById('editInterest').value)/100;
+‏    c.registrationDate = document.getElementById('editRegDate').value;
+‏    save(); closeModal('editModal');
+‏}
+‏
+‏function exportPDF() {
+‏    const { jsPDF } = window.jspdf;
+‏    const doc = new jsPDF('p', 'mm', 'a4');
+‏    
+‏    let currentMonthProf = 0;
+‏    const now = new Date();
+‏    clients.forEach(c => {
+‏        const profitRatio = (c.interest) / (1 + c.interest);
+‏        if(c.payments){
+‏            c.payments.forEach(p => {
+‏                const pd = new Date(p.date);
+‏                if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
+‏                    currentMonthProf += (p.amount * profitRatio);
+‏                }
+‏            });
+‏        }
+‏    });
+‏
+‏    doc.text("Installment Clients Report", 105, 15, {align:'center'});
+‏    const data = clients.map(c => [c.name, c.product, c.phone, formatCurrencyEn(c.paid || 0), formatCurrencyEn(c.price*(1+c.interest)-(c.paid || 0)), formatCurrencyEn((c.price * (1+c.interest)) / c.months)]);
+‏    doc.autoTable({ head: [['Name','Product','Phone','Paid','Remaining','Monthly']], body: data, startY: 25, headStyles: {fillColor: [40, 167, 69]} });
+‏    
+‏    // إعادة الربح الفعلي الشهري للتقرير
+‏    doc.setFontSize(14);
+‏    doc.setTextColor(0,100,0);
+‏    doc.text("Actual Monthly Profit: " + currentMonthProf.toFixed(2) + " EGP", 105, doc.lastAutoTable.finalY + 15, {align:'center'});
+‏    
+‏    doc.save("Clients_Report.pdf");
+‏}
+‏
+‏function exportData() {
+‏    const blob = new Blob([JSON.stringify({clients, capitalEntries, safeManualEntries})], {type:'application/json'});
+‏    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click();
+‏}
+‏function restoreData(e) {
+‏    const reader = new FileReader();
+‏    reader.onload = ev => { const d = JSON.parse(ev.target.result); clients = d.clients || []; capitalEntries = d.capitalEntries || []; safeManualEntries = d.safeManualEntries || []; save(); alert("تمت الاستعادة"); };
+‏    reader.readAsText(e.target.files[0]);
+‏}
+‏function deleteClient(i) { if(confirm("حذف نهائي؟")) { clients.splice(i,1); save(); } }
+‏function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+‏window.onload = () => { document.getElementById('regDate').value = today; document.getElementById('safeEntryDate').value = today; showClients(); };
+‏</script>
+‏</body>
+‏</html>
+‏
