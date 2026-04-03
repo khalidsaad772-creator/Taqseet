@@ -42,36 +42,42 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                const content = e.target.result;
-                const data = JSON.parse(content);
-                
-                // التأكد من استخراج قائمة العملاء صح من ملفك
+                const data = JSON.parse(e.target.result);
                 const clientsList = data.clients || [];
                 
-                if (clientsList.length === 0) {
-                    throw new Error("الملف فاضي أو مفيش فيه عملاء");
-                }
-
-                status.innerText = "جاري رفع " + clientsList.length + " عميل للسحاب... ⏳";
+                status.innerText = "جاري رفع البيانات الأساسية (بدون الصور لتجنب الخطأ)... ⏳";
 
                 for (const client of clientsList) {
                     if (client.phone) {
-                        // رفع العميل بكل تفاصيله (بما فيها مصفوفة payments والصورة base64)
-                        await setDoc(doc(db, "clients", String(client.phone)), client);
+                        // الحركة الذكية: بنعمل نسخة من العميل ونمسح منها الصورة عشان تترفع
+                        const { photo, ...clientWithoutPhoto } = client; 
+                        
+                        await setDoc(doc(db, "clients", String(client.phone)), {
+                            ...clientWithoutPhoto,
+                            lastUpdate: new Date().toISOString()
+                        });
                     }
                 }
 
-                status.innerText = "تم الرفع بنجاح ✅ كل العملاء وصورهم بقوا على السحاب.";
-                alert("تمت المهمة بنجاح يا خالد!");
+                // رفع حسابات الإدارة
+                if (data.capitalEntries || data.safeManualEntries) {
+                    await setDoc(doc(db, "admin_data", "finances"), {
+                        capitalEntries: data.capitalEntries || [],
+                        safeManualEntries: data.safeManualEntries || []
+                    });
+                }
+
+                status.innerText = "تم رفع جميع الحسابات والعملاء بنجاح ✅ (بدون الصور القديمة)";
+                alert("مبروك يا خالد! الحسابات والعملاء بقوا على السحاب.");
 
             } catch (err) {
-                console.error(err);
-                alert("خطأ: " + err.message);
+                alert("حدث خطأ: " + err.message);
             }
         };
         reader.readAsText(fileInput.files[0]);
     };
 </script>
+
 
 
 </body>
