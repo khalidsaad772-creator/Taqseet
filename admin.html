@@ -130,7 +130,6 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
 </div></div>
 
 
-    
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -146,23 +145,23 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. دالة المزامنة الشاملة (ترفع العميل بكل بياناته)
+    // 1. دالة المزامنة (بترفع كل تفاصيل العميل)
     window.syncToFirebase = async (client) => {
         try {
+            // ملاحظة: لو الصورة كبيرة جداً السيرفر هيرفض، بس باقي البيانات هتترفع
             await setDoc(doc(db, "clients", String(client.phone)), {
-                ...client, // دي أهم حتة: بترفع الأقساط والصور وكل حاجة
+                ...client, 
                 lastUpdate: new Date().toISOString()
             });
-            console.log("تمت المزامنة بنجاح ✅");
+            console.log("تمت المزامنة للسحاب ✅");
         } catch (e) { 
-            console.error("Cloud Error:", e); 
+            console.error("خطأ في المزامنة:", e);
         }
     };
 
     // 2. دالة جلب البيانات من السحاب (عشان تفتح من أي جهاز)
     window.loadFromCloud = async () => {
         try {
-            // جلب العملاء
             const querySnapshot = await getDocs(collection(db, "clients"));
             const cloudClients = [];
             querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
@@ -172,7 +171,6 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
                 localStorage.setItem('clients', JSON.stringify(clients));
             }
 
-            // جلب بيانات الإدارة (رأس المال والخزنة)
             const adminDoc = await getDoc(doc(db, "admin_data", "finances"));
             if (adminDoc.exists()) {
                 const adminData = adminDoc.data();
@@ -182,8 +180,8 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
                 localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
             }
 
-            showClients(); // تحديث الجدول بعد الجلب
-            console.log("تم تحديث البيانات من السحاب ☁️");
+            showClients(); // تحديث الجدول في الصفحة
+            console.log("تم جلب أحدث بيانات من السحاب ☁️");
         } catch (e) {
             console.error("خطأ في جلب البيانات:", e);
         }
@@ -193,14 +191,20 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
         try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
     };
 
-    // تشغيل الجلب التلقائي عند فتح الصفحة
+    // تشغيل الصفحة
     window.onload = async () => {
-        document.getElementById('regDate').value = today; 
-        document.getElementById('safeEntryDate').value = today; 
-        showClients(); 
-        await window.loadFromCloud(); // أول ما يفتح يروح يجيب الجديد من Firebase
+        // إعداد التاريخ
+        document.getElementById('regDate').value = today;
+        document.getElementById('safeEntryDate').value = today;
+        
+        // عرض البيانات الحالية أولاً
+        showClients();
+        
+        // محاولة جلب الجديد من السحاب فوراً
+        await window.loadFromCloud();
     };
 </script>
+
 
 <script>
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
