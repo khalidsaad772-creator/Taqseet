@@ -42,39 +42,37 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                const data = JSON.parse(e.target.result);
-                status.innerText = "جاري الإنقاذ والرفع... ⏳";
-
-                // رفع العملاء بأي شكل موجودين بيه
-                const clientsList = data.clients || (Array.isArray(data) ? data : []);
+                const content = e.target.result;
+                const data = JSON.parse(content);
                 
-                if (Array.isArray(clientsList)) {
-                    for (const client of clientsList) {
-                        if (client.phone) {
-                            await setDoc(doc(db, "clients", String(client.phone)), client);
-                        }
+                // التأكد من استخراج قائمة العملاء صح من ملفك
+                const clientsList = data.clients || [];
+                
+                if (clientsList.length === 0) {
+                    throw new Error("الملف فاضي أو مفيش فيه عملاء");
+                }
+
+                status.innerText = "جاري رفع " + clientsList.length + " عميل للسحاب... ⏳";
+
+                for (const client of clientsList) {
+                    if (client.phone) {
+                        // رفع العميل بكل تفاصيله (بما فيها مصفوفة payments والصورة base64)
+                        await setDoc(doc(db, "clients", String(client.phone)), client);
                     }
                 }
 
-                // رفع الحسابات لو موجودة
-                const adminData = {};
-                if (data.capitalEntries) adminData.capitalEntries = data.capitalEntries;
-                if (data.safeManualEntries) adminData.safeManualEntries = data.safeManualEntries;
+                status.innerText = "تم الرفع بنجاح ✅ كل العملاء وصورهم بقوا على السحاب.";
+                alert("تمت المهمة بنجاح يا خالد!");
 
-                if (Object.keys(adminData).length > 0) {
-                    await setDoc(doc(db, "admin_data", "finances"), adminData);
-                }
-
-                status.innerText = "تم الرفع بنجاح ✅ بياناتك بقت على السحاب ونقدر نفتحها من أي مكان.";
-                alert("تمت المهمة! بياناتك في أمان يا بطل.");
             } catch (err) {
                 console.error(err);
-                alert("خطأ فني في قراءة الملف، ابعتلي أول سطر من ملف الباك اب وأنا أخلصها لك.");
+                alert("خطأ: " + err.message);
             }
         };
         reader.readAsText(fileInput.files[0]);
     };
 </script>
+
 
 </body>
 </html>
