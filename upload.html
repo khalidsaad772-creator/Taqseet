@@ -19,7 +19,6 @@
         <button id="uploadBtn">ابدأ الرفع الآن</button>
         <div id="status"></div>
     </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -38,41 +37,44 @@
     document.getElementById('uploadBtn').onclick = async () => {
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
-        if (!fileInput.files[0]) return alert("اختار الملف أولاً");
+        if (!fileInput.files[0]) return alert("اختار الملف يا خالد");
 
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-                status.className = "status loading";
-                status.innerText = "جاري رفع البيانات... يرجى الانتظار";
+                status.innerText = "جاري الإنقاذ والرفع... ⏳";
 
-                // رفع العملاء
-                if (data.clients && Array.isArray(data.clients)) {
-                    for (const client of data.clients) {
+                // رفع العملاء بأي شكل موجودين بيه
+                const clientsList = data.clients || (Array.isArray(data) ? data : []);
+                
+                if (Array.isArray(clientsList)) {
+                    for (const client of clientsList) {
                         if (client.phone) {
                             await setDoc(doc(db, "clients", String(client.phone)), client);
                         }
                     }
                 }
 
-                // رفع حسابات الإدارة (رأس المال والخزنة)
-                const adminInfo = {};
-                if (data.capitalEntries) adminInfo.capitalEntries = data.capitalEntries;
-                if (data.safeManualEntries) adminInfo.safeManualEntries = data.safeManualEntries;
-                
-                if (Object.keys(adminInfo).length > 0) {
-                    await setDoc(doc(db, "admin_data", "finances"), adminInfo);
+                // رفع الحسابات لو موجودة
+                const adminData = {};
+                if (data.capitalEntries) adminData.capitalEntries = data.capitalEntries;
+                if (data.safeManualEntries) adminData.safeManualEntries = data.safeManualEntries;
+
+                if (Object.keys(adminData).length > 0) {
+                    await setDoc(doc(db, "admin_data", "finances"), adminData);
                 }
 
-                status.className = "status success";
-                status.innerText = "تم الرفع بنجاح ✅ السحاب الآن محدث ببياناتك.";
+                status.innerText = "تم الرفع بنجاح ✅ بياناتك بقت على السحاب ونقدر نفتحها من أي مكان.";
+                alert("تمت المهمة! بياناتك في أمان يا بطل.");
             } catch (err) {
-                alert("الملف غير مدعوم، تأكد أنه ملف JSON سليم.");
+                console.error(err);
+                alert("خطأ فني في قراءة الملف، ابعتلي أول سطر من ملف الباك اب وأنا أخلصها لك.");
             }
         };
         reader.readAsText(fileInput.files[0]);
     };
 </script>
+
 </body>
 </html>
