@@ -2,27 +2,23 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مزامنة البيانات التاريخية - معرض خالد</title>
+    <title>مزامنة السحاب - معرض خالد</title>
     <style>
-        body { font-family: Arial; text-align: center; padding: 50px; background: #eef2f7; }
-        .box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: inline-block; width: 100%; max-width: 450px; }
-        h2 { color: #28a745; margin-bottom: 20px; }
-        #status { margin-top: 20px; font-weight: bold; padding: 10px; border-radius: 8px; }
+        body { font-family: Arial; text-align: center; padding: 40px; background: #f4f7f6; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: inline-block; width: 100%; max-width: 400px; }
+        button { background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; }
+        #status { margin-top: 20px; padding: 10px; border-radius: 5px; font-size: 14px; }
         .loading { background: #fff3cd; color: #856404; }
         .success { background: #d4edda; color: #155524; }
-        button { background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; font-size: 18px; transition: 0.3s; width: 100%; }
-        button:hover { background: #218838; }
     </style>
 </head>
 <body>
-
-<div class="box">
-    <h2>تحديث السحاب ☁️</h2>
-    <p style="color: #666; margin-bottom: 20px;">اختر ملف backup.json لنقل بياناتك القديمة إلى Firebase</p>
-    <input type="file" id="fileInput" accept=".json" style="margin-bottom: 20px;"><br>
-    <button id="uploadBtn">ابدأ المزامنة الشاملة</button>
-    <div id="status"></div>
-</div>
+    <div class="card">
+        <h2>تحديث بيانات السحاب ☁️</h2>
+        <input type="file" id="fileInput" accept=".json" style="margin: 20px 0;">
+        <button id="uploadBtn">ابدأ الرفع الآن</button>
+        <div id="status"></div>
+    </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -42,34 +38,37 @@
     document.getElementById('uploadBtn').onclick = async () => {
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
-        
-        if (!fileInput.files[0]) return alert("يا خالد اختار الملف الأول!");
+        if (!fileInput.files[0]) return alert("اختار الملف أولاً");
 
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-                status.className = "loading";
-                status.innerText = "جاري توزيع البيانات على السحاب... ⏳";
+                status.className = "status loading";
+                status.innerText = "جاري رفع البيانات... يرجى الانتظار";
 
-                // 1. رفع العملاء (بكامل تفاصيلهم)
-                if (data.clients) {
+                // رفع العملاء
+                if (data.clients && Array.isArray(data.clients)) {
                     for (const client of data.clients) {
-                        await setDoc(doc(db, "clients", String(client.phone)), client);
+                        if (client.phone) {
+                            await setDoc(doc(db, "clients", String(client.phone)), client);
+                        }
                     }
                 }
 
-                // 2. رفع رأس المال والخزنة
-                await setDoc(doc(db, "admin_data", "finances"), {
-                    capitalEntries: data.capitalEntries || [],
-                    safeManualEntries: data.safeManualEntries || [],
-                    lastUpdate: new Date().toISOString()
-                });
+                // رفع حسابات الإدارة (رأس المال والخزنة)
+                const adminInfo = {};
+                if (data.capitalEntries) adminInfo.capitalEntries = data.capitalEntries;
+                if (data.safeManualEntries) adminInfo.safeManualEntries = data.safeManualEntries;
+                
+                if (Object.keys(adminInfo).length > 0) {
+                    await setDoc(doc(db, "admin_data", "finances"), adminInfo);
+                }
 
-                status.className = "success";
-                status.innerText = "تمت المزامنة بنجاح! بياناتك الآن آمنة في السحاب ✅";
+                status.className = "status success";
+                status.innerText = "تم الرفع بنجاح ✅ السحاب الآن محدث ببياناتك.";
             } catch (err) {
-                alert("الملف ده مش مظبوط، تأكد إنه backup.json الأصلي");
+                alert("الملف غير مدعوم، تأكد أنه ملف JSON سليم.");
             }
         };
         reader.readAsText(fileInput.files[0]);
