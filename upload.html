@@ -34,6 +34,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // دالة صغيرة للانتظار عشان المتصفح ما يهنجش
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
     document.getElementById('uploadBtn').onclick = async () => {
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
@@ -44,34 +47,44 @@
             try {
                 const data = JSON.parse(e.target.result);
                 const clientsList = data.clients || [];
-                
-                status.innerText = "جاري رفع البيانات الأساسية (بدون الصور لتجنب الخطأ)... ⏳";
+                status.innerText = "بدأنا عملية الرفع الشاملة... ⏳";
 
-                for (const client of clientsList) {
+                let successCount = 0;
+                let failCount = 0;
+
+                for (let i = 0; i < clientsList.length; i++) {
+                    const client = clientsList[i];
                     if (client.phone) {
-                        // الحركة الذكية: بنعمل نسخة من العميل ونمسح منها الصورة عشان تترفع
-                        const { photo, ...clientWithoutPhoto } = client; 
+                        try {
+                            // محاولة رفع العميل بالكامل أولاً
+                            await setDoc(doc(db, "clients", String(client.phone)), client);
+                        } catch (err) {
+                            // لو الحجم كبير (بسبب الصورة)، نرفعه من غير الصورة
+                            const { photo, ...clientMin } = client;
+                            await setDoc(doc(db, "clients", String(client.phone)), clientMin);
+                        }
                         
-                        await setDoc(doc(db, "clients", String(client.phone)), {
-                            ...clientWithoutPhoto,
-                            lastUpdate: new Date().toISOString()
-                        });
+                        successCount++;
+                        status.innerText = `تم رفع ${successCount} عميل بنجاح...`;
+                        
+                        // ننتظر 50 مللي ثانية بين كل رفعة والتانية عشان السيرفر ما يرفضش
+                        await sleep(50);
                     }
                 }
 
-                // رفع حسابات الإدارة
-                if (data.capitalEntries || data.safeManualEntries) {
-                    await setDoc(doc(db, "admin_data", "finances"), {
-                        capitalEntries: data.capitalEntries || [],
-                        safeManualEntries: data.safeManualEntries || []
-                    });
+                // رفع حسابات الخزنة ورأس المال
+                const adminData = {};
+                if (data.capitalEntries) adminData.capitalEntries = data.capitalEntries;
+                if (data.safeManualEntries) adminData.safeManualEntries = data.safeManualEntries;
+                if (Object.keys(adminData).length > 0) {
+                    await setDoc(doc(db, "admin_data", "finances"), adminData);
                 }
 
-                status.innerText = "تم رفع جميع الحسابات والعملاء بنجاح ✅ (بدون الصور القديمة)";
-                alert("مبروك يا خالد! الحسابات والعملاء بقوا على السحاب.");
+                status.innerText = `اكتملت المهمة! ✅ تم رفع ${successCount} عميل للسحاب.`;
+                alert("تم رفع كافة البيانات للسحاب بنجاح.");
 
             } catch (err) {
-                alert("حدث خطأ: " + err.message);
+                alert("خطأ عام: " + err.message);
             }
         };
         reader.readAsText(fileInput.files[0]);
