@@ -146,15 +146,25 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     const db = getFirestore(app);
 
     // ربط الدوال بالـ window عشان الكود القديم يشوفها
+ //   window.syncToFirebase = async (client) => {
+       // try {
+         //   await setDoc(doc(db, "clients", String(client.phone)), {
+          //      name: client.name, phone: client.phone, product: client.product,
+          //      price: client.price, interest: client.interest, paid: client.paid || 0,
+         //       lastUpdate: new Date().toISOString()
+       //     });
+   //     } catch (e) { console.error("Cloud Error:", e); }
+  //  };
     window.syncToFirebase = async (client) => {
-        try {
-            await setDoc(doc(db, "clients", String(client.phone)), {
-                name: client.name, phone: client.phone, product: client.product,
-                price: client.price, interest: client.interest, paid: client.paid || 0,
-                lastUpdate: new Date().toISOString()
-            });
-        } catch (e) { console.error("Cloud Error:", e); }
-    };
+    try {
+        await setDoc(doc(db, "clients", String(client.phone)), {
+            ...client, // الثلاث نقاط دول هما اللي هيرفعوا الأقساط والبيانات كاملة
+            lastUpdate: new Date().toISOString()
+        });
+        console.log("تمت المزامنة بنجاح ✅");
+    } catch (e) { console.error("خطأ مزامنة:", e); }
+};
+
 
     window.deleteFromFirebase = async (phone) => {
         try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
