@@ -443,7 +443,6 @@ function exportData() {
     const blob = new Blob([JSON.stringify({clients, capitalEntries, safeManualEntries})], {type:'application/json'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click();
 }
-
 function restoreData(e) {
     const reader = new FileReader();
     reader.onload = ev => { 
@@ -451,11 +450,18 @@ function restoreData(e) {
         clients = d.clients || []; 
         capitalEntries = d.capitalEntries || []; 
         safeManualEntries = d.safeManualEntries || []; 
-        save(); 
-        alert("تمت الاستعادة بنجاح"); 
+        
+        // حفظ نهائي في المتصفح عشان التحديث ميمسحش حاجة
+        localStorage.setItem('clients', JSON.stringify(clients));
+        localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+        localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
+        
+        showClients(); 
+        alert("تمت الاستعادة بنجاح.. البيانات الآن ثابتة في المتصفح ✅"); 
     };
     reader.readAsText(e.target.files[0]);
 }
+
 
 function deleteClient(i) { 
     if(confirm("حذف نهائي؟")) { 
@@ -466,7 +472,7 @@ function deleteClient(i) {
     } 
 }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-window.onload = () => { document.getElementById('regDate').value = today; document.getElementById('safeEntryDate').value = today; showClients(); };
+
 </script>
 </body>
 </html>
