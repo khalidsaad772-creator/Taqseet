@@ -190,17 +190,70 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     window.deleteFromFirebase = async (phone) => {
         try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
     };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // تشغيل الصفحة
+    const firebaseConfig = {
+        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
+        authDomain: "taqseet-f4aaf.firebaseapp.com",
+        projectId: "taqseet-f4aaf",
+        storageBucket: "taqseet-f4aaf.firebasestorage.app",
+        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.syncToFirebase = async (client) => {
+        try {
+            await setDoc(doc(db, "clients", String(client.phone)), {
+                ...client, 
+                lastUpdate: new Date().toISOString()
+            });
+            console.log("تمت المزامنة ✅");
+        } catch (e) { console.error("Cloud Error:", e); }
+    };
+
+    window.loadFromCloud = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "clients"));
+            const cloudClients = [];
+            querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
+            
+            // التعديل الجوهري: لا تمسح المتصفح إلا لو السحاب فيه بيانات "أكثر" أو "أحدث"
+            let localClients = JSON.parse(localStorage.getItem('clients') || '[]');
+            if(cloudClients.length >= localClients.length && cloudClients.length > 0) {
+                clients = cloudClients;
+                localStorage.setItem('clients', JSON.stringify(clients));
+                console.log("تم التحديث من السحاب بنجاح ☁️");
+            } else {
+                console.log("تم الاعتماد على البيانات المحلية لأنها أشمل 💻");
+            }
+
+            const adminDoc = await getDoc(doc(db, "admin_data", "finances"));
+            if (adminDoc.exists()) {
+                const adminData = adminDoc.data();
+                capitalEntries = adminData.capitalEntries || [];
+                safeManualEntries = adminData.safeManualEntries || [];
+                localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+                localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
+            }
+            showClients(); 
+        } catch (e) { console.error("خطأ جلب البيانات:", e); }
+    };
+
+    window.deleteFromFirebase = async (phone) => {
+        try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
+    };
+
     window.onload = async () => {
-        // إعداد التاريخ
+        // 1. عرض البيانات اللي إنت عملت لها استعادة الأول
+        showClients();
         document.getElementById('regDate').value = today;
         document.getElementById('safeEntryDate').value = today;
         
-        // عرض البيانات الحالية أولاً
-        showClients();
-        
-        // محاولة جلب الجديد من السحاب فوراً
+        // 2. بعد كدة روح شوف السحاب فيه إيه (من غير ما تمسح اللي قدامك لو السحاب فاضي)
         await window.loadFromCloud();
     };
 </script>
