@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مزامنة البيانات التاريخية - معرض خالد</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 50px; background: #eef2f7; }
+        .box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: inline-block; width: 100%; max-width: 450px; }
+        h2 { color: #28a745; margin-bottom: 20px; }
+        #status { margin-top: 20px; font-weight: bold; padding: 10px; border-radius: 8px; }
+        .loading { background: #fff3cd; color: #856404; }
+        .success { background: #d4edda; color: #155524; }
+        button { background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; font-size: 18px; transition: 0.3s; width: 100%; }
+        button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>تحديث السحاب ☁️</h2>
+    <p style="color: #666; margin-bottom: 20px;">اختر ملف backup.json لنقل بياناتك القديمة إلى Firebase</p>
+    <input type="file" id="fileInput" accept=".json" style="margin-bottom: 20px;"><br>
+    <button id="uploadBtn">ابدأ المزامنة الشاملة</button>
+    <div id="status"></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
+        authDomain: "taqseet-f4aaf.firebaseapp.com",
+        projectId: "taqseet-f4aaf",
+        storageBucket: "taqseet-f4aaf.firebasestorage.app",
+        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById('uploadBtn').onclick = async () => {
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        
+        if (!fileInput.files[0]) return alert("يا خالد اختار الملف الأول!");
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                status.className = "loading";
+                status.innerText = "جاري توزيع البيانات على السحاب... ⏳";
+
+                // 1. رفع العملاء (بكامل تفاصيلهم)
+                if (data.clients) {
+                    for (const client of data.clients) {
+                        await setDoc(doc(db, "clients", String(client.phone)), client);
+                    }
+                }
+
+                // 2. رفع رأس المال والخزنة
+                await setDoc(doc(db, "admin_data", "finances"), {
+                    capitalEntries: data.capitalEntries || [],
+                    safeManualEntries: data.safeManualEntries || [],
+                    lastUpdate: new Date().toISOString()
+                });
+
+                status.className = "success";
+                status.innerText = "تمت المزامنة بنجاح! بياناتك الآن آمنة في السحاب ✅";
+            } catch (err) {
+                alert("الملف ده مش مظبوط، تأكد إنه backup.json الأصلي");
+            }
+        };
+        reader.readAsText(fileInput.files[0]);
+    };
+</script>
+</body>
+</html>
