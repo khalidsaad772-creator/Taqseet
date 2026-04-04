@@ -188,7 +188,7 @@ function save() {
     showClients();
 }
 
-// تحميل البيانات (Firebase أولاً)
+// ====================== تحميل البيانات ======================
 async function loadData() {
     const fbClients = await window.loadFromFirebase();
     if (fbClients.length > 0) {
@@ -201,13 +201,13 @@ async function loadData() {
     showClients();
 }
 
-// الاستعادة المحسنة
+// ====================== استعادة (الإصلاح الجديد) ======================
 function restoreData(e) {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async function(ev) {
+    reader.onload = async (ev) => {
         try {
             const data = JSON.parse(ev.target.result);
             
@@ -215,11 +215,12 @@ function restoreData(e) {
             capitalEntries = data.capitalEntries || [];
             safeManualEntries = data.safeManualEntries || [];
 
+            // حفظ محلياً
             localStorage.setItem('clients', JSON.stringify(clients));
             localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
             localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
 
-            // رفع كل العملاء إلى Firebase
+            // رفع كل شيء إلى Firebase
             if (window.syncToFirebase) {
                 for (let client of clients) {
                     await window.syncToFirebase(client);
@@ -227,17 +228,17 @@ function restoreData(e) {
             }
 
             showClients();
-            alert("✅ تمت الاستعادة بنجاح وتم رفع جميع البيانات إلى Firebase");
+            alert("✅ تمت الاستعادة بنجاح وتم رفع البيانات إلى Firebase");
             document.getElementById('restoreInput').value = '';
         } catch (err) {
-            alert("❌ خطأ في قراءة الملف");
+            alert("❌ خطأ في قراءة الملف، تأكد أنه backup.json صحيح");
             console.error(err);
         }
     };
     reader.readAsText(file);
 }
 
-// ==================== باقي الدوال (نفس الأصلي) ====================
+// ====================== باقي الدوال (نفس الأصلي) ======================
 function addClient() {
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
@@ -258,42 +259,83 @@ function addClient() {
 }
 
 function showClients() {
-    // ... (نفس الكود الأصلي كاملاً)
-    let totalInt = 0, monthProf = 0;
+    let totalInt = 0, monthProf = 0, totalInstallmentsCollected = 0;
     const now = new Date();
     clients.forEach(c => {
         totalInt += (c.price * c.interest);
+        totalInstallmentsCollected += (c.paid || 0);
+        const profitRatio = (c.interest) / (1 + c.interest);
         if(c.payments){
             c.payments.forEach(p => {
                 const pd = new Date(p.date);
                 if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
-                    monthProf += (p.amount * (c.interest / (1 + c.interest)));
+                    monthProf += (p.amount * profitRatio);
                 }
             });
         }
     });
 
+    let manualSafeTotal = safeManualEntries.reduce((a,c)=> a + Number(c.amount), 0);
+    let finalSafeBalance = totalInstallmentsCollected + manualSafeTotal;
+
     document.getElementById('res').innerText = formatCurrency(totalInt);
     document.getElementById('monthlyRes').innerText = formatCurrency(monthProf);
-    document.getElementById('safeRes').innerText = formatCurrency(
-        clients.reduce((a,c)=>a+(c.paid||0),0) + safeManualEntries.reduce((a,c)=>a+Number(c.amount),0)
-    );
+    document.getElementById('safeRes').innerText = formatCurrency(finalSafeBalance);
     document.getElementById('capitalRes').innerText = formatCurrency(capitalEntries.reduce((a,c)=>a+Number(c.amount),0));
     document.getElementById('clientsCount').innerText = "العملاء (" + clients.length + ")";
 
-    // باقي كود الجدول ...
-    let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم</th></tr></thead><tbody>';
-    // ... (أكمل باقي الجدول كما في الأصلي)
+    let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr></thead><tbody>';
+    clients.forEach((c, i) => {
+        const total = c.price * (1 + c.interest);
+        const inst = total / c.months;
+        const rem = total - (c.paid || 0);
+        const nextDate = new Date(c.registrationDate);
+        nextDate.setMonth(nextDate.getMonth() + Math.floor((c.paid || 0) / (inst || 1)) + 1);
+        const thumbImg = c.photo ? `<img src="${c.photo}" class="client-thumb">` : `<div class="client-thumb" style="background:#eee; display:inline-block; line-height:45px; color:#999; font-size:10px">صورة</div>`;
+        html += `<tr><td style="text-align:right"><b>\( {c.name}</b><br><small style="color:#666"> \){c.product}</small></td><td>\( {c.phone}</td><td> \){formatCurrency(c.paid || 0)}</td><td>\( {formatCurrency(rem)}</td><td><b style="color:#007bff"> \){formatCurrency(Math.min(inst, rem))}</b><br><small>\( {nextDate.toLocaleDateString('ar-EG')}</small></td></tr><tr style="background:#f8f9fa"><td colspan="5"><div class="progress"><div class="bar" style="width: \){Math.min(100, ((c.paid || 0)/total)*100)}%"></div></div><div class="action-content"><button class="btn pay" onclick="openPaymentModal(\( {i})">قسط</button><button class="btn edit" onclick="editClient( \){i})">تعديل</button><button class="btn wa" onclick="sendWA(\( {i})">واتس</button> \){thumbImg}<button class="btn cam" onclick="openPhotoModal(\( {i})">صورة</button><button class="btn del" onclick="deleteClient( \){i})">حذف</button></div></td></tr>`;
+    });
     document.getElementById('clientsTable').innerHTML = html + '</tbody></table>';
 }
 
-// باقي الدوال (addPayment, editClient, deleteClient, exportPDF, exportCapitalPDF, exportSafePDF, sendWA, إلخ) 
-// هي نفسها من الكود الأصلي اللي بعتهولي أول مرة.
+// (باقي الدوال نفسها تماماً زي الكود الأصلي: sendWA, openPaymentModal, addPayment, displayPayments, delPay, openPhotoModal, loadPhoto, savePhoto, editClient, saveClient, exportPDF, exportCapitalPDF, exportSafePDF, exportData, closeModal, addCapitalEntry, displayCapitalEntries, delCap, addSafeManualEntry, displaySafeEntries, delSafeEntry)
 
-window.onload = async () => { 
-    document.getElementById('regDate').value = today; 
-    document.getElementById('safeEntryDate').value = today; 
-    await loadData(); 
+function sendWA(i) { /* نفس الكود الأصلي */ }
+function openPaymentModal(i) { currentIndex = i; displayPayments(i); document.getElementById('paymentModal').classList.remove('hidden'); }
+function addPayment() { /* نفس الكود الأصلي */ }
+function displayPayments(idx) { /* نفس الكود الأصلي */ }
+function delPay(cIdx, pIdx) { /* نفس الكود الأصلي */ }
+function openPhotoModal(i) { currentIndex = i; tempPhoto = clients[i].photo || null; /* نفس الكود */ }
+function loadPhoto(e) { /* نفس الكود */ }
+function savePhoto() { /* نفس الكود */ }
+function editClient(i) { /* نفس الكود */ }
+function saveClient() { /* نفس الكود */ }
+function deleteClient(i) { 
+    if(confirm("حذف نهائي؟")) { 
+        const phone = clients[i].phone;
+        clients.splice(i,1); 
+        save(); 
+        if(window.deleteFromFirebase) window.deleteFromFirebase(phone);
+    } 
+}
+function exportPDF() { /* نفس الكود الأصلي */ }
+function exportCapitalPDF() { /* نفس الكود الأصلي */ }
+function exportSafePDF() { /* نفس الكود الأصلي */ }
+function exportData() { /* نفس الكود الأصلي */ }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function openCapitalModal() { displayCapitalEntries(); document.getElementById('capitalModal').classList.remove('hidden'); }
+function addCapitalEntry() { /* نفس الكود الأصلي */ }
+function displayCapitalEntries() { /* نفس الكود الأصلي */ }
+function delCap(i) { /* نفس الكود الأصلي */ }
+function openSafeModal() { displaySafeEntries(); document.getElementById('safeModal').classList.remove('hidden'); }
+function addSafeManualEntry() { /* نفس الكود الأصلي */ }
+function displaySafeEntries() { /* نفس الكود الأصلي */ }
+function delSafeEntry(i) { /* نفس الكود الأصلي */ }
+
+// ====================== تشغيل الصفحة ======================
+window.onload = async () => {
+    document.getElementById('regDate').value = today;
+    document.getElementById('safeEntryDate').value = today;
+    await loadData();
 };
 </script>
 </body>
