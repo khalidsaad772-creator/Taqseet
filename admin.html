@@ -481,14 +481,31 @@ function restoreData(e) {
     reader.readAsText(e.target.files[0]);
 }
 
-function deleteClient(i) { 
-    if(confirm("حذف نهائي؟")) { 
-        const name = clients[i].name;
-        clients.splice(i,1); 
-        save(); 
-        if(window.deleteFromFirebase) window.deleteFromFirebase(name);
+async function deleteClient(i) { 
+    if(confirm("هل أنت متأكد من حذف العميل نهائياً من المتصفح والسحاب؟")) { 
+        const nameToDelete = clients[i].name.trim();
+        
+        try {
+            // 1. احذفه من السحاب أولاً
+            if(window.deleteFromFirebase) {
+                await window.deleteFromFirebase(nameToDelete);
+            }
+            
+            // 2. لو نجح الحذف من السحاب، احذفه من المتصفح
+            clients.splice(i, 1); 
+            
+            // 3. حدد الـ localStorage واعرض البيانات
+            localStorage.setItem('clients', JSON.stringify(clients));
+            showClients();
+            
+            alert("تم الحذف من السحاب والجهاز بنجاح ✅");
+        } catch (error) {
+            alert("فشل الحذف من السحاب، تأكد من الإنترنت وحاول مجدداً");
+            console.error(error);
+        }
     } 
 }
+
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 </script>
 </body>
