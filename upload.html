@@ -6,19 +6,21 @@
     <style>
         body { font-family: Arial; text-align: center; padding: 40px; background: #f4f7f6; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: inline-block; width: 100%; max-width: 400px; }
-        button { background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; }
-        #status { margin-top: 20px; padding: 10px; border-radius: 5px; font-size: 14px; }
-        .loading { background: #fff3cd; color: #856404; }
-        .success { background: #d4edda; color: #155524; }
+        button { background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; }
+        #status { margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 14px; min-height: 40px; line-height: 1.6; }
+        .loading { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .success { background: #d4edda; color: #155524; border: 1px solid #c3e6cb; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2>تحديث بيانات السحاب ☁️</h2>
-        <input type="file" id="fileInput" accept=".json" style="margin: 20px 0;">
-        <button id="uploadBtn">ابدأ الرفع الآن</button>
+        <h2 style="color: #28a745;">تحديث بيانات السحاب ☁️</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">ارفع ملف الـ JSON لدمجه مع قاعدة بيانات السحاب بالاسم</p>
+        <input type="file" id="fileInput" accept=".json" style="margin: 10px 0;">
+        <button id="uploadBtn">ابدأ المزامنة الشاملة</button>
         <div id="status"></div>
     </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -34,64 +36,69 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // دالة صغيرة للانتظار عشان المتصفح ما يهنجش
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     document.getElementById('uploadBtn').onclick = async () => {
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
-        if (!fileInput.files[0]) return alert("اختار الملف يا خالد");
+        if (!fileInput.files[0]) return alert("اختار الملف يا خالد أولاً");
 
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
                 const data = JSON.parse(e.target.result);
                 const clientsList = data.clients || [];
-                status.innerText = "بدأنا عملية الرفع الشاملة... ⏳";
+                status.className = "loading";
+                status.innerText = "جاري الاتصال بالسحاب... ⏳";
 
                 let successCount = 0;
-                let failCount = 0;
 
                 for (let i = 0; i < clientsList.length; i++) {
                     const client = clientsList[i];
-                    if (client.phone) {
+                    // التعديل الجوهري: نستخدم الاسم كمعيار مطابق لصفحة الأدمن
+                    if (client.name) {
                         try {
-                            // محاولة رفع العميل بالكامل أولاً
-                            await setDoc(doc(db, "clients", String(client.phone)), client);
+                            // نرفع العميل بالكامل (بما فيه الأقساط والصورة)
+                            await setDoc(doc(db, "clients", String(client.name).trim()), {
+                                ...client,
+                                lastUpdate: new Date().toISOString()
+                            });
                         } catch (err) {
-                            // لو الحجم كبير (بسبب الصورة)، نرفعه من غير الصورة
-                            const { photo, ...clientMin } = client;
-                            await setDoc(doc(db, "clients", String(client.phone)), clientMin);
+                            console.log("حجم الصورة كبير، سيتم الرفع بدون صورة للعميل: " + client.name);
+                            // لو الصورة كبيرة جداً، نرفع البيانات الأساسية والأقساط فقط
+                            const { photo, ...clientWithoutPhoto } = client;
+                            await setDoc(doc(db, "clients", String(client.name).trim()), {
+                                ...clientWithoutPhoto,
+                                lastUpdate: new Date().toISOString()
+                            });
                         }
                         
                         successCount++;
-                        status.innerText = `تم رفع ${successCount} عميل بنجاح...`;
-                        
-                        // ننتظر 50 مللي ثانية بين كل رفعة والتانية عشان السيرفر ما يرفضش
-                        await sleep(50);
+                        status.innerText = `تمت مزامنة (${successCount}) عميل بنجاح...`;
+                        await sleep(50); // تهدئة السيرفر
                     }
                 }
 
-                // رفع حسابات الخزنة ورأس المال
+                // رفع بيانات الإدارة (رأس المال والخزنة)
                 const adminData = {};
                 if (data.capitalEntries) adminData.capitalEntries = data.capitalEntries;
                 if (data.safeManualEntries) adminData.safeManualEntries = data.safeManualEntries;
+                
                 if (Object.keys(adminData).length > 0) {
                     await setDoc(doc(db, "admin_data", "finances"), adminData);
                 }
 
-                status.innerText = `اكتملت المهمة! ✅ تم رفع ${successCount} عميل للسحاب.`;
-                alert("تم رفع كافة البيانات للسحاب بنجاح.");
+                status.className = "success";
+                status.innerHTML = `تم بنجاح! ✅<br>مزامنة ${successCount} عميل بالاسم.<br>تحديث بيانات الخزنة ورأس المال.`;
+                alert("اكتملت المزامنة بنجاح يا خالد.");
 
             } catch (err) {
-                alert("خطأ عام: " + err.message);
+                status.className = "";
+                alert("حدث خطأ أثناء الرفع: " + err.message);
             }
         };
         reader.readAsText(fileInput.files[0]);
     };
 </script>
-
-
-
 </body>
 </html>
