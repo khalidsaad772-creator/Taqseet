@@ -131,7 +131,7 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
@@ -144,29 +144,53 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ربط الدوال بالـ window عشان الكود القديم يشوفها
- //   window.syncToFirebase = async (client) => {
-       // try {
-         //   await setDoc(doc(db, "clients", String(client.phone)), {
-          //      name: client.name, phone: client.phone, product: client.product,
-          //      price: client.price, interest: client.interest, paid: client.paid || 0,
-         //       lastUpdate: new Date().toISOString()
-       //     });
-   //     } catch (e) { console.error("Cloud Error:", e); }
-  //  };
+    // دالة المزامنة الشاملة (باستخدام الاسم كعنوان للوثيقة)
     window.syncToFirebase = async (client) => {
-    try {
-        await setDoc(doc(db, "clients", String(client.phone)), {
-            ...client, // الثلاث نقاط دول هما اللي هيرفعوا الأقساط والبيانات كاملة
-            lastUpdate: new Date().toISOString()
-        });
-        console.log("تمت المزامنة بنجاح ✅");
-    } catch (e) { console.error("خطأ مزامنة:", e); }
-};
+        try {
+            await setDoc(doc(db, "clients", String(client.name)), {
+                ...client, 
+                lastUpdate: new Date().toISOString()
+            });
+            console.log("تمت المزامنة بنجاح ✅");
+        } catch (e) { console.error("خطأ مزامنة:", e); }
+    };
 
+    // دالة الجلب والدمج بالاسم لضمان عدم حذف الاستعادة
+    window.loadFromCloud = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "clients"));
+            let cloudClients = [];
+            querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
 
-    window.deleteFromFirebase = async (phone) => {
-        try { await deleteDoc(doc(db, "clients", String(phone))); } catch (e) {}
+            if (cloudClients.length > 0) {
+                let localClients = JSON.parse(localStorage.getItem('clients') || '[]');
+                let combined = [...localClients];
+                
+                cloudClients.forEach(cloudClient => {
+                    const exists = combined.find(c => c.name.trim() === cloudClient.name.trim());
+                    if (!exists) {
+                        combined.push(cloudClient);
+                    }
+                });
+
+                clients = combined;
+                localStorage.setItem('clients', JSON.stringify(clients));
+                showClients();
+                console.log("تم دمج بيانات السحاب بنجاح ✅");
+            }
+        } catch (e) { console.error("Cloud Error:", e); }
+    };
+
+    window.deleteFromFirebase = async (name) => {
+        try { await deleteDoc(doc(db, "clients", String(name))); } catch (e) {}
+    };
+
+    // التشغيل عند الفتح
+    window.onload = async () => {
+        document.getElementById('regDate').value = today;
+        document.getElementById('safeEntryDate').value = today;
+        showClients(); // عرض المحلي فوراً
+        await window.loadFromCloud(); // جلب السحاب ودمجه
     };
 </script>
 
@@ -246,7 +270,6 @@ function showClients() {
     document.getElementById('clientsTable').innerHTML = html + '</tbody></table>';
 }
 
-// الدوال المتبقية (نفس الكود الأصلي بالمللي)
 function sendWA(i) {
     const c = clients[i];
     const total = c.price * (1 + c.interest);
@@ -415,7 +438,13 @@ function restoreData(e) {
         clients = d.clients || []; 
         capitalEntries = d.capitalEntries || []; 
         safeManualEntries = d.safeManualEntries || []; 
-        save(); 
+        
+        // حفظ إجباري في المتصفح لضمان الثبات
+        localStorage.setItem('clients', JSON.stringify(clients));
+        localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+        localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
+        
+        showClients(); 
         alert("تمت الاستعادة بنجاح"); 
     };
     reader.readAsText(e.target.files[0]);
@@ -423,14 +452,14 @@ function restoreData(e) {
 
 function deleteClient(i) { 
     if(confirm("حذف نهائي؟")) { 
-        const phone = clients[i].phone;
+        const name = clients[i].name;
         clients.splice(i,1); 
         save(); 
-        if(window.deleteFromFirebase) window.deleteFromFirebase(phone);
+        if(window.deleteFromFirebase) window.deleteFromFirebase(name);
     } 
 }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-window.onload = () => { document.getElementById('regDate').value = today; document.getElementById('safeEntryDate').value = today; showClients(); };
+// تم دمج window.onload في الموديول في الأعلى
 </script>
 </body>
 </html>
