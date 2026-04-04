@@ -144,57 +144,89 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // دالة المزامنة الشاملة (باستخدام الاسم كعنوان للوثيقة)
+    // دالة المزامنة الشاملة (عملاء + إدارة مالية)
     window.syncToFirebase = async (client) => {
         try {
-            await setDoc(doc(db, "clients", String(client.name)), {
-                ...client, 
-                lastUpdate: new Date().toISOString()
+            if(client) {
+                await setDoc(doc(db, "clients", String(client.name).trim()), {
+                    ...client, 
+                    lastUpdate: new Date().toISOString()
+                });
+            }
+            // مزامنة الأرصدة الإدارية أوتوماتيكياً
+            await setDoc(doc(db, "admin_data", "finances"), {
+                capitalEntries: JSON.parse(localStorage.getItem('capitalEntries') || '[]'),
+                safeManualEntries: JSON.parse(localStorage.getItem('safeManualEntries') || '[]'),
+                lastGlobalUpdate: new Date().toISOString()
             });
-            console.log("تمت المزامنة بنجاح ✅");
-        } catch (e) { console.error("خطأ مزامنة:", e); }
+            console.log("تم تحديث السحاب بالبيانات المالية والعميل ✅");
+        } catch (e) { console.error("Firebase Sync Error:", e); }
     };
 
-    // دالة الجلب والدمج بالاسم لضمان عدم حذف الاستعادة
+    // دالة الجلب الذكي (لضبط الخزنة ورأس المال والعملاء)
     window.loadFromCloud = async () => {
         try {
+            // جلب ودمج العملاء بالاسم
             const querySnapshot = await getDocs(collection(db, "clients"));
             let cloudClients = [];
             querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
-
             if (cloudClients.length > 0) {
                 let localClients = JSON.parse(localStorage.getItem('clients') || '[]');
                 let combined = [...localClients];
-                
                 cloudClients.forEach(cloudClient => {
                     const exists = combined.find(c => c.name.trim() === cloudClient.name.trim());
-                    if (!exists) {
-                        combined.push(cloudClient);
-                    }
+                    if (!exists) combined.push(cloudClient);
                 });
-
                 clients = combined;
                 localStorage.setItem('clients', JSON.stringify(clients));
-                showClients();
-                console.log("تم دمج بيانات السحاب بنجاح ✅");
             }
-        } catch (e) { console.error("Cloud Error:", e); }
+
+            // جلب ودمج بيانات الإدارة (الخزنة ورأس المال) لضبط الأرقام
+            const adminDoc = await getDoc(doc(db, "admin_data", "finances"));
+            if (adminDoc.exists()) {
+                const adminData = adminDoc.data();
+                
+                // دمج رأس المال
+                if (adminData.capitalEntries) {
+                    let localCap = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
+                    adminData.capitalEntries.forEach(ce => {
+                        const exists = localCap.find(l => l.date === ce.date && l.amount === ce.amount && l.reason === ce.reason);
+                        if (!exists) localCap.push(ce);
+                    });
+                    capitalEntries = localCap;
+                    localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
+                }
+
+                // دمج الخزنة اليدوية
+                if (adminData.safeManualEntries) {
+                    let localSafe = JSON.parse(localStorage.getItem('safeManualEntries') || '[]');
+                    adminData.safeManualEntries.forEach(se => {
+                        const exists = localSafe.find(l => l.date === se.date && l.amount === se.amount && l.reason === se.reason);
+                        if (!exists) localSafe.push(se);
+                    });
+                    safeManualEntries = localSafe;
+                    localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
+                }
+            }
+            showClients(); 
+            console.log("تمت مزامنة كافة الأرصدة والبيانات بنجاح ✅");
+        } catch (e) { console.error("Cloud Fetch Error:", e); }
     };
 
     window.deleteFromFirebase = async (name) => {
         try { await deleteDoc(doc(db, "clients", String(name))); } catch (e) {}
     };
 
-    // التشغيل عند الفتح
     window.onload = async () => {
         document.getElementById('regDate').value = today;
         document.getElementById('safeEntryDate').value = today;
-        showClients(); // عرض المحلي فوراً
-        await window.loadFromCloud(); // جلب السحاب ودمجه
+        showClients(); // عرض ما بالمتصفح فوراً
+        await window.loadFromCloud(); // ثم جلب الجديد من السحاب ودمجه
     };
 </script>
 
 <script>
+// الجزء الخاص بالمنطق البرمجي المحلي (Logic) كما هو
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
 let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
 let safeManualEntries = JSON.parse(localStorage.getItem('safeManualEntries') || '[]');
@@ -210,6 +242,7 @@ function save() {
     localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
     localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
     showClients();
+    if(window.syncToFirebase) window.syncToFirebase(null); // تحديث الخزنة في السحاب عند أي حفظ
 }
 
 function addClient() {
@@ -235,14 +268,14 @@ function showClients() {
     let totalInt = 0, monthProf = 0, totalInstallmentsCollected = 0;
     const now = new Date();
     clients.forEach(c => {
-        totalInt += (c.price * c.interest);
+        totalInt += (c.price * (c.interest || 0));
         totalInstallmentsCollected += (c.paid || 0);
         const profitRatio = (c.interest) / (1 + c.interest);
         if(c.payments){
             c.payments.forEach(p => {
                 const pd = new Date(p.date);
                 if(pd.getMonth() === now.getMonth() && pd.getFullYear() === now.getFullYear()) {
-                    monthProf += (p.amount * profitRatio);
+                    monthProf += (p.amount * (profitRatio || 0));
                 }
             });
         }
@@ -438,13 +471,11 @@ function restoreData(e) {
         clients = d.clients || []; 
         capitalEntries = d.capitalEntries || []; 
         safeManualEntries = d.safeManualEntries || []; 
-        
-        // حفظ إجباري في المتصفح لضمان الثبات
         localStorage.setItem('clients', JSON.stringify(clients));
         localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
         localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
-        
         showClients(); 
+        if(window.syncToFirebase) window.syncToFirebase(null); // مزامنة فورية بعد الاستعادة
         alert("تمت الاستعادة بنجاح"); 
     };
     reader.readAsText(e.target.files[0]);
@@ -459,7 +490,6 @@ function deleteClient(i) {
     } 
 }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-// تم دمج window.onload في الموديول في الأعلى
 </script>
 </body>
 </html>
