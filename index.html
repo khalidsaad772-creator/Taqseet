@@ -25,25 +25,30 @@
 
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; }
 
-        .product-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
+        /* كارت المنتج مع حماية الحدود */
+        .product-card { 
+            background: white; border-radius: 25px; 
+            position: relative; overflow: hidden; /* لمنع خروج العدسة */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; 
+        }
 
         .img-wrapper { 
             position: relative; width: 100%; height: 320px; 
             overflow: hidden; background: #fff; cursor: crosshair;
             touch-action: none;
         }
-        /* تصغير الصورة قليلاً لعدم اختفاء الحدود */
-        .product-img { width: 100%; height: 100%; object-fit: contain; padding: 25px; pointer-events: none; }
+        /* صورة أصغر قليلاً للحفاظ على الحدود */
+        .product-img { width: 100%; height: 100%; object-fit: contain; padding: 30px; pointer-events: none; }
         
         .magnifier {
-            position: absolute; width: 150px; height: 150px;
+            position: absolute; width: 140px; height: 140px;
             border: 3px solid var(--gold); border-radius: 50%;
             pointer-events: none; display: none;
             background-repeat: no-repeat; box-shadow: 0 0 20px rgba(0,0,0,0.4);
-            z-index: 100;
+            z-index: 50; /* تأكد أنها تحت القوائم وفوق الصورة */
         }
 
-        .product-info { padding: 15px; text-align: center; }
+        .product-info { padding: 15px; text-align: center; z-index: 60; background: white; }
         .price-tag { color: #2ecc71; font-weight: 800; font-size: 1.6rem; margin: 5px 0; }
         
         .btn-wa { 
@@ -63,7 +68,7 @@
 
         .admin-lock { position: fixed; bottom: 20px; left: 20px; background: #eab308; color: #000; border: none; width: 50px; height: 50px; border-radius: 50%; z-index: 3000; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 4000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: right; border-top: 6px solid var(--gold); }
     </style>
 </head>
@@ -128,11 +133,9 @@
                     <h3 style="margin:0; font-size:1.1rem">${p.name}</h3>
                     <p class="price-tag">${p.price.toLocaleString()} ج.م</p>
                     <p style="color:#888; font-size:0.9rem">مقدم يبدأ من: ${p.downPayment} ج.م</p>
-                    
                     <button class="btn-calc" onclick="openInstallmentCalc('${p.name}', ${p.price}, ${p.downPayment}, ${interestRate})">
                         <i class="fas fa-calculator"></i> احسب قسطك بنفسك
                     </button>
-
                     <a href="https://wa.me/${myNumber}?text=أريد الاستفسار عن ${p.name}" class="btn-wa">
                        <i class="fab fa-whatsapp"></i> اطلبه الآن
                     </a>
@@ -159,14 +162,14 @@
             y = e.clientY - rect.top;
         }
 
-        // إزاحة العدسة للأعلى (Offset) لكي لا يغطي الإصبع المشهد
-        mag.style.left = (x - 75) + "px";
-        mag.style.top = (y - 180) + "px"; // تم رفعها بمقدار 180 لتبتعد عن الإصبع
+        // إزاحة العدسة لتكون فوق الإصبع مباشرة مع بقائها داخل الكارت
+        mag.style.left = (x - 70) + "px";
+        mag.style.top = (y - 150) + "px";
 
         const posX = (x / rect.width) * 100;
         const posY = (y / rect.height) * 100;
         mag.style.backgroundPosition = `${posX}% ${posY}%`;
-        mag.style.backgroundSize = (rect.width * 2.2) + "px";
+        mag.style.backgroundSize = (rect.width * 2) + "px";
     }
 
     window.hideZoom = function(wrapper) {
@@ -180,17 +183,17 @@
         body.innerHTML = `
             <h3 style="text-align:center">🧮 حاسبة التقسيط لـ <br>${name}</h3>
             <label>المقدم:</label>
-            <input type="number" id="userDown" style="width:100%; padding:10px; margin:5px 0; border-radius:10px; border:1px solid #ddd" value="${minDown}">
+            <input type="number" id="userDown" class="search-section input" style="width:90%; border:1px solid #ddd; border-radius:10px; margin:10px 0; padding:10px" value="${minDown}">
             <label>الشهور:</label>
-            <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0; border-radius:10px; border:1px solid #ddd">
+            <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0; border-radius:10px">
                 <option value="6">6 شهور</option>
                 <option value="10">10 شهور</option>
                 <option value="12" selected>12 شهر</option>
                 <option value="18">18 شهر</option>
             </select>
-            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer">احسب</button>
+            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold">احسب</button>
             <div id="finalCalcResult" style="margin-top:15px; text-align:center; font-weight:bold; background:#f9f9f9; padding:10px; border-radius:10px; display:none;"></div>
-            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px; cursor:pointer">إغلاق</button>
+            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px">إغلاق</button>
         `;
     }
 
@@ -202,7 +205,7 @@
         
         if (remaining <= 0) {
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = "المقدم يغطي السعر بالكامل!";
+            resultDiv.innerHTML = "المقدم يغطي السعر!";
             return;
         }
 
@@ -212,11 +215,9 @@
         
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
-            <span style="font-size:0.9rem; color:#666">القسط الشهري:</span><br>
-            <span style="color:green; font-size:1.4rem">${monthly.toLocaleString()} ج.م</span>
-            <hr style="margin:8px 0; opacity:0.1">
-            <span style="font-size:0.9rem; color:#666">الإجمالي المتبقي بالفوائد:</span><br>
-            <span style="color:var(--dark)">${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
+            <span style="color:green; font-size:1.2rem">القسط: ${monthly.toLocaleString()} ج.م</span>
+            <hr style="margin:5px 0; opacity:0.1">
+            <span style="color:#666; font-size:0.9rem">إجمالي المتبقي: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
         `;
     }
 
