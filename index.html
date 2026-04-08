@@ -25,10 +25,9 @@
 
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; }
 
-        /* الكارت مع حماية صارمة للحدود */
         .product-card { 
             background: white; border-radius: 25px; 
-            position: relative; overflow: hidden; /* يمنع خروج أي شيء (العدسة) بره الكارت */
+            position: relative; overflow: hidden; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; 
         }
 
@@ -38,15 +37,13 @@
             touch-action: none; display: flex; align-items: center; justify-content: center;
         }
 
-        /* تصغير الصورة لـ 75% لضمان عدم القص */
         .product-img { 
             width: 75%; height: 75%; object-fit: contain; 
-            pointer-events: none; transition: none; 
+            pointer-events: none; 
         }
         
-        /* العدسة بحجم مناسب وإزاحة ذكية */
         .magnifier {
-            position: absolute; width: 130px; height: 130px;
+            position: absolute; width: 140px; height: 140px;
             border: 3px solid var(--gold); border-radius: 50%;
             pointer-events: none; display: none;
             background-repeat: no-repeat; box-shadow: 0 0 15px rgba(0,0,0,0.3);
@@ -132,7 +129,7 @@
                      ontouchmove="zoomImage(event, this)" 
                      ontouchend="hideZoom(this); enableScroll()">
                     <div class="magnifier" style="background-image: url('${p.image}')"></div>
-                    <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/300'">
+                    <img src="${p.image}" class="product-img">
                 </div>
                 <div class="product-info">
                     <h3 style="margin:0; font-size:1.1rem">${p.name}</h3>
@@ -167,12 +164,11 @@
             y = e.clientY - rect.top;
         }
 
-        // إزاحة العدسة لأعلى الإصبع بمسافة أمان (حوالي 25% من ارتفاع الحاوية) لضمان عدم القص
-        const safetyOffset = rect.height * 0.25;
-        mag.style.left = (x - 65) + "px";
-        mag.style.top = (y - safetyOffset - 65) + "px";
+        // إزاحة تجعل الإصبع يدخل داخل نطاق العدسة بمقدار 25% (حوالي 35 بكسل)
+        // القطر 140، المركز عند 70، الإزاحة 35 تجعل الإصبع في المنطقة المطلوبة
+        mag.style.left = (x - 70) + "px";
+        mag.style.top = (y - 105) + "px"; 
 
-        // ضبط مكان خلفية العدسة بدقة لتناسب التصغير الجديد 75%
         const posX = (x / rect.width) * 100;
         const posY = (y / rect.height) * 100;
         mag.style.backgroundPosition = `${posX}% ${posY}%`;
@@ -183,7 +179,6 @@
         wrapper.querySelector('.magnifier').style.display = "none";
     }
 
-    // حاسبة الأقساط (نفس الكود الأصلي بدون تغيير)
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
