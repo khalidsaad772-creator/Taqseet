@@ -2,63 +2,207 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale= 1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>معرض خالد خفاجي للتقسيط</title>
     
-    <meta property="og:title" content="معرض خالد خفاجي للتقسيط">
-    <meta property="og:description" content="أسهل نظام تقسيط للموبايلات والاجهزة الكهربائية-خصم خاص لموظفي البريد">
-    <meta property="og:image" content="https://i.ibb.co/XgdnJ7Y/lv-0.jpg">
-    <meta property="og:url" content="https://khalidsaad772-creator.github.io/Taqseet/">
-    <meta name="theme-color" content="#1a1a1a"> ```
-
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        
-        
-        :root { --gold: #d4af37; --dark: #1a1a1a; --green: #28a745; --blue: #007bff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f0f0; margin: 0; padding:0; padding-bottom: 50px; }
-        header, .header-container, h1 {
-    margin-top: 0 !important;
-        }
-        header { display: block;
-    border-top: none;
-     background: var(--dark); color: white; padding: 30px 10px; text-align: center; border-bottom: 3px solid var(--gold); }
-        .logo-img { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; object-fit: cover; }
-        .search-section { background: white; padding: 20px; margin: -20px 20px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        .search-section input { width: 80%; padding: 12px; border: 2px solid #ddd; border-radius: 25px; text-align: center; font-size: 16px; }
-        .btn-search { background: var(--gold); color: black; border: none; padding: 10px 25px; border-radius: 25px; margin-top: 10px; font-weight: bold; cursor: pointer; }
-        .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: auto; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee; display: flex; flex-direction: column; }
-        .product-img { width: 100%; height: 230px; object-fit: contain; background: white; padding: 10px; box-sizing: border-box; }
-        .product-info { padding: 15px; text-align: center; flex-grow: 1; }
-        .price-tag { color: var(--green); font-weight: bold; font-size: 1.2rem; margin: 5px 0; }
-        .btn-wa { background: #25D366; color: white; text-decoration: none; padding: 12px; border-radius: 8px; display: block; margin-top: 10px; font-weight: bold; }
-        
-        /* تنسيق زرار الحاسبة الجديد */
-        .btn-calc { background: var(--blue); color: white; border: none; padding: 10px; border-radius: 8px; display: block; width: 100%; margin-top: 10px; font-weight: bold; cursor: pointer; }
-        .calc-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; font-weight: bold; }
 
-        .admin-lock { position: fixed; bottom: 20px; left: 20px; background: var(--dark); color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 3000; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: right; border-top: 5px solid var(--gold); overflow-y: auto; max-height: 90vh; }
+    <style>
+        :root { 
+            --gold: #d4af37; 
+            --gold-dark: #b8860b;
+            --dark: #121212; 
+            --green: #2ecc71; 
+            --blue: #3498db; 
+            --bg: #f4f7f6;
+        }
+
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 0; 
+            padding-bottom: 50px; 
+            color: #333;
+        }
+
+        /* تحسين الهيدر ليكون أكثر عمقاً */
+        header { 
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: white; 
+            padding: 50px 10px; 
+            text-align: center; 
+            border-bottom: 4px solid var(--gold);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .logo-img { 
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            border: 3px solid var(--gold); 
+            margin-bottom: 15px; 
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        /* شريط البحث بتأثير الزجاج */
+        .search-section { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px; 
+            margin: -35px auto 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: transform 0.3s ease;
+        }
+        .search-section:hover { transform: translateY(-5px); }
+
+        .search-section input { 
+            width: 85%; 
+            padding: 15px; 
+            border: 2px solid #eee; 
+            border-radius: 30px; 
+            font-family: 'Cairo';
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .search-section input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 10px rgba(212,175,55,0.2); }
+
+        .btn-search { 
+            background: linear-gradient(to left, var(--gold), var(--gold-dark)); 
+            color: #000; 
+            border: none; 
+            padding: 12px 35px; 
+            border-radius: 30px; 
+            margin-top: 15px; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-search:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        /* شبكة المنتجات */
+        .container { 
+            padding: 20px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: auto; 
+        }
+
+        /* بطاقة المنتج المطورة */
+        .product-card { 
+            background: white; 
+            border-radius: 25px; 
+            overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; /* للتحريك */
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .product-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+        }
+
+        .product-img { 
+            width: 100%; 
+            height: 240px; 
+            object-fit: contain; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            transition: 0.5s;
+        }
+        .product-card:hover .product-img { transform: scale(1.1); }
+
+        .product-info { padding: 20px; text-align: center; flex-grow: 1; }
+        .price-tag { color: var(--green); font-weight: 800; font-size: 1.4rem; margin: 10px 0; }
+        
+        /* الأزرار العصرية */
+        .btn-wa, .btn-calc { 
+            text-decoration: none; 
+            padding: 14px; 
+            border-radius: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
+            margin-top: 12px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            font-family: 'Cairo';
+        }
+
+        .btn-wa { background: #25D366; color: white; }
+        .btn-wa:hover { background: #1da851; }
+
+        .btn-calc { background: var(--blue); color: white; }
+        .btn-calc:hover { background: #2980b9; }
+
+        .calc-input { 
+            width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; 
+            border-radius: 12px; font-family: 'Cairo'; text-align: center; 
+        }
+
+        /* زر الإدارة الثابت */
+        .admin-lock { 
+            position: fixed; bottom: 25px; left: 25px; background: var(--dark); 
+            color: var(--gold); border: 2px solid var(--gold); width: 55px; 
+            height: 55px; border-radius: 50%; cursor: pointer; font-size: 22px; 
+            z-index: 3000; transition: 0.3s;
+        }
+        .admin-lock:hover { transform: rotate(90deg); background: var(--gold); color: var(--dark); }
+
+        /* الأنيميشن والمودال */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; 
+            height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; 
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .modal-content { 
+            background: white; padding: 30px; border-radius: 30px; width: 90%; 
+            max-width: 450px; text-align: right; border-top: 10px solid var(--gold); 
+            position: relative; animation: zoomIn 0.4s ease;
+        }
+        @keyframes zoomIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
     </style>
 </head>
 <body>
     
 <header>
-    <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" alt="Khalid Logo" style="width: 110px; height: 110px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; object-fit: cover;">
-    <h1 style="margin: 0; font-size: 2rem;">معرض خالد خفاجي</h1>
-    <p style="margin: 5px 0 0; color: var(--gold); font-size: 1.1rem; font-weight: bold;">للتقسيط وخدمات المحمول</p>
+    <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" alt="Khalid Logo" class="logo-img">
+    <h1 style="margin: 0; font-size: 2.2rem; font-weight: 700;">معرض خالد خفاجي</h1>
+    <p style="margin: 8px 0 0; color: var(--gold); font-size: 1.2rem; font-weight: 600;">للتقسيط وخدمات المحمول 📱</p>
 </header>
 
 <div class="search-section">
-    <h3>استعلم عن أقساطك 💳</h3>
-    <input type="tel" id="clientPhone" placeholder="أدخل رقم تليفونك المسجل">
-    <button class="btn-search" onclick="checkInstallments()">بحث الآن</button>
+    <h3 style="margin-top: 0;">💳 استعلم عن أقساطك</h3>
+    <input type="tel" id="clientPhone" placeholder="أدخل رقم تليفونك المسجل لدينا">
+    <button class="btn-search" onclick="checkInstallments()">
+        <i class="fas fa-search"></i> بحث سريع
+    </button>
 </div>
 
-<div class="container" id="productsGrid"></div>
+<div class="container" id="productsGrid">
+    </div>
 
 <button class="admin-lock" onclick="adminLogin()"><i class="fas fa-cog"></i></button>
 
@@ -81,25 +225,28 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // سحب المنتجات مع إضافة تأثير التأخير في الظهور
     onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {
         const grid = document.getElementById('productsGrid');
         grid.innerHTML = '';
+        let index = 0;
         snapshot.forEach((doc) => {
             const p = doc.data();
             const myNumber = "201095890589"; 
-            // سحب الفائدة من الداتا، ولو مش موجودة نفترض إنها 20%
             const interestRate = p.interestRate || 20;
 
             grid.innerHTML += `
-                <div class="product-card">
-                    <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">
+                <div class="product-card" style="animation-delay: ${index * 0.1}s">
+                    <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
                     <div class="product-info">
-                        <h3 style="margin:0">${p.name}</h3>
-                        <p class="price-tag">كاش: ${p.price} ج.م</p>
-                        <p style="margin:5px 0; color:#666">مقدم يبدأ من: ${p.downPayment} ج.م</p>
+                        <h3 style="margin:0; font-size:1.3rem;">${p.name}</h3>
+                        <p class="price-tag">${p.price.toLocaleString()} ج.م</p>
+                        <p style="margin:5px 0; color:#777; font-size:0.9rem;">
+                           <i class="fas fa-hand-holding-usd"></i> مقدم يبدأ من: <b>${p.downPayment} ج.م</b>
+                        </p>
                         
                         <button class="btn-calc" onclick="openInstallmentCalc('${p.name}', ${p.price}, ${p.downPayment}, ${interestRate})">
-                            <i class="fas fa-calculator"></i> احسب قسطك بنفسك
+                            <i class="fas fa-calculator"></i> احسب قسطك
                         </button>
 
                         <a href="https://wa.me/${myNumber}?text=أريد الاستفسار عن ${p.name}" class="btn-wa">
@@ -107,25 +254,28 @@
                         </a>
                     </div>
                 </div>`;
+            index++;
         });
     });
 
-    // --- حاسبة الأقساط للعميل ---
+    // --- حاسبة الأقساط المطورة ---
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
         
         body.innerHTML = `
-            <h3 style="text-align:center; color:var(--dark)">🧮 حاسبة التقسيط لـ <br><span style="color:var(--gold)">${name}</span></h3>
-            <hr>
-            <p>سعر الكاش: <b>${price.toLocaleString()} ج.م</b></p>
+            <div style="text-align:center">
+                <i class="fas fa-calculator fa-2x" style="color:var(--gold)"></i>
+                <h3 style="margin:10px 0; color:var(--dark)">حاسبة التقسيط <br><span style="color:var(--gold-dark)">${name}</span></h3>
+            </div>
+            <hr style="opacity:0.2; margin:15px 0">
             
-            <label>المقدم الذي ترغب في دفعه:</label>
+            <p style="font-size:0.9rem; margin-bottom:5px">المقدم الذي ترغب في دفعه:</p>
             <input type="number" id="userDown" class="calc-input" value="${minDown}" min="${minDown}">
-            <small style="color:red; display:block; margin-top:-8px; margin-bottom:10px">أقل مقدم مسموح: ${minDown}</small>
+            <small style="color:#e74c3c; display:block; margin-bottom:15px">⚠️ أقل مقدم مسموح: ${minDown} ج.م</small>
 
-            <label>مدة التقسيط (بالشهور):</label>
+            <p style="font-size:0.9rem; margin-bottom:5px">مدة التقسيط:</p>
             <select id="monthsCount" class="calc-input">
                 <option value="6">6 شهور</option>
                 <option value="12" selected>12 شهر (سنة)</option>
@@ -133,11 +283,11 @@
                 <option value="24">24 شهر</option>
             </select>
 
-            <button class="btn-search" style="width:100%; margin-bottom:10px" onclick="calculateResult(${price}, ${interest})">احسب القسط الآن</button>
+            <button class="btn-search" style="width:100%; padding:15px" onclick="calculateResult(${price}, ${interest})">احسب الآن</button>
             
-            <div id="finalCalcResult" style="background:#e9ecef; padding:15px; border-radius:10px; display:none; text-align:center"></div>
+            <div id="finalCalcResult" style="background:#f8f9fa; padding:15px; border-radius:15px; display:none; text-align:center; margin-top:15px; border:1px dashed var(--gold)"></div>
 
-            <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%; background:#666; margin-top:15px">إغلاق</button>
+            <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%; background:#f0f0f0; color:#666; margin-top:15px">إغلاق</button>
         `;
     }
 
@@ -151,65 +301,75 @@
         const remaining = price - userDown;
         if (remaining <= 0) {
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `<span style="color:var(--green)">المقدم يغطي سعر المنتج بالكامل!</span>`;
+            resultDiv.innerHTML = `<span style="color:var(--green); font-weight:bold;">المقدم يغطي سعر المنتج بالكامل!</span>`;
             return;
         }
 
-        // المعادلة: (المبلغ المتبقي + الفائدة) / عدد الشهور
-        // الفائدة = المبلغ المتبقي * (النسبة السنوية / 100) * (عدد الشهور / 12)
         const interestAmount = remaining * (interestRate / 100) * (months / 12);
         const totalAmount = remaining + interestAmount;
         const monthlyInstallment = Math.round(totalAmount / months);
 
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
-            <p style="margin:0">قسطك الشهري هو:</p>
-            <h2 style="color:var(--green); margin:5px 0">${monthlyInstallment.toLocaleString()} ج.م</h2>
-            <p style="font-size:0.8rem; color:#666">إجمالي المبلغ المتبقي بالفوائد: ${Math.round(totalAmount).toLocaleString()} ج.م</p>
+            <p style="margin:0; font-size:0.9rem;">قسطك الشهري المتوقع:</p>
+            <h2 style="color:var(--green); margin:10px 0">${monthlyInstallment.toLocaleString()} ج.م</h2>
+            <p style="font-size:0.8rem; color:#888">الإجمالي المتبقي بالفوائد: ${Math.round(totalAmount).toLocaleString()} ج.م</p>
         `;
     }
 
-    // --- استعلام الأقساط القديم ---
+    // --- استعلام الأقساط للعملاء المسجلين ---
     window.checkInstallments = async function() {
         const phoneInput = document.getElementById('clientPhone').value.trim();
         if(!phoneInput) { alert("من فضلك أدخل رقم التليفون"); return; }
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
-        body.innerHTML = "<div style='text-align:center'><i class='fas fa-spinner fa-spin'></i> جاري البحث...</div>";
+        body.innerHTML = "<div style='text-align:center; padding:20px'><i class='fas fa-spinner fa-spin fa-2x' style='color:var(--gold)'></i><p>جاري البحث في السجلات...</p></div>";
+        
         try {
             const q = query(collection(db, "clients"), where("phone", "==", phoneInput));
             const querySnapshot = await getDocs(q);
             let clientData = null;
+
             if (!querySnapshot.empty) {
                 clientData = querySnapshot.docs[0].data();
-            } else {
-                const response = await fetch('backup.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    clientData = data.clients.find(c => String(c.phone).trim() === phoneInput);
-                }
             }
+
             if(clientData) {
                 const p = parseFloat(clientData.price) || 0;
                 const i = parseFloat(clientData.interest) || 0;
                 const pd = parseFloat(clientData.paid) || 0;
                 const total = p * (1 + i);
                 const remaining = total - pd;
+                
                 body.innerHTML = `
-                    <h2 style="color:var(--gold); text-align:center">أهلاً بك يا ${clientData.name}</h2>
-                    <hr><br>
-                    <p>📦 المنتج: <b>${clientData.product || 'غير محدد'}</b></p>
-                    <p>💰 الإجمالي بالفوائد: <b>${total.toLocaleString()} ج.م</b></p>
-                    <p>✅ ما تم دفعه: <span style="color:green"><b>${pd.toLocaleString()} ج.م</b></span></p>
-                    <p>⚠️ المتبقي عليك: <span style="color:red"><b>${remaining.toLocaleString()} ج.م</b></span></p>
+                    <div style="text-align:center">
+                        <div style="background:var(--gold); width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px">
+                            <i class="fas fa-user-check fa-2x" style="color:white"></i>
+                        </div>
+                        <h2 style="color:var(--dark); margin:0">أهلاً بك يا ${clientData.name}</h2>
+                    </div>
+                    <hr style="opacity:0.1; margin:20px 0">
+                    <div style="background:#fcfcfc; padding:15px; border-radius:15px">
+                        <p>📦 المنتج: <b>${clientData.product || 'غير محدد'}</b></p>
+                        <p>💰 الإجمالي بالفوائد: <b>${total.toLocaleString()} ج.م</b></p>
+                        <p>✅ ما تم دفعه: <span style="color:green"><b>${pd.toLocaleString()} ج.م</b></span></p>
+                        <p style="font-size:1.2rem; border-top:1px solid #eee; padding-top:10px">⚠️ المتبقي: <span style="color:red"><b>${remaining.toLocaleString()} ج.م</b></span></p>
+                    </div>
                     <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%; margin-top:20px">إغلاق</button>
                 `;
             } else {
-                body.innerHTML = `<h3>عفواً!</h3><p>الرقم ${phoneInput} غير مسجل.</p>
-                <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">إغلاق</button>`;
+                body.innerHTML = `
+                    <div style="text-align:center; padding:20px">
+                        <i class="fas fa-exclamation-circle fa-3x" style="color:#ccc"></i>
+                        <h3>عذراً!</h3>
+                        <p>الرقم ${phoneInput} غير مسجل لدينا حالياً.</p>
+                        <button onclick="document.getElementById('resultModal').style.display='none'" class="btn-search" style="width:100%">حاول مرة أخرى</button>
+                    </div>`;
             }
-        } catch (error) { body.innerHTML = "<h3>خطأ!</h3><p>حدثت مشكلة في الاتصال.</p>"; }
+        } catch (error) { 
+            body.innerHTML = "<h3>خطأ!</h3><p>حدثت مشكلة في الاتصال بالسيرفر.</p>"; 
+        }
     }
 
     window.adminLogin = function() {
@@ -217,6 +377,7 @@
         if(p === "khalid1234") window.location.href = "admin.html";
     }
 
+    // إغلاق المودال عند الضغط خارجه
     window.onclick = function(event) {
         const modal = document.getElementById('resultModal');
         if (event.target == modal) modal.style.display = "none";
