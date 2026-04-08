@@ -27,29 +27,35 @@
 
         .product-card { 
             background: white; border-radius: 25px; 
-            position: relative; 
-            /* تم إزالة overflow: hidden للسماح للعدسة بالظهور خارج الكارت */
             box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; 
         }
 
         .img-wrapper { 
             position: relative; width: 100%; height: 320px; 
-            background: #fff; cursor: crosshair;
-            touch-action: none; display: flex; align-items: center; justify-content: center;
+            background: #fff; 
+            overflow: hidden;
+            cursor: crosshair;
+            touch-action: none;
         }
 
         .product-img { 
-            width: 75%; height: 75%; object-fit: contain; 
+            width: 100%; height: 100%; object-fit: contain; 
             pointer-events: none; 
         }
         
-        /* العدسة تظهر فوق كل شيء */
         .magnifier {
-            position: absolute; width: 150px; height: 150px;
-            border: 3px solid var(--gold); border-radius: 50%;
-            pointer-events: none; display: none;
-            background-repeat: no-repeat; box-shadow: 0 0 25px rgba(0,0,0,0.5);
-            z-index: 9999; /* أعلى قيمة لضمان عدم الاختفاء */
+            position: absolute; 
+            width: 160px; 
+            height: 160px;
+            border: 4px solid var(--gold); 
+            border-radius: 50%;
+            pointer-events: none; 
+            display: none;
+            background-repeat: no-repeat; 
+            background-color: rgba(255,255,255,0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+            z-index: 10000;
+            overflow: hidden;
         }
 
         .product-info { padding: 15px; text-align: center; background: white; border-radius: 0 0 25px 25px; }
@@ -127,10 +133,9 @@
                 <div class="img-wrapper" 
                      onmousemove="zoomImage(event, this)" 
                      onmouseleave="hideZoom(this)" 
-                     ontouchstart="disableScroll()"
                      ontouchmove="zoomImage(event, this)" 
-                     ontouchend="hideZoom(this); enableScroll()">
-                    <div class="magnifier" style="background-image: url('${p.image}')"></div>
+                     ontouchend="hideZoom(this)">
+                    <div class="magnifier"></div>
                     <img src="${p.image}" class="product-img">
                 </div>
                 <div class="product-info">
@@ -148,16 +153,18 @@
         });
     });
 
-    window.disableScroll = () => { document.body.style.overflow = 'hidden'; }
-    window.enableScroll = () => { document.body.style.overflow = 'auto'; }
-
+    // العدسة المحسنة فقط (هذا هو التعديل الوحيد)
     window.zoomImage = function(e, wrapper) {
         const mag = wrapper.querySelector('.magnifier');
+        const img = wrapper.querySelector('.product-img');
+        
+        if (!mag || !img) return;
+
         mag.style.display = "block";
 
         const rect = wrapper.getBoundingClientRect();
+        
         let x, y;
-
         if (e.touches) {
             x = e.touches[0].clientX - rect.left;
             y = e.touches[0].clientY - rect.top;
@@ -166,21 +173,28 @@
             y = e.clientY - rect.top;
         }
 
-        // إزاحة الإصبع داخل العدسة بمقدار 25% من قطرها
-        mag.style.left = (x - 75) + "px";
-        mag.style.top = (y - 110) + "px"; 
+        x = Math.max(80, Math.min(x, rect.width - 80));
+        y = Math.max(80, Math.min(y, rect.height - 80));
+
+        mag.style.left = (x - 80) + "px";
+        mag.style.top = (y - 80) + "px"; 
+
+        const zoomLevel = 2.3;
 
         const posX = (x / rect.width) * 100;
         const posY = (y / rect.height) * 100;
+
+        mag.style.backgroundImage = `url('${img.src}')`;
+        mag.style.backgroundSize = (rect.width * zoomLevel) + "px " + (rect.height * zoomLevel) + "px";
         mag.style.backgroundPosition = `${posX}% ${posY}%`;
-        mag.style.backgroundSize = (rect.width * 2) + "px";
-    }
+    };
 
     window.hideZoom = function(wrapper) {
-        wrapper.querySelector('.magnifier').style.display = "none";
-    }
+        const mag = wrapper.querySelector('.magnifier');
+        if (mag) mag.style.display = "none";
+    };
 
-    // حاسبة الأقساط (نفس الكود الأصلي)
+    // باقي الأكواد الأساسية بدون أي تغيير
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
@@ -200,7 +214,7 @@
             <div id="finalCalcResult" style="margin-top:15px; text-align:center; font-weight:bold; background:#f9f9f9; padding:10px; border-radius:10px; display:none;"></div>
             <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px">إغلاق</button>
         `;
-    }
+    };
 
     window.calculateResult = function(price, interestRate) {
         const userDown = parseFloat(document.getElementById('userDown').value);
@@ -224,7 +238,7 @@
             <hr style="margin:5px 0; opacity:0.1">
             <span style="color:#666; font-size:0.9rem">إجمالي المتبقي: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
         `;
-    }
+    };
 
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
@@ -240,7 +254,7 @@
             body.innerHTML = `<h3>أهلاً ${c.name}</h3><p>المتبقي: ${(c.price * (1 + (c.interest||0)) - c.paid).toLocaleString()} ج.م</p>
             <button onclick="document.getElementById('resultModal').style.display='none'">إغلاق</button>`;
         } else { body.innerHTML = "غير مسجل"; }
-    }
+    };
 
     window.adminLogin = function() { if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; }
 </script>
