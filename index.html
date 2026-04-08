@@ -27,13 +27,14 @@
 
         .product-card { 
             background: white; border-radius: 25px; 
-            position: relative; overflow: hidden; 
+            position: relative; 
+            /* تم إزالة overflow: hidden للسماح للعدسة بالظهور خارج الكارت */
             box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; 
         }
 
         .img-wrapper { 
             position: relative; width: 100%; height: 320px; 
-            overflow: hidden; background: #fff; cursor: crosshair;
+            background: #fff; cursor: crosshair;
             touch-action: none; display: flex; align-items: center; justify-content: center;
         }
 
@@ -42,15 +43,16 @@
             pointer-events: none; 
         }
         
+        /* العدسة تظهر فوق كل شيء */
         .magnifier {
-            position: absolute; width: 140px; height: 140px;
+            position: absolute; width: 150px; height: 150px;
             border: 3px solid var(--gold); border-radius: 50%;
             pointer-events: none; display: none;
-            background-repeat: no-repeat; box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            z-index: 99;
+            background-repeat: no-repeat; box-shadow: 0 0 25px rgba(0,0,0,0.5);
+            z-index: 9999; /* أعلى قيمة لضمان عدم الاختفاء */
         }
 
-        .product-info { padding: 15px; text-align: center; background: white; z-index: 100; }
+        .product-info { padding: 15px; text-align: center; background: white; border-radius: 0 0 25px 25px; }
         .price-tag { color: #2ecc71; font-weight: 800; font-size: 1.6rem; margin: 5px 0; }
         
         .btn-wa { 
@@ -70,7 +72,7 @@
 
         .admin-lock { position: fixed; bottom: 20px; left: 20px; background: #eab308; color: #000; border: none; width: 50px; height: 50px; border-radius: 50%; z-index: 3000; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 4000; justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: right; border-top: 6px solid var(--gold); }
     </style>
 </head>
@@ -164,10 +166,9 @@
             y = e.clientY - rect.top;
         }
 
-        // إزاحة تجعل الإصبع يدخل داخل نطاق العدسة بمقدار 25% (حوالي 35 بكسل)
-        // القطر 140، المركز عند 70، الإزاحة 35 تجعل الإصبع في المنطقة المطلوبة
-        mag.style.left = (x - 70) + "px";
-        mag.style.top = (y - 105) + "px"; 
+        // إزاحة الإصبع داخل العدسة بمقدار 25% من قطرها
+        mag.style.left = (x - 75) + "px";
+        mag.style.top = (y - 110) + "px"; 
 
         const posX = (x / rect.width) * 100;
         const posY = (y / rect.height) * 100;
@@ -179,6 +180,7 @@
         wrapper.querySelector('.magnifier').style.display = "none";
     }
 
+    // حاسبة الأقساط (نفس الكود الأصلي)
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
