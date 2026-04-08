@@ -25,16 +25,15 @@
 
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; }
 
-        /* كارت المنتج */
         .product-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
 
-        /* إطار الصورة والعدسة */
         .img-wrapper { 
-            position: relative; width: 100%; height: 320px; /* طول متناسق */
+            position: relative; width: 100%; height: 320px; 
             overflow: hidden; background: #fff; cursor: crosshair;
-            touch-action: none; /* منع السكرول أثناء اللمس */
+            touch-action: none;
         }
-        .product-img { width: 100%; height: 100%; object-fit: contain; padding: 10px; pointer-events: none; }
+        /* تصغير الصورة قليلاً لعدم اختفاء الحدود */
+        .product-img { width: 100%; height: 100%; object-fit: contain; padding: 25px; pointer-events: none; }
         
         .magnifier {
             position: absolute; width: 150px; height: 150px;
@@ -47,7 +46,6 @@
         .product-info { padding: 15px; text-align: center; }
         .price-tag { color: #2ecc71; font-weight: 800; font-size: 1.6rem; margin: 5px 0; }
         
-        /* زر الواتساب مع التأثيرات */
         .btn-wa { 
             background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark));
             color: white; text-decoration: none; padding: 15px; border-radius: 20px; 
@@ -143,7 +141,6 @@
         });
     });
 
-    // تحكم في السكرول لمنعه أثناء التكبير
     window.disableScroll = () => { document.body.style.overflow = 'hidden'; }
     window.enableScroll = () => { document.body.style.overflow = 'auto'; }
 
@@ -162,8 +159,9 @@
             y = e.clientY - rect.top;
         }
 
+        // إزاحة العدسة للأعلى (Offset) لكي لا يغطي الإصبع المشهد
         mag.style.left = (x - 75) + "px";
-        mag.style.top = (y - 75) + "px";
+        mag.style.top = (y - 180) + "px"; // تم رفعها بمقدار 180 لتبتعد عن الإصبع
 
         const posX = (x / rect.width) * 100;
         const posY = (y / rect.height) * 100;
@@ -175,7 +173,6 @@
         wrapper.querySelector('.magnifier').style.display = "none";
     }
 
-    // حاسبة الأقساط (بدون تغيير في الخيارات)
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
@@ -183,27 +180,44 @@
         body.innerHTML = `
             <h3 style="text-align:center">🧮 حاسبة التقسيط لـ <br>${name}</h3>
             <label>المقدم:</label>
-            <input type="number" id="userDown" style="width:100%; padding:10px; margin:5px 0" value="${minDown}">
+            <input type="number" id="userDown" style="width:100%; padding:10px; margin:5px 0; border-radius:10px; border:1px solid #ddd" value="${minDown}">
             <label>الشهور:</label>
-            <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0">
+            <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0; border-radius:10px; border:1px solid #ddd">
                 <option value="6">6 شهور</option>
                 <option value="10">10 شهور</option>
                 <option value="12" selected>12 شهر</option>
                 <option value="18">18 شهر</option>
             </select>
-            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; margin-top:10px; font-weight:bold">احسب</button>
-            <div id="finalCalcResult" style="margin-top:10px; text-align:center; font-weight:bold"></div>
-            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px">إغلاق</button>
+            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer">احسب</button>
+            <div id="finalCalcResult" style="margin-top:15px; text-align:center; font-weight:bold; background:#f9f9f9; padding:10px; border-radius:10px; display:none;"></div>
+            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px; cursor:pointer">إغلاق</button>
         `;
     }
 
     window.calculateResult = function(price, interestRate) {
         const userDown = parseFloat(document.getElementById('userDown').value);
         const months = parseInt(document.getElementById('monthsCount').value);
+        const resultDiv = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
+        
+        if (remaining <= 0) {
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = "المقدم يغطي السعر بالكامل!";
+            return;
+        }
+
         const interestAmount = remaining * (interestRate / 100) * (months / 12);
-        const monthly = Math.round((remaining + interestAmount) / months);
-        document.getElementById('finalCalcResult').innerHTML = `القسط: ${monthly.toLocaleString()} ج.م`;
+        const totalWithInterest = remaining + interestAmount;
+        const monthly = Math.round(totalWithInterest / months);
+        
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <span style="font-size:0.9rem; color:#666">القسط الشهري:</span><br>
+            <span style="color:green; font-size:1.4rem">${monthly.toLocaleString()} ج.م</span>
+            <hr style="margin:8px 0; opacity:0.1">
+            <span style="font-size:0.9rem; color:#666">الإجمالي المتبقي بالفوائد:</span><br>
+            <span style="color:var(--dark)">${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
+        `;
     }
 
     window.checkInstallments = async function() {
