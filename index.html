@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>معرض خالد خفاجي للتقسيط</title>
     
+    <title>معرض خالد خفاجي للتقسيط</title>
+    <meta name="description" content="أسهل نظام تقسيط للموبايلات والأجهزة الكهربائية - خصم خاص لموظفي البريد">
+    <meta property="og:title" content="معرض خالد خفاجي للتقسيط">
+    <meta property="og:description" content="أسهل نظام تقسيط للموبايلات والأجهزة الكهربائية - خصم خاص لموظفي البريد">
+    <meta property="og:image" content="https://i.ibb.co/XgdnJ7Y/lv-0.jpg">
+    <meta property="og:type" content="website">
+
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -15,124 +21,49 @@
             --blue-link: #3498db; --bg: #f8f9fa;
         }
 
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding-bottom: 60px; color: #333; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding-bottom: 0; color: #333; }
 
         header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: white; padding: 45px 10px; text-align: center; border-bottom: 4px solid var(--gold); }
         .logo-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 15px; object-fit: cover; }
+        
+        /* تنسيق جملة البريد */
+        .post-promo { background: var(--gold); color: #000; display: inline-block; padding: 5px 15px; border-radius: 10px; font-weight: 800; margin-top: 10px; font-size: 0.9rem; }
 
         .search-section { background: #fff; padding: 25px; margin: -30px 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
         .search-section input { width: 85%; padding: 14px; border: 2px solid #eee; border-radius: 30px; font-family: 'Cairo'; }
 
-        .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; }
+        .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; min-height: 400px; }
 
-        .product-card { 
-            background: white; border-radius: 25px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; 
-        }
+        .product-card { background: white; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
 
-        .img-wrapper { 
-            position: relative; width: 100%; height: 320px; 
-            background: #fff; 
-            overflow: hidden;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .img-wrapper { position: relative; width: 100%; height: 320px; background: #fff; overflow: hidden; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .product-img { 
-            width: 75%; 
-            height: 75%; 
-            object-fit: contain; 
-            pointer-events: none; 
-            transition: transform 0.3s ease;
-        }
+        .product-img { width: 75%; height: 75%; object-fit: contain; pointer-events: none; transition: transform 0.3s ease; }
 
-        .img-wrapper:hover .product-img {
-            transform: scale(1.05);
-        }
+        .img-wrapper:hover .product-img { transform: scale(1.05); }
 
-        #imageModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            overflow: auto;
-            touch-action: pan-x pan-y pinch-zoom;
-        }
+        #imageModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; overflow: auto; touch-action: pan-x pan-y pinch-zoom; }
 
-        #modalImage {
-            max-width: 100%;
-            max-height: 100vh;
-            object-fit: contain;
-            touch-action: pinch-zoom;
-            margin: auto;
-        }
+        #modalImage { max-width: 100%; max-height: 100vh; object-fit: contain; touch-action: pinch-zoom; margin: auto; }
 
-        .close-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.3);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 32px;
-            line-height: 45px;
-            cursor: pointer;
-            z-index: 10001;
-        }
+        .close-btn { position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,0.3); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 32px; line-height: 45px; cursor: pointer; z-index: 10001; }
 
         .product-info { padding: 15px; text-align: center; background: white; border-radius: 0 0 25px 25px; }
         .price-tag { color: #2ecc71; font-weight: 800; font-size: 1.6rem; margin: 5px 0; }
         
-        .btn-wa { 
-            background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark));
-            color: white; text-decoration: none; padding: 15px; border-radius: 20px; 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-top: 10px; font-weight: 700; border: none; font-size: 1.1rem;
-            animation: pulse-wa 2s infinite;
-        }
-        @keyframes pulse-wa {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
-            70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-        }
+        .btn-wa { background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark)); color: white; text-decoration: none; padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-weight: 700; border: none; font-size: 1.1rem; animation: pulse-wa 2s infinite; }
+        @keyframes pulse-wa { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
 
         .btn-calc { background: #f0f4f8; color: var(--blue-link); border: 1px solid #dce4ec; padding: 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-weight: 600; cursor: pointer; width: 100%; font-family: 'Cairo'; }
 
-        .admin-lock { 
-            position: fixed; 
-            bottom: 20px; 
-            left: 20px; 
-            background: #eab308; 
-            color: #000; 
-            border: none; 
-            width: 55px; 
-            height: 55px; 
-            border-radius: 50%; 
-            z-index: 3000; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4);
-            transition: all 0.3s ease;
-        }
-        
-        .admin-lock:hover {
-            transform: rotate(30deg) scale(1.1);
-            background: #d4af37;
-        }
+        .admin-lock { position: fixed; bottom: 80px; left: 20px; background: #eab308; color: #000; border: none; width: 55px; height: 55px; border-radius: 50%; z-index: 3000; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: right; border-top: 6px solid var(--gold); }
+
+        /* تنسيق الفوتر */
+        footer { background: #1a1a1a; color: white; padding: 30px 10px; text-align: center; border-top: 4px solid var(--gold); margin-top: 50px; }
+        .footer-call { background: var(--gold); color: black; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -141,6 +72,7 @@
     <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" alt="Khalid Logo" class="logo-img">
     <h1 style="margin: 0; font-size: 2rem;">معرض خالد خفاجي</h1>
     <p style="margin: 5px 0 0; color: var(--gold); font-weight: 600;">للتقسيط وخدمات المحمول 📱</p>
+    <div class="post-promo">خصم خاص لموظفي البريد المصري 🏤</div>
 </header>
 
 <div class="search-section">
@@ -161,6 +93,14 @@
     <button class="close-btn" onclick="closeImageModal()">×</button>
     <img id="modalImage" src="" alt="">
 </div>
+
+<footer>
+    <p style="margin:0">جميع الحقوق محفوظة © معرض خالد خفاجي للتقسيط</p>
+    <p style="font-size: 0.9rem; color: #888; margin-top: 5px;">نرحب بزيارتكم في أي وقت</p>
+    <a href="tel:01095890589" class="footer-call">
+        <i class="fas fa-phone-alt"></i> اتصل بنا: 01095890589
+    </a>
+</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -206,85 +146,50 @@
         });
     });
 
-    // ====================== استعلام الأقساط - النسخة النهائية ======================
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
         if (!phone) {
             alert("يرجى إدخال رقم التليفون");
             return;
         }
-
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
         body.innerHTML = `<p style="text-align:center; padding:40px; color:#666;">جاري البحث...</p>`;
-
         try {
             const q = query(collection(db, "clients"), where("phone", "==", phone));
             const querySnapshot = await getDocs(q);
-
             if (!querySnapshot.empty) {
                 const c = querySnapshot.docs[0].data();
-
                 const price = Number(c.price) || 0;
                 const interest = Number(c.interest) || 0;
                 const paid = Number(c.paid) || 0;
                 const months = Number(c.months) || 0;
-
-                const totalInstallment = price * (1 + interest);   // إجمالي التقسيط بعد الفائدة
-                const remaining = totalInstallment - paid;         // المتبقي
-
+                const totalInstallment = price * (1 + interest);
+                const remaining = totalInstallment - paid;
                 let monthly = 0;
                 let remainingMonths = 0;
-
                 if (months > 0) {
                     monthly = totalInstallment / months;
-                    if (remaining > 0) {
-                        remainingMonths = Math.ceil(remaining / monthly);
-                    }
+                    if (remaining > 0) remainingMonths = Math.ceil(remaining / monthly);
                 }
-
                 body.innerHTML = `
-                    <h3 style="text-align:center; color:#27ae60; margin-bottom:20px;">
-                        أهلاً ${c.name || 'العميل'}
-                    </h3>
-
+                    <h3 style="text-align:center; color:#27ae60; margin-bottom:20px;">أهلاً ${c.name || 'العميل'}</h3>
                     <div style="background:#f8f9fa; padding:20px; border-radius:16px; line-height:2.1;">
                         <p><strong>إجمالي التقسيط:</strong> ${totalInstallment.toLocaleString()} ج.م</p>
                         <p><strong>المدفوع حتى الآن:</strong> ${paid.toLocaleString()} ج.م</p>
-                        <p style="color:#e74c3c; font-size:1.32rem; font-weight:bold;">
-                            المتبقي: ${remaining.toLocaleString()} ج.م
-                        </p>
-                        ${monthly > 0 ? `
-                        <p><strong>القسط الشهري:</strong> ${monthly.toLocaleString()} ج.م</p>
-                        ` : ''}
-                        ${remainingMonths > 0 ? `
-                        <p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر</p>
-                        ` : ''}
+                        <p style="color:#e74c3c; font-size:1.32rem; font-weight:bold;">المتبقي: ${remaining.toLocaleString()} ج.م</p>
+                        ${monthly > 0 ? `<p><strong>القسط الشهري:</strong> ${monthly.toLocaleString()} ج.م</p>` : ''}
+                        ${remainingMonths > 0 ? `<p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر</p>` : ''}
                     </div>
-
-                    <button onclick="document.getElementById('resultModal').style.display='none'" 
-                            style="width:100%; background:var(--gold); color:#000; border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px;">
-                        إغلاق
-                    </button>
+                    <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); color:#000; border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px;">إغلاق</button>
                 `;
             } else {
-                body.innerHTML = `
-                    <p style="text-align:center; color:#e74c3c; padding:50px 20px; font-size:1.1rem;">
-                        رقم التليفون غير مسجل في النظام
-                    </p>
-                    <button onclick="document.getElementById('resultModal').style.display='none'" 
-                            style="width:100%; background:#eee; border:none; padding:12px; border-radius:12px;">
-                        إغلاق
-                    </button>
-                `;
+                body.innerHTML = `<p style="text-align:center; color:#e74c3c; padding:50px 20px; font-size:1.1rem;">رقم التليفون غير مسجل في النظام</p><button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:#eee; border:none; padding:12px; border-radius:12px;">إغلاق</button>`;
             }
-        } catch (e) {
-            body.innerHTML = `<p style="color:red; text-align:center; padding:30px;">حدث خطأ أثناء البحث</p>`;
-        }
+        } catch (e) { body.innerHTML = `<p style="color:red; text-align:center; padding:30px;">حدث خطأ أثناء البحث</p>`; }
     };
 
-    // ====================== باقي الكود بدون أي تغيير ======================
     window.openImageModal = function(imageSrc) {
         document.getElementById('modalImage').src = imageSrc;
         document.getElementById('imageModal').style.display = 'flex';
@@ -320,23 +225,16 @@
         const months = parseInt(document.getElementById('monthsCount').value);
         const resultDiv = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
-        
         if (remaining <= 0) {
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = "المقدم يغطي السعر!";
             return;
         }
-
         const interestAmount = remaining * (interestRate / 100) * (months / 12);
         const totalWithInterest = remaining + interestAmount;
         const monthly = Math.round(totalWithInterest / months);
-        
         resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `
-            <span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span>
-            <hr style="margin:8px 0; opacity:0.1">
-            <span style="color:#666;">إجمالي بعد الفائدة: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
-        `;
+        resultDiv.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span>`;
     };
 
     window.adminLogin = function() { 
