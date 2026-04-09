@@ -87,7 +87,6 @@
             line-height: 45px;
             cursor: pointer;
             z-index: 10001;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.6);
         }
 
         .product-info { padding: 15px; text-align: center; background: white; border-radius: 0 0 25px 25px; }
@@ -207,7 +206,7 @@
         });
     });
 
-    // ==================== استعلام الأقساط المحسن ====================
+    // ====================== استعلام الأقساط المحدث ======================
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
         if (!phone) {
@@ -218,7 +217,7 @@
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
-        body.innerHTML = `<p style="text-align:center; padding:20px;">جاري البحث...</p>`;
+        body.innerHTML = `<p style="text-align:center; padding:30px;">جاري البحث...</p>`;
 
         try {
             const q = query(collection(db, "clients"), where("phone", "==", phone));
@@ -227,40 +226,47 @@
             if (!querySnapshot.empty) {
                 const c = querySnapshot.docs[0].data();
 
-                const totalPrice = c.price || 0;
-                const interestRate = c.interest || 0;
-                const totalWithInterest = totalPrice * (1 + interestRate / 100);
-                const paid = c.paid || 0;
-                const remaining = Math.max(0, totalWithInterest - paid);
+                // حسابات حسب طريقتكم (فائدة ثابتة + تقسيم على الشهور)
+                const originalPrice = Number(c.price) || 0;
+                const interestRate = Number(c.interest) || 0;
+                const totalInstallment = originalPrice * (1 + interestRate / 100);   // إجمالي التقسيط بعد الفائدة
+                const paid = Number(c.paid) || 0;
+                const remaining = Math.max(0, totalInstallment - paid);
 
-                // حساب القسط الشهري التقريبي (لو موجود عدد الشهور)
-                let monthlyInstallment = "غير محدد";
+                // القسط الشهري (ثابت)
+                let monthly = 0;
+                let remainingMonths = 0;
+
                 if (c.months && c.months > 0) {
-                    monthlyInstallment = Math.round(totalWithInterest / c.months).toLocaleString() + " ج.م";
+                    monthly = totalInstallment / c.months;
+                    remainingMonths = Math.ceil(remaining / monthly);   // الشهور المتبقية
                 }
 
                 body.innerHTML = `
-                    <h3 style="text-align:center; color:#2ecc71;">أهلاً ${c.name || 'العميل'}</h3>
-                    
-                    <div style="background:#f8f9fa; padding:15px; border-radius:15px; margin:15px 0;">
-                        <p><strong>إجمالي التقسيط:</strong> ${totalWithInterest.toLocaleString()} ج.م</p>
-                        <p><strong>المبلغ المدفوع:</strong> ${paid.toLocaleString()} ج.م</p>
-                        <p style="color:#e74c3c; font-size:1.2rem;"><strong>المتبقي:</strong> ${remaining.toLocaleString()} ج.م</p>
-                    </div>
+                    <h3 style="text-align:center; color:#27ae60; margin-bottom:20px;">
+                        أهلاً ${c.name || 'العميل'}
+                    </h3>
 
-                    <div style="text-align:center; margin:10px 0;">
-                        <p><strong>القسط الشهري:</strong> ${monthlyInstallment}</p>
-                        ${c.months ? `<p>عدد الشهور: ${c.months} شهر</p>` : ''}
+                    <div style="background:#f8f9fa; padding:18px; border-radius:16px; line-height:2;">
+                        <p><strong>إجمالي التقسيط:</strong> ${totalInstallment.toLocaleString()} ج.م</p>
+                        <p><strong>المدفوع حتى الآن:</strong> ${paid.toLocaleString()} ج.م</p>
+                        <p style="color:#e74c3c; font-size:1.25rem; font-weight:bold;">
+                            المتبقي: ${remaining.toLocaleString()} ج.م
+                        </p>
+                        ${monthly > 0 ? `
+                        <p><strong>القسط الشهري:</strong> ${monthly.toLocaleString()} ج.م</p>
+                        <p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر</p>
+                        ` : ''}
                     </div>
 
                     <button onclick="document.getElementById('resultModal').style.display='none'" 
-                            style="width:100%; background:var(--gold); border:none; padding:14px; border-radius:12px; font-weight:bold; margin-top:10px;">
+                            style="width:100%; background:var(--gold); border:none; padding:14px; border-radius:12px; font-weight:bold; margin-top:15px;">
                         إغلاق
                     </button>
                 `;
             } else {
                 body.innerHTML = `
-                    <p style="text-align:center; color:#e74c3c; font-size:1.1rem; padding:30px 10px;">
+                    <p style="text-align:center; color:#e74c3c; padding:40px 20px; font-size:1.1rem;">
                         رقم التليفون غير مسجل في النظام
                     </p>
                     <button onclick="document.getElementById('resultModal').style.display='none'" 
@@ -269,11 +275,8 @@
                     </button>
                 `;
             }
-        } catch (error) {
-            body.innerHTML = `
-                <p style="color:red; text-align:center;">حدث خطأ أثناء البحث</p>
-                <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; padding:12px;">إغلاق</button>
-            `;
+        } catch (e) {
+            body.innerHTML = `<p style="color:red; text-align:center; padding:20px;">حدث خطأ أثناء البحث</p>`;
         }
     };
 
@@ -294,7 +297,7 @@
         body.innerHTML = `
             <h3 style="text-align:center">🧮 حاسبة التقسيط لـ <br>${name}</h3>
             <label>المقدم:</label>
-            <input type="number" id="userDown" class="search-section input" style="width:90%; border:1px solid #ddd; border-radius:10px; margin:10px 0; padding:10px" value="${minDown}">
+            <input type="number" id="userDown" style="width:90%; border:1px solid #ddd; border-radius:10px; margin:10px 0; padding:10px" value="${minDown}">
             <label>الشهور:</label>
             <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0; border-radius:10px">
                 <option value="6">6 شهور</option>
@@ -309,7 +312,7 @@
     };
 
     window.calculateResult = function(price, interestRate) {
-        const userDown = parseFloat(document.getElementById('userDown').value);
+        const userDown = parseFloat(document.getElementById('userDown').value) || 0;
         const months = parseInt(document.getElementById('monthsCount').value);
         const resultDiv = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
@@ -326,13 +329,15 @@
         
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
-            <span style="color:green; font-size:1.2rem">القسط: ${monthly.toLocaleString()} ج.م</span>
-            <hr style="margin:5px 0; opacity:0.1">
-            <span style="color:#666; font-size:0.9rem">إجمالي المتبقي: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
+            <span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span>
+            <hr style="margin:8px 0; opacity:0.1">
+            <span style="color:#666;">إجمالي بعد الفائدة: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
         `;
     };
 
-    window.adminLogin = function() { if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; }
+    window.adminLogin = function() { 
+        if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; 
+    }
 </script>
 </body>
 </html>
