@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>معرض خالد خفاجي للتقسيط</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@
             transform: scale(1.05);
         }
 
-        /* نافذة تكبير الصورة الجديدة */
+        /* نافذة الصورة - الطريقة الجديدة البسيطة */
         #imageModal {
             display: none;
             position: fixed;
@@ -62,33 +62,33 @@
             z-index: 10000;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            overflow: auto;
+            touch-action: pan-x pan-y pinch-zoom;
         }
 
         #modalImage {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 100vh;
             object-fit: contain;
-            transform: scale(1);
-            transition: transform 0.05s linear;
-            touch-action: none;
+            touch-action: pinch-zoom;
+            margin: auto;
         }
 
         .close-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.3);
             color: white;
             border: none;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            font-size: 30px;
+            font-size: 32px;
             line-height: 45px;
             cursor: pointer;
             z-index: 10001;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 3px 15px rgba(0,0,0,0.6);
         }
 
         .product-info { padding: 15px; text-align: center; background: white; border-radius: 0 0 25px 25px; }
@@ -159,7 +159,7 @@
     <div class="modal-content" id="modalBody"></div>
 </div>
 
-<!-- نافذة الصورة الجديدة -->
+<!-- نافذة الصورة -->
 <div id="imageModal">
     <button class="close-btn" onclick="closeImageModal()">×</button>
     <img id="modalImage" src="" alt="">
@@ -209,84 +209,17 @@
         });
     });
 
-    // ===== خاصية تكبير الصورة بالإصبعين (الجديدة) =====
-    let currentScale = 1;
-    let isDragging = false;
-    let startX, startY, posX = 0, posY = 0;
-    let lastTouchDistance = 0;
-
+    // فتح وإغلاق الصورة (بسيط جداً)
     window.openImageModal = function(imageSrc) {
-        const modal = document.getElementById('imageModal');
-        const img = document.getElementById('modalImage');
-        
-        img.src = imageSrc;
-        currentScale = 1;
-        posX = 0;
-        posY = 0;
-        img.style.transform = `translate(0px, 0px) scale(1)`;
-        
-        modal.style.display = 'flex';
-        
-        // إضافة الـ listeners للـ touch
-        img.addEventListener('touchstart', handleTouchStart, { passive: false });
-        img.addEventListener('touchmove', handleTouchMove, { passive: false });
-        img.addEventListener('touchend', handleTouchEnd);
+        document.getElementById('modalImage').src = imageSrc;
+        document.getElementById('imageModal').style.display = 'flex';
     };
 
     window.closeImageModal = function() {
-        const modal = document.getElementById('imageModal');
-        const img = document.getElementById('modalImage');
-        modal.style.display = 'none';
-        
-        // إزالة الـ listeners
-        img.removeEventListener('touchstart', handleTouchStart);
-        img.removeEventListener('touchmove', handleTouchMove);
-        img.removeEventListener('touchend', handleTouchEnd);
+        document.getElementById('imageModal').style.display = 'none';
     };
 
-    function handleTouchStart(e) {
-        if (e.touches.length === 2) {
-            lastTouchDistance = getTouchDistance(e);
-        } else if (e.touches.length === 1) {
-            isDragging = true;
-            startX = e.touches[0].clientX - posX;
-            startY = e.touches[0].clientY - posY;
-        }
-    }
-
-    function handleTouchMove(e) {
-        e.preventDefault();
-        const img = document.getElementById('modalImage');
-
-        if (e.touches.length === 2) {
-            // Pinch Zoom
-            const currentDistance = getTouchDistance(e);
-            const scaleChange = currentDistance / lastTouchDistance;
-            currentScale *= scaleChange;
-            currentScale = Math.max(0.5, Math.min(currentScale, 5)); // حد أدنى وأقصى
-            
-            img.style.transform = `translate(${posX}px, \( {posY}px) scale( \){currentScale})`;
-            lastTouchDistance = currentDistance;
-        } 
-        else if (e.touches.length === 1 && isDragging) {
-            // Drag (Pan)
-            posX = e.touches[0].clientX - startX;
-            posY = e.touches[0].clientY - startY;
-            img.style.transform = `translate(${posX}px, \( {posY}px) scale( \){currentScale})`;
-        }
-    }
-
-    function handleTouchEnd() {
-        isDragging = false;
-    }
-
-    function getTouchDistance(e) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    // باقي الأكواد الأساسية بدون تغيير
+    // باقي الأكواد بدون أي تغيير
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
