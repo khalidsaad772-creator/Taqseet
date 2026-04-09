@@ -206,7 +206,7 @@
         });
     });
 
-    // ====================== استعلام الأقساط المحدث ======================
+    // ====================== استعلام الأقساط - النسخة النهائية ======================
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
         if (!phone) {
@@ -217,7 +217,7 @@
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
-        body.innerHTML = `<p style="text-align:center; padding:30px;">جاري البحث...</p>`;
+        body.innerHTML = `<p style="text-align:center; padding:40px; color:#666;">جاري البحث...</p>`;
 
         try {
             const q = query(collection(db, "clients"), where("phone", "==", phone));
@@ -226,20 +226,22 @@
             if (!querySnapshot.empty) {
                 const c = querySnapshot.docs[0].data();
 
-                // حسابات حسب طريقتكم (فائدة ثابتة + تقسيم على الشهور)
-                const originalPrice = Number(c.price) || 0;
-                const interestRate = Number(c.interest) || 0;
-                const totalInstallment = originalPrice * (1 + interestRate / 100);   // إجمالي التقسيط بعد الفائدة
+                const price = Number(c.price) || 0;
+                const interest = Number(c.interest) || 0;
                 const paid = Number(c.paid) || 0;
-                const remaining = Math.max(0, totalInstallment - paid);
+                const months = Number(c.months) || 0;
 
-                // القسط الشهري (ثابت)
+                const totalInstallment = price * (1 + interest);   // إجمالي التقسيط بعد الفائدة
+                const remaining = totalInstallment - paid;         // المتبقي
+
                 let monthly = 0;
                 let remainingMonths = 0;
 
-                if (c.months && c.months > 0) {
-                    monthly = totalInstallment / c.months;
-                    remainingMonths = Math.ceil(remaining / monthly);   // الشهور المتبقية
+                if (months > 0) {
+                    monthly = totalInstallment / months;
+                    if (remaining > 0) {
+                        remainingMonths = Math.ceil(remaining / monthly);
+                    }
                 }
 
                 body.innerHTML = `
@@ -247,26 +249,28 @@
                         أهلاً ${c.name || 'العميل'}
                     </h3>
 
-                    <div style="background:#f8f9fa; padding:18px; border-radius:16px; line-height:2;">
+                    <div style="background:#f8f9fa; padding:20px; border-radius:16px; line-height:2.1;">
                         <p><strong>إجمالي التقسيط:</strong> ${totalInstallment.toLocaleString()} ج.م</p>
                         <p><strong>المدفوع حتى الآن:</strong> ${paid.toLocaleString()} ج.م</p>
-                        <p style="color:#e74c3c; font-size:1.25rem; font-weight:bold;">
+                        <p style="color:#e74c3c; font-size:1.32rem; font-weight:bold;">
                             المتبقي: ${remaining.toLocaleString()} ج.م
                         </p>
                         ${monthly > 0 ? `
                         <p><strong>القسط الشهري:</strong> ${monthly.toLocaleString()} ج.م</p>
+                        ` : ''}
+                        ${remainingMonths > 0 ? `
                         <p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر</p>
                         ` : ''}
                     </div>
 
                     <button onclick="document.getElementById('resultModal').style.display='none'" 
-                            style="width:100%; background:var(--gold); border:none; padding:14px; border-radius:12px; font-weight:bold; margin-top:15px;">
+                            style="width:100%; background:var(--gold); color:#000; border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px;">
                         إغلاق
                     </button>
                 `;
             } else {
                 body.innerHTML = `
-                    <p style="text-align:center; color:#e74c3c; padding:40px 20px; font-size:1.1rem;">
+                    <p style="text-align:center; color:#e74c3c; padding:50px 20px; font-size:1.1rem;">
                         رقم التليفون غير مسجل في النظام
                     </p>
                     <button onclick="document.getElementById('resultModal').style.display='none'" 
@@ -276,11 +280,11 @@
                 `;
             }
         } catch (e) {
-            body.innerHTML = `<p style="color:red; text-align:center; padding:20px;">حدث خطأ أثناء البحث</p>`;
+            body.innerHTML = `<p style="color:red; text-align:center; padding:30px;">حدث خطأ أثناء البحث</p>`;
         }
     };
 
-    // باقي الدوال (بدون تغيير)
+    // ====================== باقي الكود بدون أي تغيير ======================
     window.openImageModal = function(imageSrc) {
         document.getElementById('modalImage').src = imageSrc;
         document.getElementById('imageModal').style.display = 'flex';
