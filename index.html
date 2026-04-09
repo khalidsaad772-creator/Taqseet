@@ -52,7 +52,6 @@
             transform: scale(1.05);
         }
 
-        /* نافذة الصورة - الطريقة الجديدة البسيطة */
         #imageModal {
             display: none;
             position: fixed;
@@ -159,7 +158,6 @@
     <div class="modal-content" id="modalBody"></div>
 </div>
 
-<!-- نافذة الصورة -->
 <div id="imageModal">
     <button class="close-btn" onclick="closeImageModal()">×</button>
     <img id="modalImage" src="" alt="">
@@ -209,7 +207,77 @@
         });
     });
 
-    // فتح وإغلاق الصورة (بسيط جداً)
+    // ==================== استعلام الأقساط المحسن ====================
+    window.checkInstallments = async function() {
+        const phone = document.getElementById('clientPhone').value.trim();
+        if (!phone) {
+            alert("يرجى إدخال رقم التليفون");
+            return;
+        }
+
+        const modal = document.getElementById('resultModal');
+        const body = document.getElementById('modalBody');
+        modal.style.display = 'flex';
+        body.innerHTML = `<p style="text-align:center; padding:20px;">جاري البحث...</p>`;
+
+        try {
+            const q = query(collection(db, "clients"), where("phone", "==", phone));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const c = querySnapshot.docs[0].data();
+
+                const totalPrice = c.price || 0;
+                const interestRate = c.interest || 0;
+                const totalWithInterest = totalPrice * (1 + interestRate / 100);
+                const paid = c.paid || 0;
+                const remaining = Math.max(0, totalWithInterest - paid);
+
+                // حساب القسط الشهري التقريبي (لو موجود عدد الشهور)
+                let monthlyInstallment = "غير محدد";
+                if (c.months && c.months > 0) {
+                    monthlyInstallment = Math.round(totalWithInterest / c.months).toLocaleString() + " ج.م";
+                }
+
+                body.innerHTML = `
+                    <h3 style="text-align:center; color:#2ecc71;">أهلاً ${c.name || 'العميل'}</h3>
+                    
+                    <div style="background:#f8f9fa; padding:15px; border-radius:15px; margin:15px 0;">
+                        <p><strong>إجمالي التقسيط:</strong> ${totalWithInterest.toLocaleString()} ج.م</p>
+                        <p><strong>المبلغ المدفوع:</strong> ${paid.toLocaleString()} ج.م</p>
+                        <p style="color:#e74c3c; font-size:1.2rem;"><strong>المتبقي:</strong> ${remaining.toLocaleString()} ج.م</p>
+                    </div>
+
+                    <div style="text-align:center; margin:10px 0;">
+                        <p><strong>القسط الشهري:</strong> ${monthlyInstallment}</p>
+                        ${c.months ? `<p>عدد الشهور: ${c.months} شهر</p>` : ''}
+                    </div>
+
+                    <button onclick="document.getElementById('resultModal').style.display='none'" 
+                            style="width:100%; background:var(--gold); border:none; padding:14px; border-radius:12px; font-weight:bold; margin-top:10px;">
+                        إغلاق
+                    </button>
+                `;
+            } else {
+                body.innerHTML = `
+                    <p style="text-align:center; color:#e74c3c; font-size:1.1rem; padding:30px 10px;">
+                        رقم التليفون غير مسجل في النظام
+                    </p>
+                    <button onclick="document.getElementById('resultModal').style.display='none'" 
+                            style="width:100%; background:#eee; border:none; padding:12px; border-radius:12px;">
+                        إغلاق
+                    </button>
+                `;
+            }
+        } catch (error) {
+            body.innerHTML = `
+                <p style="color:red; text-align:center;">حدث خطأ أثناء البحث</p>
+                <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; padding:12px;">إغلاق</button>
+            `;
+        }
+    };
+
+    // باقي الدوال (بدون تغيير)
     window.openImageModal = function(imageSrc) {
         document.getElementById('modalImage').src = imageSrc;
         document.getElementById('imageModal').style.display = 'flex';
@@ -219,7 +287,6 @@
         document.getElementById('imageModal').style.display = 'none';
     };
 
-    // باقي الأكواد بدون أي تغيير
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
@@ -263,22 +330,6 @@
             <hr style="margin:5px 0; opacity:0.1">
             <span style="color:#666; font-size:0.9rem">إجمالي المتبقي: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
         `;
-    };
-
-    window.checkInstallments = async function() {
-        const phone = document.getElementById('clientPhone').value.trim();
-        if(!phone) return;
-        const modal = document.getElementById('resultModal');
-        const body = document.getElementById('modalBody');
-        modal.style.display = 'flex';
-        body.innerHTML = "جاري البحث...";
-        const q = query(collection(db, "clients"), where("phone", "==", phone));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-            const c = querySnapshot.docs[0].data();
-            body.innerHTML = `<h3>أهلاً ${c.name}</h3><p>المتبقي: ${(c.price * (1 + (c.interest||0)) - c.paid).toLocaleString()} ج.م</p>
-            <button onclick="document.getElementById('resultModal').style.display='none'">إغلاق</button>`;
-        } else { body.innerHTML = "غير مسجل"; }
     };
 
     window.adminLogin = function() { if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; }
