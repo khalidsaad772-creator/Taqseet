@@ -26,7 +26,6 @@
         header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: white; padding: 45px 10px; text-align: center; border-bottom: 4px solid var(--gold); }
         .logo-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 15px; object-fit: cover; }
         
-        /* تنسيق جملة البريد */
         .post-promo { background: var(--gold); color: #000; display: inline-block; padding: 5px 15px; border-radius: 10px; font-weight: 800; margin-top: 10px; font-size: 0.9rem; }
 
         .search-section { background: #fff; padding: 25px; margin: -30px 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
@@ -61,7 +60,6 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: right; border-top: 6px solid var(--gold); }
 
-        /* تنسيق الفوتر */
         footer { background: #1a1a1a; color: white; padding: 30px 10px; text-align: center; border-top: 4px solid var(--gold); margin-top: 50px; }
         .footer-call { background: var(--gold); color: black; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; }
     </style>
@@ -95,7 +93,7 @@
 </div>
 
 <footer>
-    <p style="margin:0">جميع الحقوق محفوظة © معرض خالد خفاجي للتقسيط</p>
+    <p style="margin:0">جميع الحقوق محفوظة © معرض خالد خفاجي للتقسيط - كفر الشيخ</p>
     <p style="font-size: 0.9rem; color: #888; margin-top: 5px;">نرحب بزيارتكم في أي وقت</p>
     <a href="tel:01095890589" class="footer-call">
         <i class="fas fa-phone-alt"></i> اتصل بنا: 01095890589
@@ -148,10 +146,7 @@
 
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
-        if (!phone) {
-            alert("يرجى إدخال رقم التليفون");
-            return;
-        }
+        if (!phone) { alert("يرجى إدخال رقم التليفون"); return; }
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
@@ -225,21 +220,26 @@
         const months = parseInt(document.getElementById('monthsCount').value);
         const resultDiv = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
+        
         if (remaining <= 0) {
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = "المقدم يغطي السعر!";
             return;
         }
+
         const interestAmount = remaining * (interestRate / 100) * (months / 12);
         const totalWithInterest = remaining + interestAmount;
         const monthly = Math.round(totalWithInterest / months);
+        
         resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span>`;
+        resultDiv.innerHTML = `
+            <span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span>
+            <hr style="margin:8px 0; opacity:0.1">
+            <span style="color:#666;">إجمالي بعد الفائدة: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
+        `;
     };
 
-    window.adminLogin = function() { 
-        if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; 
-    }
+    window.adminLogin = function() { if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; }
 </script>
 </body>
 </html>
