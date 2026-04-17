@@ -47,6 +47,8 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
         <input type="number" id="months" placeholder="* الشهور">
     </div>
     <input type="number" id="interest" placeholder="* الفائدة %">
+    <input type="text" id="secretCode" placeholder="* الكود السري للعميل" style="border-color: #007bff;">
+    
     <input type="date" id="regDate">
     <button onclick="addClient()">إضافة عميل جديد</button>
     <button onclick="exportPDF()" style="background:#4CAF50">تقرير العملاء PDF 📄</button>
@@ -124,7 +126,9 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
 
 <div id="editModal" class="modal hidden"><div class="modal-content">
     <h3>تعديل بيانات العميل</h3>
-    <input id="editName"><input id="editPhone"><input id="editProduct"><input id="editPrice" type="number"><input id="editMonths" type="number"><input id="editInterest" type="number"><input id="editRegDate" type="date">
+    <input id="editName"><input id="editPhone"><input id="editProduct"><input id="editPrice" type="number"><input id="editMonths" type="number"><input id="editInterest" type="number">
+    <input id="editSecretCode" placeholder="الكود السري">
+    <input id="editRegDate" type="date">
     <button onclick="saveClient()">حفظ التعديلات</button>
     <button onclick="closeModal('editModal')" style="background:#dc3545">إلغاء</button>
 </div></div>
@@ -144,7 +148,6 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // دالة المزامنة الشاملة (عملاء + إدارة مالية)
     window.syncToFirebase = async (client) => {
         try {
             if(client) {
@@ -153,7 +156,6 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
                     lastUpdate: new Date().toISOString()
                 });
             }
-            // مزامنة الأرصدة الإدارية أوتوماتيكياً
             await setDoc(doc(db, "admin_data", "finances"), {
                 capitalEntries: JSON.parse(localStorage.getItem('capitalEntries') || '[]'),
                 safeManualEntries: JSON.parse(localStorage.getItem('safeManualEntries') || '[]'),
@@ -163,10 +165,8 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
         } catch (e) { console.error("Firebase Sync Error:", e); }
     };
 
-    // دالة الجلب الذكي (لضبط الخزنة ورأس المال والعملاء)
     window.loadFromCloud = async () => {
         try {
-            // جلب ودمج العملاء بالاسم
             const querySnapshot = await getDocs(collection(db, "clients"));
             let cloudClients = [];
             querySnapshot.forEach((doc) => cloudClients.push(doc.data()));
@@ -174,37 +174,26 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
                 let localClients = JSON.parse(localStorage.getItem('clients') || '[]');
                 let combined = [...localClients];
                 cloudClients.forEach(cloudClient => {
-                    const exists = combined.find(c => c.name.trim() === cloudClient.name.trim());
-                    if (!exists) combined.push(cloudClient);
+                    const existsIdx = combined.findIndex(c => c.name.trim() === cloudClient.name.trim());
+                    if (existsIdx === -1) {
+                        combined.push(cloudClient);
+                    } else {
+                        combined[existsIdx] = cloudClient;
+                    }
                 });
                 clients = combined;
                 localStorage.setItem('clients', JSON.stringify(clients));
             }
 
-            // جلب ودمج بيانات الإدارة (الخزنة ورأس المال) لضبط الأرقام
             const adminDoc = await getDoc(doc(db, "admin_data", "finances"));
             if (adminDoc.exists()) {
                 const adminData = adminDoc.data();
-                
-                // دمج رأس المال
                 if (adminData.capitalEntries) {
-                    let localCap = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
-                    adminData.capitalEntries.forEach(ce => {
-                        const exists = localCap.find(l => l.date === ce.date && l.amount === ce.amount && l.reason === ce.reason);
-                        if (!exists) localCap.push(ce);
-                    });
-                    capitalEntries = localCap;
+                    capitalEntries = adminData.capitalEntries;
                     localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
                 }
-
-                // دمج الخزنة اليدوية
                 if (adminData.safeManualEntries) {
-                    let localSafe = JSON.parse(localStorage.getItem('safeManualEntries') || '[]');
-                    adminData.safeManualEntries.forEach(se => {
-                        const exists = localSafe.find(l => l.date === se.date && l.amount === se.amount && l.reason === se.reason);
-                        if (!exists) localSafe.push(se);
-                    });
-                    safeManualEntries = localSafe;
+                    safeManualEntries = adminData.safeManualEntries;
                     localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
                 }
             }
@@ -220,13 +209,12 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
     window.onload = async () => {
         document.getElementById('regDate').value = today;
         document.getElementById('safeEntryDate').value = today;
-        showClients(); // عرض ما بالمتصفح فوراً
-        await window.loadFromCloud(); // ثم جلب الجديد من السحاب ودمجه
+        showClients(); 
+        await window.loadFromCloud(); 
     };
 </script>
 
 <script>
-// الجزء الخاص بالمنطق البرمجي المحلي (Logic) كما هو
 let clients = JSON.parse(localStorage.getItem('clients') || '[]');
 let capitalEntries = JSON.parse(localStorage.getItem('capitalEntries') || '[]');
 let safeManualEntries = JSON.parse(localStorage.getItem('safeManualEntries') || '[]');
@@ -242,16 +230,18 @@ function save() {
     localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
     localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
     showClients();
-    if(window.syncToFirebase) window.syncToFirebase(null); // تحديث الخزنة في السحاب عند أي حفظ
+    if(window.syncToFirebase) window.syncToFirebase(null); 
 }
 
 function addClient() {
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
-    if(!name || !document.getElementById('price').value) return alert("أكمل البيانات المطلوبة");
+    const secret = document.getElementById('secretCode').value; // التعديل: جلب الكود السري
+    if(!name || !document.getElementById('price').value || !secret) return alert("أكمل البيانات المطلوبة بما فيها الكود السري");
     
     const newClient = {
         name, phone: phone,
+        secretCode: secret, // التعديل: حفظ الكود السري
         product: document.getElementById('product').value || "بدون وصف",
         price: Number(document.getElementById('price').value),
         months: Number(document.getElementById('months').value),
@@ -262,6 +252,10 @@ function addClient() {
     clients.push(newClient);
     save();
     if(window.syncToFirebase) window.syncToFirebase(newClient);
+    // تفريغ الحقول
+    document.getElementById('name').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('secretCode').value = '';
 }
 
 function showClients() {
@@ -290,7 +284,7 @@ function showClients() {
     document.getElementById('capitalRes').innerText = formatCurrency(capitalEntries.reduce((a,c)=>a+Number(c.amount),0));
     document.getElementById('clientsCount').innerText = "العملاء (" + clients.length + ")";
 
-    let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>الاسم والمنتج</th><th>تليفون / كود</th><th>مدفوع</th><th>متبقي</th><th>القسط القادم / التاريخ</th></tr></thead><tbody>';
     clients.forEach((c, i) => {
         const total = c.price * (1 + c.interest);
         const inst = total / c.months;
@@ -298,7 +292,16 @@ function showClients() {
         const nextDate = new Date(c.registrationDate);
         nextDate.setMonth(nextDate.getMonth() + Math.floor((c.paid || 0) / (inst || 1)) + 1);
         const thumbImg = c.photo ? `<img src="${c.photo}" class="client-thumb">` : `<div class="client-thumb" style="background:#eee; display:inline-block; line-height:45px; color:#999; font-size:10px">صورة</div>`;
-        html += `<tr><td style="text-align:right"><b>${c.name}</b><br><small style="color:#666">${c.product}</small></td><td>${c.phone}</td><td>${formatCurrency(c.paid || 0)}</td><td>${formatCurrency(rem)}</td><td><b style="color:#007bff">${formatCurrency(Math.min(inst, rem))}</b><br><small>${nextDate.toLocaleDateString('ar-EG')}</small></td></tr><tr style="background:#f8f9fa"><td colspan="5"><div class="progress"><div class="bar" style="width:${Math.min(100, ((c.paid || 0)/total)*100)}%"></div></div><div class="action-content"><button class="btn pay" onclick="openPaymentModal(${i})">قسط</button><button class="btn edit" onclick="editClient(${i})">تعديل</button><button class="btn wa" onclick="sendWA(${i})">واتس</button>${thumbImg}<button class="btn cam" onclick="openPhotoModal(${i})">صورة</button><button class="btn del" onclick="deleteClient(${i})">حذف</button></div></td></tr>`;
+        
+        // التعديل: عرض الكود السري بجانب التليفون لسهولة الرجوع إليه
+        html += `<tr>
+            <td style="text-align:right"><b>${c.name}</b><br><small style="color:#666">${c.product}</small></td>
+            <td>${c.phone}<br><small style="color:blue">كود: ${c.secretCode || '---'}</small></td>
+            <td>${formatCurrency(c.paid || 0)}</td>
+            <td>${formatCurrency(rem)}</td>
+            <td><b style="color:#007bff">${formatCurrency(Math.min(inst, rem))}</b><br><small>${nextDate.toLocaleDateString('ar-EG')}</small></td>
+        </tr>
+        <tr style="background:#f8f9fa"><td colspan="5"><div class="progress"><div class="bar" style="width:${Math.min(100, ((c.paid || 0)/total)*100)}%"></div></div><div class="action-content"><button class="btn pay" onclick="openPaymentModal(${i})">قسط</button><button class="btn edit" onclick="editClient(${i})">تعديل</button><button class="btn wa" onclick="sendWA(${i})">واتس</button>${thumbImg}<button class="btn cam" onclick="openPhotoModal(${i})">صورة</button><button class="btn del" onclick="deleteClient(${i})">حذف</button></div></td></tr>`;
     });
     document.getElementById('clientsTable').innerHTML = html + '</tbody></table>';
 }
@@ -399,6 +402,7 @@ function editClient(i) {
     document.getElementById('editName').value = c.name; document.getElementById('editPhone').value = c.phone;
     document.getElementById('editProduct').value = c.product; document.getElementById('editPrice').value = c.price;
     document.getElementById('editMonths').value = c.months; document.getElementById('editInterest').value = Math.round(c.interest*100);
+    document.getElementById('editSecretCode').value = c.secretCode || ''; // التعديل: تعبئة الكود في التعديل
     document.getElementById('editRegDate').value = c.registrationDate;
     document.getElementById('editModal').classList.remove('hidden');
 }
@@ -407,6 +411,7 @@ function saveClient() {
     c.name = document.getElementById('editName').value; c.phone = document.getElementById('editPhone').value;
     c.product = document.getElementById('editProduct').value; c.price = Number(document.getElementById('editPrice').value);
     c.months = Number(document.getElementById('editMonths').value); c.interest = Number(document.getElementById('editInterest').value)/100;
+    c.secretCode = document.getElementById('editSecretCode').value; // التعديل: حفظ الكود المعدل
     c.registrationDate = document.getElementById('editRegDate').value;
     save(); 
     if(window.syncToFirebase) window.syncToFirebase(c);
@@ -475,7 +480,7 @@ function restoreData(e) {
         localStorage.setItem('capitalEntries', JSON.stringify(capitalEntries));
         localStorage.setItem('safeManualEntries', JSON.stringify(safeManualEntries));
         showClients(); 
-        if(window.syncToFirebase) window.syncToFirebase(null); // مزامنة فورية بعد الاستعادة
+        if(window.syncToFirebase) window.syncToFirebase(null); 
         alert("تمت الاستعادة بنجاح"); 
     };
     reader.readAsText(e.target.files[0]);
@@ -484,20 +489,13 @@ function restoreData(e) {
 async function deleteClient(i) { 
     if(confirm("هل أنت متأكد من حذف العميل نهائياً من المتصفح والسحاب؟")) { 
         const nameToDelete = clients[i].name.trim();
-        
         try {
-            // 1. احذفه من السحاب أولاً
             if(window.deleteFromFirebase) {
                 await window.deleteFromFirebase(nameToDelete);
             }
-            
-            // 2. لو نجح الحذف من السحاب، احذفه من المتصفح
             clients.splice(i, 1); 
-            
-            // 3. حدد الـ localStorage واعرض البيانات
             localStorage.setItem('clients', JSON.stringify(clients));
             showClients();
-            
             alert("تم الحذف من السحاب والجهاز بنجاح ✅");
         } catch (error) {
             alert("فشل الحذف من السحاب، تأكد من الإنترنت وحاول مجدداً");
