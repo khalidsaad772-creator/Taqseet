@@ -53,7 +53,10 @@
         .btn-wa { background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark)); color: white; text-decoration: none; padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-weight: 700; border: none; font-size: 1.1rem; animation: pulse-wa 2s infinite; }
         @keyframes pulse-wa { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
 
-        .btn-calc { background: #f0f4f8; color: var(--blue-link); border: 1px solid #dce4ec; padding: 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-weight: 600; cursor: pointer; width: 100%; font-family: 'Cairo'; }
+        /* تعديل الأزرار لتكون بجانب بعضها */
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn-calc, .btn-share { background: #f0f4f8; color: var(--blue-link); border: 1px solid #dce4ec; padding: 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; cursor: pointer; width: 100%; font-family: 'Cairo'; font-size: 0.85rem; }
+        .btn-share { color: #555; }
 
         .admin-lock { position: fixed; bottom: 80px; left: 20px; background: #eab308; color: #000; border: none; width: 55px; height: 55px; border-radius: 50%; z-index: 3000; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); }
 
@@ -63,7 +66,6 @@
         footer { background: #1a1a1a; color: white; padding: 30px 10px; text-align: center; border-top: 4px solid var(--gold); margin-top: 50px; }
         .footer-call { background: var(--gold); color: black; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; }
 
-        /* التنسيقات الجديدة للقائمة المنسدلة */
         .accordion { background-color: #f8f9fa; color: #333; cursor: pointer; padding: 15px; width: 100%; border: 1px solid #eee; text-align: right; outline: none; font-size: 1rem; transition: 0.4s; border-radius: 12px; margin-bottom: 8px; font-family: 'Cairo'; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .active, .accordion:hover { background-color: #f0f0f0; border-color: var(--gold); }
         .accordion:after { content: '\002B'; color: var(--gold-dark); font-weight: bold; margin-right: 10px; }
@@ -122,6 +124,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // التعديل الأول: التحميل أول بأول (onSnapshot يتكفل بذلك فعلياً، مع إضافة loading="lazy" للصور)
     onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {
         const grid = document.getElementById('productsGrid');
         grid.innerHTML = '';
@@ -134,15 +137,20 @@
             card.className = 'product-card';
             card.innerHTML = `
                 <div class="img-wrapper" onclick="openImageModal('${p.image}')">
-                    <img src="${p.image}" class="product-img">
+                    <img src="${p.image}" class="product-img" loading="lazy">
                 </div>
                 <div class="product-info">
                     <h3 style="margin:0; font-size:1.1rem">${p.name}</h3>
                     <p class="price-tag"><small style="font-size:0.8rem; color:#666; font-weight:400">السعر كاش:</small> ${p.price.toLocaleString()} ج.م</p>
                     <p style="color:#888; font-size:0.9rem">مقدم يبدأ من: ${p.downPayment} ج.م</p>
-                    <button class="btn-calc" onclick="openInstallmentCalc('${p.name}', ${p.price}, ${p.downPayment}, ${interestRate})">
-                        <i class="fas fa-calculator"></i> احسب قسطك بنفسك
-                    </button>
+                    <div class="action-btns">
+                        <button class="btn-calc" onclick="openInstallmentCalc('${p.name}', ${p.price}, ${p.downPayment}, ${interestRate})">
+                            <i class="fas fa-calculator"></i> احسب قسطك
+                        </button>
+                        <button class="btn-share" onclick="shareProduct('${p.name}', ${p.price})">
+                            <i class="fas fa-share-alt"></i> مشاركة
+                        </button>
+                    </div>
                     <a href="https://wa.me/${myNumber}?text=أريد الاستفسار عن ${p.name}" class="btn-wa">
                        <i class="fab fa-whatsapp"></i> اطلبه الآن
                     </a>
@@ -150,6 +158,24 @@
             grid.appendChild(card);
         });
     });
+
+    // التعديل الثاني: وظيفة المشاركة
+    window.shareProduct = function(name, price) {
+        const text = `شوف العرض ده من معرض خالد خفاجي للتقسيط:\n${name}\nبسعر كاش: ${price.toLocaleString()} ج.م\nتقدر تقسطه دلوقتي بأسهل الإجراءات!`;
+        const url = window.location.href;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'معرض خالد خفاجي',
+                text: text,
+                url: url
+            }).catch(console.error);
+        } else {
+            // كحل بديل لو المتصفح لا يدعم Share API (يفتح واتساب مباشرة)
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`;
+            window.open(waUrl, '_blank');
+        }
+    };
 
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
@@ -164,7 +190,6 @@
             const querySnapshot = await getDocs(q);
             
             if (!querySnapshot.empty) {
-                // استخراج اسم العميل من أول وثيقة
                 const firstData = querySnapshot.docs[0].data();
                 const clientName = firstData.name || "العميل";
 
@@ -177,7 +202,7 @@
                     const interest = Number(c.interest) || 0;
                     const paid = Number(c.paid) || 0;
                     const months = Number(c.months) || 0;
-                    const productName = c.product || "منتج غير مسمى"; // تأكد من وجود حقل product في قاعدة بياناتك
+                    const productName = c.product || "منتج غير مسمى";
 
                     const totalInstallment = price * (1 + interest);
                     const remaining = totalInstallment - paid;
@@ -206,7 +231,6 @@
                 htmlContent += `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); color:#000; border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px;">إغلاق</button>`;
                 body.innerHTML = htmlContent;
 
-                // تفعيل الأكورديون
                 const acc = body.getElementsByClassName("accordion");
                 for (let i = 0; i < acc.length; i++) {
                     acc[i].addEventListener("click", function() {
