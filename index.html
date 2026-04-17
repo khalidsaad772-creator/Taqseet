@@ -29,7 +29,7 @@
         .post-promo { background: var(--gold); color: #000; display: inline-block; padding: 5px 15px; border-radius: 10px; font-weight: 800; margin-top: 10px; font-size: 0.9rem; }
 
         .search-section { background: #fff; padding: 25px; margin: -30px 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
-        .search-section input { width: 85%; padding: 14px; border: 2px solid #eee; border-radius: 30px; font-family: 'Cairo'; }
+        .search-section input { width: 85%; padding: 14px; border: 2px solid #eee; border-radius: 30px; font-family: 'Cairo'; margin-bottom: 10px; }
 
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; min-height: 400px; }
 
@@ -53,7 +53,6 @@
         .btn-wa { background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark)); color: white; text-decoration: none; padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-weight: 700; border: none; font-size: 1.1rem; animation: pulse-wa 2s infinite; }
         @keyframes pulse-wa { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
 
-        /* تعديل الأزرار لتكون بجانب بعضها */
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .btn-calc, .btn-share { background: #f0f4f8; color: var(--blue-link); border: 1px solid #dce4ec; padding: 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; cursor: pointer; width: 100%; font-family: 'Cairo'; font-size: 0.85rem; }
         .btn-share { color: #555; }
@@ -83,8 +82,9 @@
 </header>
 
 <div class="search-section">
-    <h3 style="margin-top:0">استعلم عن أقساطك 💳</h3>
-    <input type="tel" id="clientPhone" placeholder="أدخل رقم تليفونك مسبوق ب 02">
+    <h3 style="margin-top:0">استعلم عن أقساطك بأمان 🔒</h3>
+    <input type="tel" id="clientPhone" placeholder="أدخل رقم التليفون مسبوق ب 02">
+    <input type="password" id="clientSecret" placeholder="أدخل الكود السري الخاص بك">
     <button onclick="checkInstallments()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:25px; margin-top:10px; font-weight:bold; cursor:pointer;">بحث الآن</button>
 </div>
 
@@ -124,7 +124,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // التعديل الأول: التحميل أول بأول (onSnapshot يتكفل بذلك فعلياً، مع إضافة loading="lazy" للصور)
     onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {
         const grid = document.getElementById('productsGrid');
         grid.innerHTML = '';
@@ -159,19 +158,12 @@
         });
     });
 
-    // التعديل الثاني: وظيفة المشاركة
     window.shareProduct = function(name, price) {
         const text = `شوف العرض ده من معرض خالد خفاجي للتقسيط:\n${name}\nبسعر كاش: ${price.toLocaleString()} ج.م\nتقدر تقسطه دلوقتي بأسهل الإجراءات!`;
         const url = window.location.href;
-
         if (navigator.share) {
-            navigator.share({
-                title: 'معرض خالد خفاجي',
-                text: text,
-                url: url
-            }).catch(console.error);
+            navigator.share({ title: 'معرض خالد خفاجي', text: text, url: url }).catch(console.error);
         } else {
-            // كحل بديل لو المتصفح لا يدعم Share API (يفتح واتساب مباشرة)
             const waUrl = `https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`;
             window.open(waUrl, '_blank');
         }
@@ -179,14 +171,18 @@
 
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
-        if (!phone) { alert("يرجى إدخال رقم التليفون"); return; }
+        const secret = document.getElementById('clientSecret').value.trim();
+
+        if (!phone || !secret) { alert("يرجى إدخال رقم التليفون والكود السري"); return; }
+        
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
-        body.innerHTML = `<p style="text-align:center; padding:40px; color:#666;">جاري البحث عن جميع أقساطك...</p>`;
+        body.innerHTML = `<p style="text-align:center; padding:40px; color:#666;">جاري التحقق والبحث...</p>`;
         
         try {
-            const q = query(collection(db, "clients"), where("phone", "==", phone));
+            // التعديل الأمني: البحث بالهاتف والكود السري معاً
+            const q = query(collection(db, "clients"), where("phone", "==", phone), where("secretCode", "==", secret));
             const querySnapshot = await getDocs(q);
             
             if (!querySnapshot.empty) {
@@ -236,20 +232,13 @@
                     acc[i].addEventListener("click", function() {
                         this.classList.toggle("active");
                         const panel = this.nextElementSibling;
-                        if (panel.style.maxHeight) {
-                            panel.style.maxHeight = null;
-                        } else {
-                            panel.style.maxHeight = panel.scrollHeight + "px";
-                        } 
+                        if (panel.style.maxHeight) { panel.style.maxHeight = null; } else { panel.style.maxHeight = panel.scrollHeight + "px"; } 
                     });
                 }
-                
             } else {
-                body.innerHTML = `<p style="text-align:center; color:#e74c3c; padding:50px 20px; font-size:1.1rem;">رقم التليفون غير مسجل في النظام</p><button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:#eee; border:none; padding:12px; border-radius:12px;">إغلاق</button>`;
+                body.innerHTML = `<p style="text-align:center; color:#e74c3c; padding:50px 20px; font-size:1.1rem;">بيانات الاستعلام غير صحيحة</p><button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:#eee; border:none; padding:12px; border-radius:12px;">إغلاق</button>`;
             }
-        } catch (e) { 
-            body.innerHTML = `<p style="color:red; text-align:center; padding:30px;">حدث خطأ أثناء البحث</p>`; 
-        }
+        } catch (e) { body.innerHTML = `<p style="color:red; text-align:center; padding:30px;">حدث خطأ أثناء البحث</p>`; }
     };
 
     window.openImageModal = function(imageSrc) {
@@ -257,9 +246,7 @@
         document.getElementById('imageModal').style.display = 'flex';
     };
 
-    window.closeImageModal = function() {
-        document.getElementById('imageModal').style.display = 'none';
-    };
+    window.closeImageModal = function() { document.getElementById('imageModal').style.display = 'none'; };
 
     window.openInstallmentCalc = function(name, price, minDown, interest) {
         const modal = document.getElementById('resultModal');
@@ -287,23 +274,12 @@
         const months = parseInt(document.getElementById('monthsCount').value);
         const resultDiv = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
-        
-        if (remaining <= 0) {
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = "المقدم يغطي السعر!";
-            return;
-        }
-
+        if (remaining <= 0) { resultDiv.style.display = 'block'; resultDiv.innerHTML = "المقدم يغطي السعر!"; return; }
         const interestAmount = remaining * (interestRate / 100) * (months / 12);
         const totalWithInterest = remaining + interestAmount;
         const monthly = Math.round(totalWithInterest / months);
-        
         resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `
-            <span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span>
-            <hr style="margin:8px 0; opacity:0.1">
-            <span style="color:#666;">إجمالي الاقساط: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>
-        `;
+        resultDiv.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span><hr style="margin:8px 0; opacity:0.1"><span style="color:#666;">إجمالي الاقساط: ${Math.round(totalWithInterest).toLocaleString()} ج.م</span>`;
     };
 
     window.adminLogin = function() { if(prompt("الباسورد:") === "khalid1234") window.location.href = "admin.html"; }
