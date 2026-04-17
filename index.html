@@ -82,6 +82,15 @@
         .accordion:after { content: '\002B'; color: var(--gold-dark); font-weight: bold; margin-right: 10px; }
         .active:after { content: "\2212"; }
         .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 12px 12px; margin-bottom: 10px; border: 1px solid #f1f1f1; border-top: none; }
+        h2 {
+    animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+        
     </style>
 </head>
 <body>
@@ -99,6 +108,15 @@
     <input type="password" id="clientSecret" placeholder="أدخل الكود السري الخاص بك">
     <button onclick="checkInstallments()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:25px; margin-top:10px; font-weight:bold; cursor:pointer;">بحث الآن</button>
 </div>
+    <div style="text-align: center; margin: 20px 0 10px;">
+    <h2 style="font-family: 'Cairo'; color: var(--dark); font-size: 1.5rem; position: relative; display: inline-block; padding-bottom: 10px;">
+        أحدث المنتجات والعروض المتاحة
+        <span style="display: block; width: 50px; height: 3px; background: var(--gold); margin: 8px auto 0;"></span>
+    </h2>
+    <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">اختر منتجك المفضل واحسب قسطك بسهولة</p>
+</div>
+
+
 
 <div class="container" id="productsGrid"></div>
 
