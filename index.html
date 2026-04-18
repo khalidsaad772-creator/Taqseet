@@ -26,25 +26,23 @@
         header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: white; padding: 45px 10px; text-align: center; border-bottom: 4px solid var(--gold); }
         .logo-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 15px; object-fit: cover; }
         
-        /* التنسيق الجديد لخصم البريد المصري */
-        .post-promo { 
-            background: linear-gradient(90deg, var(--gold-dark), var(--gold)); 
+        /* تنسيق الجملة الجديد بشكل يشبه الزر */
+        .post-promo-tag { 
+            background: var(--gold); 
             color: #000; 
             display: inline-flex; 
-            align-items: center;
+            align-items: center; 
             gap: 8px;
-            padding: 8px 20px; 
-            border-radius: 50px; 
+            padding: 10px 25px; 
+            border-radius: 20px; 
             font-weight: 800; 
             margin-top: 15px; 
-            font-size: 0.95rem; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.85rem; 
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2);
         }
 
         .search-section { background: #fff; padding: 25px; margin: -30px 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
         
-        /* تعديل الـ placeholder والمحاذاة لتصبح متناسقة */
         .search-section input { 
             width: 85%; 
             padding: 14px; 
@@ -53,13 +51,9 @@
             font-family: 'Cairo'; 
             margin-bottom: 10px; 
             text-align: center; 
-            box-sizing: border-box;
+            display: inline-block; 
+            box-sizing: border-box; 
         }
-
-        /* تنسيق عنوان قسم المنتجات */
-        .products-title { text-align: center; margin: 40px 0 20px; }
-        .products-title h2 { font-weight: 800; color: var(--dark); margin-bottom: 5px; }
-        .products-title .line { width: 60px; height: 4px; background: var(--gold); margin: 0 auto; border-radius: 2px; }
 
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: auto; min-height: 400px; }
 
@@ -100,6 +94,8 @@
         .accordion:after { content: '\002B'; color: var(--gold-dark); font-weight: bold; margin-right: 10px; }
         .active:after { content: "\2212"; }
         .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 12px 12px; margin-bottom: 10px; border: 1px solid #f1f1f1; border-top: none; }
+        h2 { animation: fadeInDown 0.8s ease-out; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -108,11 +104,6 @@
     <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" alt="Khalid Logo" class="logo-img">
     <h1 style="margin: 0; font-size: 2rem;">معرض خالد خفاجي</h1>
     <p style="margin: 5px 0 0; color: var(--gold); font-weight: 600;">للتقسيط وخدمات المحمول 📱</p>
-    <div class="post-promo">
-        <i class="fas fa-star"></i>
-        <span>خصم خاص لموظفي البريد المصري</span>
-        <i class="fas fa-star"></i>
-    </div>
 </header>
 
 <div class="search-section">
@@ -122,10 +113,17 @@
     <button onclick="checkInstallments()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:25px; margin-top:10px; font-weight:bold; cursor:pointer;">بحث الآن</button>
 </div>
 
-<div class="products-title">
-    <h2>اكتشف أحدث العروض والمنتجات</h2>
-    <p style="color: #888; font-size: 0.9rem;">أفضل الأسعار وأسهل نظام تقسيط في مصر</p>
-    <div class="line"></div>
+<div style="text-align: center; margin: 20px 0 10px;">
+    <h2 style="font-family: 'Cairo'; color: var(--dark); font-size: 1.5rem; position: relative; display: inline-block; padding-bottom: 10px;">
+        أحدث المنتجات والعروض المتاحة
+        <span style="display: block; width: 50px; height: 3px; background: var(--gold); margin: 8px auto 0;"></span>
+    </h2>
+    <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">أفضل الأسعار وأسهل نظام تقسيط في مصر</p>
+    
+    <div class="post-promo-tag">
+        <i class="fas fa-envelope-open-text"></i>
+        <span>خصم خاص لموظفي البريد المصري 🏤</span>
+    </div>
 </div>
 
 <div class="container" id="productsGrid"></div>
