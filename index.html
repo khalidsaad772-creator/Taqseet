@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     
     <title>معرض خالد خفاجي للتقسيط</title>
-    <meta name="description" content="أسهل نظام تقسيط للموبايلات والأجهزة الكهربائية - خصم خاص لموظفي البريد">
     
     <meta property="og:title" content="معرض خالد خفاجي للتقسيط">
     <meta property="og:description" content="أسهل نظام تقسيط للموبايلات والأجهزة الكهربائية - خصم خاص لموظفي البريد">
@@ -27,12 +26,10 @@
         header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: white; padding: 45px 10px; text-align: center; border-bottom: 4px solid var(--gold); }
         .logo-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 15px; object-fit: cover; }
         
-        /* شريط البحث */
         .search-container-box { max-width: 500px; margin: 20px auto; padding: 0 20px; display: flex; gap: 10px; align-items: center; }
         .search-container-box input { flex: 1; padding: 12px 25px; border-radius: 50px; border: 2px solid var(--gold); outline: none; font-family: 'Cairo'; font-weight: 600; }
         .search-container-box button { width: 45px; height: 45px; border-radius: 50%; border: none; background: var(--gold); color: white; cursor: pointer; }
 
-        /* الأقسام */
         .category-header-btn { background: var(--dark); color: var(--gold); padding: 15px 25px; margin: 10px 20px; border-radius: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; border-right: 6px solid var(--gold); }
         .category-content.hidden { display: none; }
 
@@ -63,7 +60,7 @@
         .footer-call { background: var(--gold); color: black; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; }
 
         .accordion { background-color: #f8f9fa; color: #333; cursor: pointer; padding: 15px; width: 100%; border: 1px solid #eee; text-align: right; border-radius: 12px; margin-bottom: 8px; font-family: 'Cairo'; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border: 1px solid #f1f1f1; border-top: none; }
+        .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 12px 12px; border: 1px solid #f1f1f1; border-top: none; }
     </style>
 </head>
 <body>
@@ -94,7 +91,7 @@
     </div>
 </div>
 
-<div id="finalProductsContainer"></div>
+<div id="productsWrapper"></div>
 
 <div id="resultModal" class="modal">
     <div class="modal-content" id="modalBody"></div>
@@ -143,7 +140,7 @@
     });
 
     function renderCategorized(products) {
-        const area = document.getElementById('finalProductsContainer');
+        const area = document.getElementById('productsWrapper');
         area.innerHTML = '';
         const grouped = products.reduce((acc, p) => {
             const c = p.category || 'other';
@@ -218,31 +215,41 @@
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
         const secret = document.getElementById('clientSecret').value.trim();
+        if (!phone || !secret) { alert("يرجى إدخال رقم التليفون والكود السري"); return; }
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
-        body.innerHTML = `<p style="text-align:center;">جاري البحث...</p>`;
+        body.innerHTML = `<p style="text-align:center; padding:40px; color:#666;">جاري التحقق والبحث...</p>`;
         try {
             const q = query(collection(db, "clients"), where("phone", "==", phone), where("secretCode", "==", secret));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
-                let html = `<h3 style="text-align:center;">مرحباً، ${querySnapshot.docs[0].data().name}</h3>`;
-                querySnapshot.forEach(doc => {
+                const clientName = querySnapshot.docs[0].data().name || "العميل";
+                let htmlContent = `<h3 style="text-align:center; color:#27ae60; margin-bottom:15px;">مرحباً بك، ${clientName}</h3>`;
+                querySnapshot.forEach((doc) => {
                     const c = doc.data();
-                    const total = c.price * (1 + c.interest);
-                    const rem = total - c.paid;
-                    html += `
+                    const price = Number(c.price) || 0;
+                    const interest = Number(c.interest) || 0;
+                    const paid = Number(c.paid) || 0;
+                    const months = Number(c.months) || 0;
+                    const totalInstallment = price * (1 + interest);
+                    const remaining = totalInstallment - paid;
+                    let monthly = months > 0 ? totalInstallment / months : 0;
+                    let remainingMonths = monthly > 0 && remaining > 0 ? Math.ceil(remaining / monthly) : 0;
+                    htmlContent += `
                         <button class="accordion">${c.product || "منتج"}</button>
                         <div class="panel">
-                            <div style="padding:15px;">
-                                <p>الإجمالي: ${Math.round(total).toLocaleString()} ج.م</p>
-                                <p>المدفوع: ${c.paid.toLocaleString()} ج.م</p>
-                                <p style="color:red; font-weight:bold;">المتبقي: ${Math.round(rem).toLocaleString()} ج.م</p>
+                            <div style="padding: 15px; line-height: 2; font-size: 0.95rem; background:#fff;">
+                                <p><strong>إجمالي التقسيط:</strong> ${Math.round(totalInstallment).toLocaleString()} ج.م</p>
+                                <p><strong>المدفوع حتى الآن:</strong> ${paid.toLocaleString()} ج.م</p>
+                                <p style="color:#e74c3c; font-weight:bold; border-top: 1px solid #eee; padding-top:5px;">المتبقي: ${Math.round(remaining).toLocaleString()} ج.م</p>
+                                ${monthly > 0 ? `<p><strong>القسط الشهري:</strong> ${Math.round(monthly).toLocaleString()} ج.م</p>` : ''}
+                                ${remainingMonths > 0 ? `<p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر تقريباً</p>` : ''}
                             </div>
                         </div>`;
                 });
-                html += `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:15px; border-radius:12px; margin-top:10px;">إغلاق</button>`;
-                body.innerHTML = html;
+                htmlContent += `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); color:#000; border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">إغلاق النافذة</button>`;
+                body.innerHTML = htmlContent;
                 const acc = body.getElementsByClassName("accordion");
                 for (let i = 0; i < acc.length; i++) {
                     acc[i].onclick = function() {
@@ -251,8 +258,8 @@
                         panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
                     };
                 }
-            } else { body.innerHTML = `<p style="text-align:center; color:red;">بيانات غير صحيحة</p>`; }
-        } catch (e) { body.innerHTML = `<p>حدث خطأ</p>`; }
+            } else { body.innerHTML = `<p style="text-align:center; color:red; padding:30px;">بيانات الاستعلام غير صحيحة</p>`; }
+        } catch (e) { body.innerHTML = `<p style="text-align:center; color:red; padding:30px;">حدث خطأ أثناء البحث</p>`; }
     };
 
     window.openImageModal = (src) => { document.getElementById('modalImage').src = src; document.getElementById('imageModal').style.display = 'flex'; };
