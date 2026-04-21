@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    
     <title>معرض خالد خفاجي للتقسيط</title>
     
     <meta property="og:title" content="معرض خالد خفاجي للتقسيط">
@@ -91,7 +90,7 @@
     </div>
 </div>
 
-<div id="productsWrapper"></div>
+<div id="mainContentArea"></div>
 
 <div id="resultModal" class="modal">
     <div class="modal-content" id="modalBody"></div>
@@ -140,7 +139,7 @@
     });
 
     function renderCategorized(products) {
-        const area = document.getElementById('productsWrapper');
+        const area = document.getElementById('mainContentArea');
         area.innerHTML = '';
         const grouped = products.reduce((acc, p) => {
             const c = p.category || 'other';
@@ -215,11 +214,11 @@
     window.checkInstallments = async function() {
         const phone = document.getElementById('clientPhone').value.trim();
         const secret = document.getElementById('clientSecret').value.trim();
-        if (!phone || !secret) { alert("يرجى إدخال رقم التليفون والكود السري"); return; }
         const modal = document.getElementById('resultModal');
         const body = document.getElementById('modalBody');
         modal.style.display = 'flex';
-        body.innerHTML = `<p style="text-align:center; padding:40px; color:#666;">جاري التحقق والبحث...</p>`;
+        body.innerHTML = `<p style="text-align:center; padding:40px;">جاري التحقق والبحث...</p>`;
+        
         try {
             const q = query(collection(db, "clients"), where("phone", "==", phone), where("secretCode", "==", secret));
             const querySnapshot = await getDocs(q);
@@ -228,38 +227,47 @@
                 let htmlContent = `<h3 style="text-align:center; color:#27ae60; margin-bottom:15px;">مرحباً بك، ${clientName}</h3>`;
                 querySnapshot.forEach((doc) => {
                     const c = doc.data();
-                    const price = Number(c.price) || 0;
-                    const interest = Number(c.interest) || 0;
-                    const paid = Number(c.paid) || 0;
-                    const months = Number(c.months) || 0;
-                    const totalInstallment = price * (1 + interest);
-                    const remaining = totalInstallment - paid;
-                    let monthly = months > 0 ? totalInstallment / months : 0;
-                    let remainingMonths = monthly > 0 && remaining > 0 ? Math.ceil(remaining / monthly) : 0;
+                    const totalInstallment = c.price * (1 + c.interest);
+                    const remaining = totalInstallment - c.paid;
+                    let monthly = c.months > 0 ? totalInstallment / c.months : 0;
+                    let remainingMonths = (monthly > 0 && remaining > 0) ? Math.ceil(remaining / monthly) : 0;
+                    
                     htmlContent += `
-                        <button class="accordion">${c.product || "منتج"}</button>
+                        <button class="accordion"><span>${c.product || "منتج"}</span> <i class="fas fa-plus"></i></button>
                         <div class="panel">
-                            <div style="padding: 15px; line-height: 2; font-size: 0.95rem; background:#fff;">
+                            <div style="padding: 15px; line-height: 2; font-size: 0.95rem;">
                                 <p><strong>إجمالي التقسيط:</strong> ${Math.round(totalInstallment).toLocaleString()} ج.م</p>
-                                <p><strong>المدفوع حتى الآن:</strong> ${paid.toLocaleString()} ج.م</p>
-                                <p style="color:#e74c3c; font-weight:bold; border-top: 1px solid #eee; padding-top:5px;">المتبقي: ${Math.round(remaining).toLocaleString()} ج.م</p>
+                                <p><strong>المدفوع:</strong> ${c.paid.toLocaleString()} ج.م</p>
+                                <p style="color:#e74c3c; font-weight:bold;">المتبقي: ${Math.round(remaining).toLocaleString()} ج.م</p>
                                 ${monthly > 0 ? `<p><strong>القسط الشهري:</strong> ${Math.round(monthly).toLocaleString()} ج.م</p>` : ''}
                                 ${remainingMonths > 0 ? `<p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر تقريباً</p>` : ''}
                             </div>
                         </div>`;
                 });
-                htmlContent += `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); color:#000; border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">إغلاق النافذة</button>`;
+                htmlContent += `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">إغلاق</button>`;
                 body.innerHTML = htmlContent;
+                
                 const acc = body.getElementsByClassName("accordion");
                 for (let i = 0; i < acc.length; i++) {
                     acc[i].onclick = function() {
                         this.classList.toggle("active");
                         const panel = this.nextElementSibling;
                         panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+                        const icon = this.querySelector('i');
+                        icon.classList.toggle('fa-plus');
+                        icon.classList.toggle('fa-minus');
                     };
                 }
-            } else { body.innerHTML = `<p style="text-align:center; color:red; padding:30px;">بيانات الاستعلام غير صحيحة</p>`; }
-        } catch (e) { body.innerHTML = `<p style="text-align:center; color:red; padding:30px;">حدث خطأ أثناء البحث</p>`; }
+            } else { 
+                body.innerHTML = `
+                    <div style="text-align:center; padding:30px;">
+                        <p style="color:red; font-size:1.1rem; margin-bottom:20px;">بيانات الاستعلام غير صحيحة</p>
+                        <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">إغلاق</button>
+                    </div>`;
+            }
+        } catch (e) { 
+            body.innerHTML = `<p style="text-align:center; padding:30px; color:red;">حدث خطأ أثناء البحث</p><button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">إغلاق</button>`;
+        }
     };
 
     window.openImageModal = (src) => { document.getElementById('modalImage').src = src; document.getElementById('imageModal').style.display = 'flex'; };
@@ -278,9 +286,9 @@
                 <option value="12" selected>12 شهر</option>
                 <option value="18">18 شهر</option>
             </select>
-            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold">احسب</button>
+            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">احسب</button>
             <div id="finalCalcResult" style="margin-top:15px; text-align:center; font-weight:bold; background:#f9f9f9; padding:10px; border-radius:10px; display:none;"></div>
-            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px">إغلاق</button>
+            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px; cursor:pointer;">إغلاق</button>
         `;
     };
 
@@ -289,8 +297,7 @@
         const months = parseInt(document.getElementById('monthsCount').value);
         const resultDiv = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
-        const interestAmount = remaining * (interestRate / 100) * (months / 12);
-        const total = remaining + interestAmount;
+        const total = remaining + (remaining * (interestRate / 100) * (months / 12));
         const monthly = Math.round(total / months);
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span><hr style="opacity:0.1"><span style="color:#666;">إجمالي الأقساط: ${Math.round(total).toLocaleString()} ج.م</span>`;
