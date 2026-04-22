@@ -72,6 +72,14 @@
 
         .accordion { background-color: #f8f9fa; color: #333; cursor: pointer; padding: 15px; width: 100%; border: 1px solid #eee; text-align: right; border-radius: 12px; margin-bottom: 8px; font-family: 'Cairo'; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 12px 12px; border: 1px solid #f1f1f1; border-top: none; }
+
+        /* ستايل الـ Skeleton Loader (Bones) */
+        .skeleton-card { background: white; border-radius: 25px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .skeleton-img { width: 100%; height: 220px; background: #e0e0e0; border-radius: 20px; }
+        .skeleton-text { width: 80%; height: 20px; background: #e0e0e0; border-radius: 10px; }
+        .skeleton-text.short { width: 50%; }
+        .loading-shimmer { background: linear-gradient(90deg, #eeeeee 25%, #f5f5f5 50%, #eeeeee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body>
@@ -110,7 +118,13 @@
     </div>
 </div>
 
-<div id="mainContentArea"></div>
+<div id="mainContentArea">
+    <div class="container">
+        <div class="skeleton-card"><div class="skeleton-img loading-shimmer"></div><div class="skeleton-text loading-shimmer"></div><div class="skeleton-text short loading-shimmer"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img loading-shimmer"></div><div class="skeleton-text loading-shimmer"></div><div class="skeleton-text short loading-shimmer"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img loading-shimmer"></div><div class="skeleton-text loading-shimmer"></div><div class="skeleton-text short loading-shimmer"></div></div>
+    </div>
+</div>
 
 <div id="resultModal" class="modal">
     <div class="modal-content" id="modalBody"></div>
@@ -153,8 +167,10 @@
     window.addEventListener('load', () => {
         setTimeout(() => {
             const toast = document.getElementById('installToast');
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 10000);
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 12000);
+            }
         }, 3000);
     });
 
@@ -163,21 +179,16 @@
         deferredPrompt = e;
     });
 
-        window.installApp = async () => {
+    window.installApp = async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('تم التثبيت بنجاح');
-            }
+            await deferredPrompt.userChoice;
             deferredPrompt = null;
             document.getElementById('installToast').classList.remove('show');
         } else {
-            // لو المتصفح لسه مأداش الإذن، بنحاول نخليه يظهر القائمة الرسمية لو متاح
-            alert("المتصفح يجهز ملفات التطبيق.. حاول مرة أخرى خلال ثوانٍ أو استخدم 'الإضافة للشاشة الرئيسية' من قائمة المتصفح");
+            alert("لتثبيت التطبيق: اذهب لإعدادات المتصفح (3 نقاط) واختر 'إضافة للشاشة الرئيسية' أو 'تثبيت التطبيق' 📲");
         }
     };
-
 
     const categoryNames = {
         'mobiles_new': '📱 موبايلات جديدة',
