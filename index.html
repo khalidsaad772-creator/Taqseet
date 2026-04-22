@@ -163,16 +163,21 @@
         deferredPrompt = e;
     });
 
-    window.installApp = async () => {
+        window.installApp = async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('تم التثبيت بنجاح');
+            }
             deferredPrompt = null;
+            document.getElementById('installToast').classList.remove('show');
         } else {
-            alert("يمكنك إضافة الموقع لسطح المكتب من خلال إعدادات المتصفح (Add to Home Screen)");
+            // لو المتصفح لسه مأداش الإذن، بنحاول نخليه يظهر القائمة الرسمية لو متاح
+            alert("المتصفح يجهز ملفات التطبيق.. حاول مرة أخرى خلال ثوانٍ أو استخدم 'الإضافة للشاشة الرئيسية' من قائمة المتصفح");
         }
-        document.getElementById('installToast').classList.remove('show');
     };
+
 
     const categoryNames = {
         'mobiles_new': '📱 موبايلات جديدة',
