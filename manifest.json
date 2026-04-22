@@ -18,3 +18,19 @@
     }
   ]
 }
+
+{
+  "name": "معرض خالد خفاجي للتقسيط",
+  "short_name": "خالد خفاجي",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/XgdnJ7Y/lv-0.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
