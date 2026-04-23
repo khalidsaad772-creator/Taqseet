@@ -8,142 +8,123 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#d4af37">
 
-    <meta property="og:title" content="معرض خالد خفاجي للتقسيط">
-    <meta property="og:description" content="أسهل نظام تقسيط للموبايلات والأجهزة الكهربائية">
-    <meta property="og:image" content="https://i.ibb.co/XgdnJ7Y/lv-0.jpg">
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         :root { 
-            --gold: #d4af37; --gold-dark: #b8860b; --dark: #121212; 
+            --gold: #d4af37; --gold-dark: #b8860b; --dark: #1a1a1a; 
             --green-wa: #25D366; --green-wa-dark: #128C7E;
-            --blue-link: #3498db; --bg: #f4f6f8; --card-bg: #ffffff;
+            --blue-link: #3498db; --bg: #f8f9fa; --card-bg: #ffffff;
         }
 
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding-bottom: 0; color: #2d3436; overflow-x: hidden; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding-bottom: 0; color: #333; }
 
-        /* الهيدر بلمسة عصرية */
-        header { background: var(--dark); color: white; padding: 40px 15px; text-align: center; border-bottom: 5px solid var(--gold); position: relative; }
-        .logo-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 12px; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        header h1 { font-weight: 900; font-size: 1.8rem; margin: 0; letter-spacing: -1px; }
+        header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: white; padding: 45px 10px; text-align: center; border-bottom: 4px solid var(--gold); }
+        .logo-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 15px; object-fit: cover; }
         
-        /* البحث - ستايل نظيف */
-        .search-container-box { max-width: 600px; margin: -25px auto 20px; padding: 0 15px; display: flex; gap: 8px; position: relative; z-index: 10; }
-        .search-container-box input { flex: 1; padding: 15px 25px; border-radius: 12px; border: none; outline: none; font-family: 'Cairo'; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 0.95rem; }
-        .search-container-box button { width: 50px; border-radius: 12px; border: none; background: var(--gold); color: var(--dark); cursor: pointer; box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3); font-size: 1.1rem; }
+        #installToast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--gold); padding: 15px 25px; border-radius: 30px; z-index: 20000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: top 0.5s ease; font-size: 0.9rem; font-weight: bold; text-align: center; width: 85%; max-width: 400px; border: 2px solid var(--gold); cursor: pointer; }
+        #installToast.show { top: 20px; }
 
-        /* قسم الاستعلام - بسيط ومنظم */
-        .search-section { background: var(--card-bg); padding: 25px; margin: 10px 15px 30px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; border: 1px solid #edf2f7; }
-        .search-section h3 { margin-bottom: 15px; font-size: 1.1rem; color: var(--dark); }
-        .search-section input { width: 100%; max-width: 300px; padding: 12px 15px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: 'Cairo'; margin-bottom: 10px; outline: none; transition: 0.3s; background: #fafafa; }
-        .search-section input:focus { border-color: var(--gold); background: #fff; }
-        .search-section button { background: var(--dark); color: var(--gold); border: none; padding: 12px 35px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; max-width: 300px; }
+        .search-container-box { max-width: 600px; margin: -25px auto 20px; padding: 0 20px; display: flex; gap: 10px; position: relative; z-index: 10; }
+        .search-container-box input { flex: 1; padding: 15px 25px; border-radius: 50px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); outline: none; font-family: 'Cairo'; font-weight: 600; }
+        .search-container-box button { width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--gold); color: white; cursor: pointer; box-shadow: 0 10px 25px rgba(212,175,55,0.3); }
 
-        /* الحاوية وتوزيع الكروت */
-        .container { 
-            padding: 15px; 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
-            gap: 15px; 
-            max-width: 1200px; 
-            margin: auto; 
-        }
+        #noProductMessage { display: none; text-align: center; background: #fff; color: #e74c3c; padding: 15px; margin: 10px 20px; border-radius: 15px; border: 1px dashed var(--gold); font-weight: bold; font-size: 0.9rem; }
+        #noProductMessage a { color: var(--green-wa-dark); text-decoration: underline; margin: 0 5px; }
 
-        /* كارت المنتج - مستوحى من كيمو ستور */
-        .product-card { background: var(--card-bg); border-radius: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #f0f0f0; transition: transform 0.3s ease; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-        
-        .img-wrapper { position: relative; width: 100%; height: 200px; background: #fcfcfc; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
-        .product-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        
-        .product-info { padding: 12px; text-align: right; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-info h3 { margin: 0; font-size: 0.95rem; color: #1a202c; font-weight: 700; line-height: 1.4; height: 2.8em; overflow: hidden; }
-        
-        .price-tag { color: #2d3436; font-weight: 800; font-size: 1.1rem; margin: 8px 0 2px; }
-        .installment-badge { font-size: 0.8rem; color: #718096; margin-bottom: 12px; background: #f7fafc; padding: 4px 8px; border-radius: 6px; display: inline-block; width: fit-content; }
-        
-        /* أزرار الأكشن - أنيقة */
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-        .btn-calc, .btn-share { background: #f1f5f9; color: #4a5568; border: none; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: 'Cairo'; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        
-        .btn-wa { background: var(--dark); color: var(--gold); text-decoration: none; padding: 10px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 0.9rem; margin-top: auto; border: 1.5px solid var(--gold); }
+        .search-section { background: #fff; padding: 25px; margin: 20px 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
+        .search-section input { width: 85%; padding: 14px; border: 2px solid #eee; border-radius: 30px; font-family: 'Cairo'; margin-bottom: 10px; text-align: center; display: inline-block; box-sizing: border-box; }
+        .search-section button { background: var(--gold); border: none; padding: 12px 35px; border-radius: 25px; margin-top: 10px; font-weight: bold; cursor: pointer; }
 
-        /* العناوين والأقسام */
-        .category-header-btn { background: #fff; color: var(--dark); padding: 15px; margin: 10px 15px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; border: 1px solid #edf2f7; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .category-header-btn span { border-right: 4px solid var(--gold); padding-right: 10px; }
+        .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 20px; max-width: 1200px; margin: auto; }
 
-        /* المودال */
-        .modal-content { border-radius: 24px; border-top: 8px solid var(--gold); padding: 30px; }
+        .product-card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #f0f0f0; transition: 0.3s; }
+        .img-wrapper { width: 100%; height: 210px; background: #fff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; cursor: pointer; }
+        .product-img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        
+        .product-info { padding: 15px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-info h3 { margin: 0; font-size: 1rem; color: #333; font-weight: 700; height: 2.8em; overflow: hidden; }
+        .price-tag { color: #2ecc71; font-weight: 800; font-size: 1.2rem; margin: 8px 0; }
+        
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; margin-bottom: 10px; }
+        .btn-calc, .btn-share { background: #f0f4f8; color: var(--blue-link); border: 1px solid #dce4ec; padding: 10px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; cursor: pointer; font-family: 'Cairo'; font-size: 0.8rem; }
+
+        .btn-wa { background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark)); color: white; text-decoration: none; padding: 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 1rem; margin-top: auto; }
+
+        .category-header-btn { background: var(--dark); color: var(--gold); padding: 15px 25px; margin: 10px 20px; border-radius: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; border-right: 6px solid var(--gold); }
+        .category-content.hidden { display: none; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: right; border-top: 6px solid var(--gold); max-height: 80vh; overflow-y: auto; }
+
+        .accordion { background-color: #f8f9fa; color: #333; cursor: pointer; padding: 15px; width: 100%; border: 1px solid #eee; text-align: right; border-radius: 12px; margin-bottom: 8px; font-family: 'Cairo'; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 12px 12px; border: 1px solid #f1f1f1; border-top: none; }
+
+        footer { background: #1a1a1a; color: white; padding: 30px 10px; text-align: center; border-top: 4px solid var(--gold); margin-top: 50px; }
+        .footer-call { background: var(--gold); color: black; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; }
 
         @media (min-width: 768px) {
-            .container { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+            .container { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
             .img-wrapper { height: 280px; }
-            .product-info h3 { font-size: 1.1rem; }
         }
-
-        /* Skeleton Shimmer */
-        .skeleton-card { background: white; border-radius: 18px; padding: 15px; }
-        .skeleton-img { width: 100%; height: 180px; background: #eee; border-radius: 12px; margin-bottom: 10px; }
-        .skeleton-text { width: 100%; height: 15px; background: #eee; border-radius: 4px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
+<div id="installToast" onclick="installApp()">اضغط هنا لتثبيت معرض خفاجي على موبايلك 📱</div>
+
 <header>
-    <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" alt="Khalid Logo" class="logo-img">
-    <h1>معرض خالد خفاجي</h1>
-    <p style="margin: 5px 0 0; color: var(--gold); font-size: 0.9rem;">أمان.. ثقة.. سهولة في التقسيط 📱</p>
+    <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" class="logo-img">
+    <h1 style="margin: 0; font-size: 2rem;">معرض خالد خفاجي</h1>
+    <p style="margin: 5px 0 0; color: var(--gold); font-weight: 600;">للتقسيط وخدمات المحمول 📱</p>
 </header>
 
 <div class="search-container-box">
-    <input type="text" id="searchInput" placeholder="بتدور على إيه؟ (ايفون، بوكو، ثلاجة...)" oninput="filterProducts()">
+    <input type="text" id="searchInput" placeholder="ابحث عن موبايل أو جهاز..." oninput="filterProducts()">
     <button onclick="filterProducts()"><i class="fas fa-search"></i></button>
 </div>
 
+<div id="noProductMessage">
+    هذا المنتج غير موجود حالياً.. يمكنك طلبه مباشرة عبر 
+    <a href="https://wa.me/201095890589?text=أريد طلب منتج غير موجود بالموقع">الواتساب</a> 
+    أو الاتصال بنا هاتفياً.
+</div>
+
 <div class="search-section">
-    <h3><i class="fas fa-user-lock" style="color:var(--gold)"></i> منطقة العملاء</h3>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-        <input type="tel" id="clientPhone" placeholder="رقم التليفون (مسبوق بـ 02)">
-        <input type="password" id="clientSecret" placeholder="الكود السري">
-        <button onclick="checkInstallments()">استعلم عن قسطك</button>
+    <h3 style="margin-top:0">استعلم عن أقساطك بأمان 🔒</h3>
+    <input type="tel" id="clientPhone" placeholder="أدخل رقم التليفون مسبوق بـ 02">
+    <input type="password" id="clientSecret" placeholder="أدخل الكود السري الخاص بك">
+    <button onclick="checkInstallments()"> استعلم </button>
+</div>
+
+<div style="text-align: center; margin: 20px 0 10px;">
+    <h2 style="font-family: 'Cairo'; color: var(--dark); font-size: 1.5rem;">أحدث المنتجات والعروض المتاحة</h2>
+    <div style="background: var(--gold); color: #000; display: inline-flex; align-items: center; gap: 8px; padding: 10px 25px; border-radius: 20px; font-weight: 800; margin-top: 15px; font-size: 0.85rem;">
+        <i class="fas fa-envelope-open-text"></i>
+        <span>خصم خاص لموظفي البريد المصري 🏤</span>
     </div>
 </div>
 
-<div style="text-align: center; margin: 20px 15px;">
-    <div style="background: #fff; color: #1a1a1a; display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; border: 1px solid var(--gold); box-shadow: 0 4px 15px rgba(212,175,55,0.1);">
-        <i class="fas fa-certificate" style="color:var(--gold)"></i>
-        <span>خصم خاص وحصري لموظفي البريد المصري 🏤</span>
-    </div>
+<div id="mainContentArea"></div>
+
+<div id="resultModal" class="modal">
+    <div class="modal-content" id="modalBody"></div>
 </div>
 
-<div id="mainContentArea">
-    <div class="container">
-        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text" style="width:60%"></div></div>
-        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text" style="width:60%"></div></div>
-    </div>
+<div id="imageModal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10001; justify-content:center; align-items:center;">
+    <img id="modalImage" src="" style="max-width:95%; max-height:90vh; border-radius:10px;">
 </div>
 
-<div id="resultModal" class="modal" onclick="if(event.target==this)this.style.display='none'">
-    <div class="modal-content" id="modalBody" onclick="event.stopPropagation()"></div>
-</div>
-
-<div id="imageModal" onclick="this.style.display='none'" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center;">
-    <button class="close-btn" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 40px; cursor: pointer;">&times;</button>
-    <img id="modalImage" src="" style="max-width: 95%; max-height: 90vh; border-radius: 10px;">
-</div>
-
-<footer style="background:var(--dark); color:#fff; padding:40px 20px; text-align:center; border-top:4px solid var(--gold)">
-    <p style="margin:0; font-weight:700">معرض خالد خفاجي للتقسيط © 2026</p>
-    <p style="font-size:0.85rem; color:#888; margin:10px 0 20px">كفر الشيخ - لخدمة الزملاء والأصدقاء</p>
-    <a href="tel:01095890589" style="background:var(--gold); color:var(--dark); padding:12px 25px; border-radius:50px; text-decoration:none; font-weight:900; display:inline-flex; align-items:center; gap:10px;">
-        <i class="fas fa-phone-alt"></i> 01095890589
+<footer>
+    <p style="margin:0">جميع الحقوق محفوظة © معرض خالد خفاجي للتقسيط - كفر الشيخ</p>
+    <p style="font-size: 0.9rem; color: #888; margin-top: 5px;">نرحب بزيارتكم في أي وقت</p>
+    <a href="tel:01095890589" class="footer-call">
+        <i class="fas fa-phone-alt"></i> اتصل بنا: 01095890589
     </a>
 </footer>
 
 <script type="module">
-    // --- منطق Firebase (لم نلمس فيه حرفاً) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -158,13 +139,30 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let allProducts = [];
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const toast = document.getElementById('installToast');
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 10000);
+            }
+        }, 3000);
+    });
+
+    window.installApp = async () => {
+        if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+        else { alert("لتثبيت التطبيق: اذهب لإعدادات المتصفح واختر 'إضافة للشاشة الرئيسية' 📲"); }
+    };
 
     const categoryNames = {
         'mobiles_new': '📱 موبايلات جديدة',
-        'mobiles_used': '✨ كسر زيرو',
-        'appliances_new': '🧺 أجهزة منزلية',
-        'appliances_used': '🔌 أجهزة مستعملة',
-        'other': '📦 عروض أخرى'
+        'mobiles_used': '✨ موبايلات كسر زيرو',
+        'appliances_new': '🧺 أجهزة كهربائية جديدة',
+        'appliances_used': '🔌 أجهزة كسر زيرو',
+        'other': '📦 عروض متنوعة'
     };
 
     onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {
@@ -174,8 +172,11 @@
 
     function renderCategorized(products) {
         const area = document.getElementById('mainContentArea');
+        const noProductMsg = document.getElementById('noProductMessage');
         area.innerHTML = '';
         
+        noProductMsg.style.display = (products.length === 0 && allProducts.length > 0) ? 'block' : 'none';
+
         const grouped = products.reduce((acc, p) => {
             const c = p.category || 'other';
             if (!acc[c]) acc[c] = [];
@@ -187,8 +188,7 @@
             if (grouped[key] && grouped[key].length > 0) {
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `<div class="category-header-btn" onclick="this.nextElementSibling.classList.toggle('hidden')">
-                                        <span>${categoryNames[key]}</span>
-                                        <i class="fas fa-chevron-down"></i>
+                                        <span>${categoryNames[key]}</span> <i class="fas fa-chevron-down"></i>
                                      </div>`;
                 
                 const content = document.createElement('div');
@@ -204,23 +204,23 @@
                             </div>
                             <div class="product-info">
                                 <h3>${p.name}</h3>
-                                <div class="price-tag">${p.price.toLocaleString()} ج.م</div>
-                                <div class="installment-badge">مقدم: ${p.downPayment} ج.م</div>
+                                <p style="color:#666; font-size:0.8rem; margin:5px 0;">${p.description || ''}</p>
+                                <p class="price-tag"><small style="font-size:0.8rem; color:#666; font-weight:400">السعر كاش:</small> ${p.price.toLocaleString()} ج.م</p>
+                                <p style="color:#888; font-size:0.9rem">مقدم يبدأ من: ${p.downPayment} ج.م</p>
                                 <div class="action-btns">
                                     <button class="btn-calc" onclick="openInstallmentCalc('${p.name}', ${p.price}, ${p.downPayment}, ${p.interestRate || 20})">
-                                        <i class="fas fa-calculator"></i> احسب
+                                        <i class="fas fa-calculator"></i> احسب قسطك
                                     </button>
                                     <button class="btn-share" onclick="shareProduct('${p.name}', ${p.price})">
-                                        <i class="fas fa-share-alt"></i>
+                                        <i class="fas fa-share-alt"></i> مشاركة
                                     </button>
                                 </div>
-                                <a href="https://wa.me/201095890589?text=استفسار عن ${p.name}" class="btn-wa">
-                                   <i class="fab fa-whatsapp"></i> اطلب الآن
+                                <a href="https://wa.me/201095890589?text=أريد الاستفسار عن ${p.name}" class="btn-wa">
+                                   <i class="fab fa-whatsapp"></i> اطلبه الآن
                                 </a>
                             </div>
                         </div>`;
                 });
-
                 content.appendChild(grid);
                 wrapper.appendChild(content);
                 area.appendChild(wrapper);
@@ -228,84 +228,90 @@
         });
     }
 
-    // --- الوظائف المساعدة (نفس برمجتك تماماً) ---
-    window.openImageModal = (src) => { document.getElementById('modalImage').src = src; document.getElementById('imageModal').style.display = 'flex'; };
-    
     window.filterProducts = () => {
         const term = document.getElementById('searchInput').value.toLowerCase();
         const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
         renderCategorized(filtered);
     };
 
+    window.openImageModal = (src) => { document.getElementById('modalImage').src = src; document.getElementById('imageModal').style.display = 'flex'; };
+
     window.shareProduct = (name, price) => {
-        const text = `عرض من معرض خالد خفاجي:\n${name}\nكاش: ${price.toLocaleString()} ج.م`;
+        const text = `شوف العرض ده من معرض خالد خفاجي للتقسيط:\n${name}\nبسعر كاش: ${price.toLocaleString()} ج.م`;
         if (navigator.share) navigator.share({ title: 'معرض خالد خفاجي', text: text, url: window.location.href });
+    };
+
+    window.checkInstallments = async function() {
+        const phone = document.getElementById('clientPhone').value.trim();
+        const secret = document.getElementById('clientSecret').value.trim();
+        const modal = document.getElementById('resultModal');
+        const body = document.getElementById('modalBody');
+        if(!phone || !secret) return alert("برجاء إدخال البيانات");
+
+        modal.style.display = 'flex';
+        body.innerHTML = `<p style="text-align:center; padding:40px;">جاري التحقق والبحث...</p>`;
+        
+        try {
+            const q = query(collection(db, "clients"), where("phone", "==", phone), where("secretCode", "==", secret));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+                let html = `<h3 style="text-align:center; color:#27ae60; margin-bottom:15px;">مرحباً بك، ${snap.docs[0].data().name}</h3>`;
+                snap.forEach(doc => {
+                    const c = doc.data();
+                    const total = c.price * (1 + c.interest);
+                    const remaining = total - c.paid;
+                    let monthly = c.months > 0 ? total / c.months : 0;
+                    html += `
+                        <button class="accordion" onclick="toggleAcc(this)"><span>${c.product || "منتج"}</span> <i class="fas fa-plus"></i></button>
+                        <div class="panel">
+                            <div style="padding:15px; line-height:2; font-size:0.95rem;">
+                                <p><strong>إجمالي التقسيط:</strong> ${Math.round(total).toLocaleString()} ج.م</p>
+                                <p><strong>المدفوع:</strong> ${c.paid.toLocaleString()} ج.م</p>
+                                <p style="color:#e74c3c; font-weight:bold;">المتبقي: ${Math.round(remaining).toLocaleString()} ج.م</p>
+                                ${monthly > 0 ? `<p><strong>القسط الشهري:</strong> ${Math.round(monthly).toLocaleString()} ج.م</p>` : ''}
+                            </div>
+                        </div>`;
+                });
+                body.innerHTML = html + `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">إغلاق</button>`;
+            } else { body.innerHTML = `<p style="color:red; text-align:center; padding:30px;">بيانات الاستعلام غير صحيحة</p><button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">إغلاق</button>`; }
+        } catch (e) { body.innerHTML = `<p style="text-align:center; padding:30px; color:red;">حدث خطأ أثناء البحث</p>`; }
+    };
+
+    window.toggleAcc = (el) => {
+        el.classList.toggle("active");
+        const panel = el.nextElementSibling;
+        panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+        el.querySelector('i').classList.toggle('fa-plus');
+        el.querySelector('i').classList.toggle('fa-minus');
     };
 
     window.openInstallmentCalc = (name, price, minDown, interest) => {
         const body = document.getElementById('modalBody');
         document.getElementById('resultModal').style.display = 'flex';
         body.innerHTML = `
-            <h3 style="text-align:center; margin-bottom:20px;">🧮 حاسبة التقسيط</h3>
-            <p style="font-weight:700; color:var(--dark)">${name}</p>
-            <div style="margin:15px 0">
-                <label style="display:block; margin-bottom:5px; font-size:0.9rem">المقدم المتاح معاك:</label>
-                <input type="number" id="userDown" style="width:100%; padding:12px; border-radius:10px; border:1.5px solid #eee" value="${minDown}">
-            </div>
-            <div style="margin:15px 0">
-                <label style="display:block; margin-bottom:5px; font-size:0.9rem">مدة التقسيط:</label>
-                <select id="monthsCount" style="width:100%; padding:12px; border-radius:10px; border:1.5px solid #eee">
-                    <option value="6">6 شهور</option>
-                    <option value="12" selected>12 شهر (سنة)</option>
-                    <option value="18">18 شهر</option>
-                    <option value="24">24 شهر (سنتين)</option>
-                </select>
-            </div>
-            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--dark); color:var(--gold); border:none; padding:15px; border-radius:10px; font-weight:800; cursor:pointer;">احسب القسط الشهري</button>
-            <div id="finalCalcResult" style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:10px; text-align:center; display:none; border:1px dashed var(--gold)"></div>
+            <h3 style="text-align:center">🧮 حاسبة التقسيط لـ <br>${name}</h3>
+            <label>المقدم:</label>
+            <input type="number" id="userDown" style="width:90%; border:1px solid #ddd; border-radius:10px; margin:10px 0; padding:10px" value="${minDown}">
+            <label>الشهور:</label>
+            <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0; border-radius:10px">
+                <option value="6">6 شهور</option>
+                <option value="12" selected>12 شهر</option>
+                <option value="18">18 شهر</option>
+            </select>
+            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">احسب</button>
+            <div id="finalCalcResult" style="margin-top:15px; text-align:center; font-weight:bold; background:#f9f9f9; padding:10px; border-radius:10px; display:none;"></div>
+            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px; cursor:pointer;">إغلاق</button>
         `;
     };
 
     window.calculateResult = (price, interestRate) => {
         const userDown = parseFloat(document.getElementById('userDown').value) || 0;
         const months = parseInt(document.getElementById('monthsCount').value);
-        const resultDiv = document.getElementById('finalCalcResult');
+        const res = document.getElementById('finalCalcResult');
         const remaining = price - userDown;
         const total = remaining + (remaining * (interestRate / 100) * (months / 12));
-        const monthly = Math.round(total / months);
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `<div style="font-size:1.2rem; color:#27ae60;">قسطك: <b>${monthly.toLocaleString()} ج.م</b> / شهر</div>
-                               <div style="font-size:0.8rem; color:#777; margin-top:5px;">إجمالي المبلغ المتبقي بالفوائد: ${Math.round(total).toLocaleString()} ج.م</div>`;
-    };
-
-    window.checkInstallments = async () => {
-        const phone = document.getElementById('clientPhone').value.trim();
-        const secret = document.getElementById('clientSecret').value.trim();
-        const modal = document.getElementById('resultModal');
-        const body = document.getElementById('modalBody');
-        if(!phone || !secret) return alert("برجاء ادخال البيانات");
-        
-        modal.style.display = 'flex';
-        body.innerHTML = `<p style="text-align:center">جاري البحث عن بياناتك...</p>`;
-        
-        try {
-            const q = query(collection(db, "clients"), where("phone", "==", phone), where("secretCode", "==", secret));
-            const snap = await getDocs(q);
-            if (!snap.empty) {
-                let html = `<h3 style="color:var(--dark)">أهلاً بك، ${snap.docs[0].data().name} 👋</h3>`;
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const remaining = (data.price * (1 + data.interest)) - data.paid;
-                    html += `<div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-top:10px; border-right:4px solid var(--gold)">
-                                <b>📦 المنتج: ${data.product}</b><br>
-                                <small>المتبقي عليك: ${Math.round(remaining).toLocaleString()} ج.م</small>
-                             </div>`;
-                });
-                body.innerHTML = html + `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:#eee; border-radius:10px;">إغلاق</button>`;
-            } else {
-                body.innerHTML = `<p style="color:red; text-align:center">عفواً، البيانات غير صحيحة!</p>`;
-            }
-        } catch (e) { body.innerHTML = "خطأ في الاتصال"; }
+        res.style.display = 'block';
+        res.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${Math.round(total/months).toLocaleString()} ج.م</span><hr style="opacity:0.1"><span>إجمالي الأقساط: ${Math.round(total).toLocaleString()} ج.م</span>`;
     };
 </script>
 </body>
