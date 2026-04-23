@@ -5,210 +5,249 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>معرض خالد خفاجي للتقسيط</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
+
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-:root { 
-    --gold: #d4af37;
-    --dark: #1a1a1a;
-    --bg: #f6f7f9;
-    --green: #25D366;
+:root{
+--gold:#d4af37;
+--dark:#1a1a1a;
+--bg:#f6f7f9;
+--green:#25D366;
 }
 
 /* ===== BASE ===== */
-body {
-    font-family: 'Cairo', sans-serif;
-    background: var(--bg);
-    margin: 0;
-    color: #333;
+body{
+font-family:'Cairo',sans-serif;
+background:var(--bg);
+margin:0;
+color:#333;
 }
 
 /* ===== HEADER ===== */
-header {
-    background: #fff;
-    padding: 20px 10px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
+header{
+background:#fff;
+padding:20px 10px;
+text-align:center;
+border-bottom:1px solid #eee;
 }
 
-.logo-img {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 2px solid var(--gold);
-    margin-bottom: 10px;
+.logo-img{
+width:75px;
+height:75px;
+border-radius:50%;
+border:2px solid var(--gold);
+margin-bottom:8px;
 }
 
 /* ===== SEARCH ===== */
-.search-container-box {
-    max-width: 500px;
-    margin: 15px auto;
-    padding: 0 15px;
-    display: flex;
-    gap: 10px;
+.search-container-box{
+max-width:500px;
+margin:15px auto;
+padding:0 15px;
+display:flex;
+gap:10px;
 }
 
-.search-container-box input {
-    flex: 1;
-    padding: 12px 15px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
+.search-container-box input{
+flex:1;
+padding:12px;
+border-radius:12px;
+border:1px solid #ddd;
 }
 
-.search-container-box button {
-    width: 45px;
-    border-radius: 12px;
-    border: none;
-    background: var(--gold);
-    color: #fff;
+.search-container-box button{
+width:45px;
+border:none;
+border-radius:12px;
+background:var(--gold);
+color:#fff;
+cursor:pointer;
+}
+
+/* ===== SECTION TITLE ===== */
+h2{
+text-align:center;
+font-size:1.4rem;
+margin-top:20px;
 }
 
 /* ===== GRID ===== */
-.container {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 20px;
-    max-width: 1100px;
-    margin: auto;
+.container{
+padding:20px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:20px;
+max-width:1100px;
+margin:auto;
 }
 
 /* ===== CARD ===== */
-.product-card {
-    background: #fff;
-    border-radius: 18px;
-    border: 1px solid #eee;
-    overflow: hidden;
-    transition: 0.3s;
+.product-card{
+background:#fff;
+border-radius:18px;
+border:1px solid #eee;
+overflow:hidden;
+transition:.3s;
 }
 
-.product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+.product-card:hover{
+transform:translateY(-6px);
+box-shadow:0 15px 30px rgba(0,0,0,.08);
 }
 
-.img-wrapper {
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
+.img-wrapper{
+height:230px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#fff;
+cursor:pointer;
 }
 
-.product-img {
-    width: 90%;
-    height: 90%;
-    object-fit: contain;
+.product-img{
+width:90%;
+height:90%;
+object-fit:contain;
 }
 
-.product-info {
-    padding: 15px;
-    text-align: center;
+.product-info{
+padding:15px;
+text-align:center;
 }
 
-.product-info h3 {
-    font-size: 1rem;
-    margin: 5px 0;
-    font-weight: 600;
+.product-info h3{
+font-size:1rem;
+margin:5px 0;
+font-weight:600;
 }
 
-.price-tag {
-    color: #2ecc71;
-    font-weight: bold;
-    margin: 5px 0;
+.price-tag{
+color:#2ecc71;
+font-weight:bold;
+margin:5px 0;
 }
 
 /* ===== BUTTONS ===== */
-.btn-wa {
-    background: var(--green);
-    color: #fff;
-    padding: 12px;
-    border-radius: 12px;
-    display: block;
-    margin-top: 10px;
-    text-decoration: none;
-    font-size: 0.9rem;
+.btn-wa{
+background:var(--green);
+color:#fff;
+padding:12px;
+border-radius:12px;
+display:block;
+margin-top:10px;
+text-decoration:none;
+font-size:.9rem;
 }
 
-.action-btns {
-    display: flex;
-    gap: 5px;
+.action-btns{
+display:flex;
+gap:6px;
+margin-top:8px;
 }
 
-.btn-calc, .btn-share {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #eee;
-    background: #fafafa;
-    font-size: 0.8rem;
-    cursor: pointer;
+.btn-calc,.btn-share{
+flex:1;
+padding:10px;
+border-radius:10px;
+border:1px solid #eee;
+background:#fafafa;
+font-size:.8rem;
+cursor:pointer;
 }
 
 /* ===== CATEGORY ===== */
-.category-header-btn {
-    margin: 20px;
-    padding: 12px;
-    background: #fff;
-    border-radius: 12px;
-    font-weight: bold;
-    border: 1px solid #eee;
+.category-header-btn{
+margin:20px;
+padding:12px;
+background:#fff;
+border-radius:12px;
+border:1px solid #eee;
+font-weight:bold;
+display:flex;
+justify-content:space-between;
 }
 
 /* ===== MODAL ===== */
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
+.modal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+justify-content:center;
+align-items:center;
+z-index:9999;
 }
 
-.modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 400px;
+.modal-content{
+background:#fff;
+padding:20px;
+border-radius:15px;
+width:90%;
+max-width:400px;
+}
+
+/* ===== IMAGE MODAL ===== */
+#imageModal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.9);
+justify-content:center;
+align-items:center;
+z-index:10000;
+}
+
+.close-btn{
+position:absolute;
+top:20px;
+right:20px;
+color:#fff;
+font-size:30px;
+background:none;
+border:none;
 }
 
 /* ===== FOOTER ===== */
-footer {
-    background: #111;
-    color: #fff;
-    padding: 25px;
-    text-align: center;
+footer{
+background:#111;
+color:#fff;
+padding:25px;
+text-align:center;
+margin-top:40px;
 }
 
-.footer-call {
-    background: var(--gold);
-    padding: 10px 20px;
-    border-radius: 20px;
-    color: #000;
-    display: inline-block;
-    margin-top: 10px;
+.footer-call{
+background:var(--gold);
+padding:10px 20px;
+border-radius:20px;
+display:inline-block;
+margin-top:10px;
+color:#000;
+text-decoration:none;
 }
 
-/* ===== LOADING ===== */
-.skeleton-card {
-    background: #fff;
-    border-radius: 15px;
-    padding: 15px;
+/* ===== SKELETON ===== */
+.skeleton-card{
+background:#fff;
+border-radius:15px;
+padding:15px;
 }
 
-.skeleton-img {
-    height: 200px;
-    background: #eee;
-    border-radius: 10px;
+.skeleton-img{
+height:200px;
+background:#eee;
+border-radius:10px;
 }
 
-.skeleton-text {
-    height: 15px;
-    background: #eee;
-    margin-top: 10px;
-    border-radius: 5px;
+.skeleton-text{
+height:15px;
+background:#eee;
+margin-top:10px;
+border-radius:5px;
 }
 </style>
 </head>
@@ -218,32 +257,282 @@ footer {
 <header>
 <img src="https://i.ibb.co/XgdnJ7Y/lv-0.jpg" class="logo-img">
 <h2>معرض خالد خفاجي</h2>
-<p style="color:#888;font-size:0.9rem">تقسيط مريح وسريع</p>
+<p style="color:#888;font-size:.9rem">تقسيط مريح وسريع</p>
 </header>
 
 <div class="search-container-box">
-<input type="text" id="searchInput" placeholder="ابحث...">
+<input type="text" id="searchInput" placeholder="ابحث عن موبايل أو جهاز..." oninput="filterProducts()">
 <button onclick="filterProducts()"><i class="fas fa-search"></i></button>
 </div>
 
-<div id="mainContentArea">
-<div class="container">
-<div class="skeleton-card">
-<div class="skeleton-img"></div>
-<div class="skeleton-text"></div>
-</div>
-</div>
-</div>
 
-<footer>
-<p>© معرض خالد خفاجي</p>
-<a href="tel:01095890589" class="footer-call">اتصل بنا</a>
-</footer>
-
-<!-- ===== JS (كما هو بدون تعديل) ===== -->
-<script type="module">
-/* نفس كودك بالظبط بدون تغيير */
-</script>
-
-</body>
+     <div id="noProductMessage">  
+    هذا المنتج غير موجود حالياً.. يمكنك طلبه مباشرة عبر   
+    <a href="https://wa.me/201095890589?text=أريد طلب منتج غير موجود بالموقع">الواتساب</a>   
+    أو الاتصال بنا هاتفياً.  
+</div>  <div class="search-section">  
+    <h3 style="margin-top:0">استعلم عن أقساطك بأمان 🔒</h3>  
+    <input type="tel" id="clientPhone" placeholder="أدخل رقم التليفون مسبوق بـ 02">  
+    <input type="password" id="clientSecret" placeholder="أدخل الكود السري الخاص بك">  
+    <button onclick="checkInstallments()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:25px; margin-top:10px; font-weight:bold; cursor:pointer;"> استعلم </button>  
+</div>  <div style="text-align: center; margin: 20px 0 10px;">  
+    <h2 style="font-family: 'Cairo'; color: var(--dark); font-size: 1.5rem;">أحدث المنتجات والعروض المتاحة</h2>  
+    <div style="background: var(--gold); color: #000; display: inline-flex; align-items: center; gap: 8px; padding: 10px 25px; border-radius: 20px; font-weight: 800; margin-top: 15px; font-size: 0.85rem;">  
+        <i class="fas fa-envelope-open-text"></i>  
+        <span>خصم خاص لموظفي البريد المصري 🏤</span>  
+    </div>  
+</div>  <div id="mainContentArea">  
+    <div class="container">  
+        <div class="skeleton-card"><div class="skeleton-img loading-shimmer"></div><div class="skeleton-text loading-shimmer"></div><div class="skeleton-text short loading-shimmer"></div></div>  
+        <div class="skeleton-card"><div class="skeleton-img loading-shimmer"></div><div class="skeleton-text loading-shimmer"></div><div class="skeleton-text short loading-shimmer"></div></div>  
+        <div class="skeleton-card"><div class="skeleton-img loading-shimmer"></div><div class="skeleton-text loading-shimmer"></div><div class="skeleton-text short loading-shimmer"></div></div>  
+    </div>  
+</div>  <div id="resultModal" class="modal">  
+    <div class="modal-content" id="modalBody"></div>  
+</div>  <div id="imageModal" onclick="this.style.display='none'">  
+    <button class="close-btn">×</button>  
+    <img id="modalImage" src="" style="max-width:100%; max-height:100vh;">  
+</div>  <footer>  
+    <p style="margin:0">جميع الحقوق محفوظة © معرض خالد خفاجي للتقسيط - كفر الشيخ</p>  
+    <p style="font-size: 0.9rem; color: #888; margin-top: 5px;">نرحب بزيارتكم في أي وقت</p>  
+    <a href="tel:01095890589" class="footer-call">  
+        <i class="fas fa-phone-alt"></i> اتصل بنا: 01095890589  
+    </a>  
+</footer>  <script type="module">  
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";  
+    import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";  
+  
+    const firebaseConfig = {  
+        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",  
+        authDomain: "taqseet-f4aaf.firebaseapp.com",  
+        projectId: "taqseet-f4aaf",  
+        storageBucket: "taqseet-f4aaf.firebasestorage.app",  
+        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"  
+    };  
+  
+    const app = initializeApp(firebaseConfig);  
+    const db = getFirestore(app);  
+    let allProducts = [];  
+    let deferredPrompt;  
+  
+    if ('serviceWorker' in navigator) {  
+        navigator.serviceWorker.register('sw.js').catch(err => console.log("SW error:", err));  
+    }  
+  
+    window.addEventListener('load', () => {  
+        setTimeout(() => {  
+            const toast = document.getElementById('installToast');  
+            if (!window.matchMedia('(display-mode: standalone)').matches) {  
+                toast.classList.add('show');  
+                setTimeout(() => { toast.classList.remove('show'); }, 12000);  
+            }  
+        }, 3000);  
+    });  
+  
+    window.addEventListener('beforeinstallprompt', (e) => {  
+        e.preventDefault();  
+        deferredPrompt = e;  
+    });  
+  
+    window.installApp = async () => {  
+        if (deferredPrompt) {  
+            deferredPrompt.prompt();  
+            await deferredPrompt.userChoice;  
+            deferredPrompt = null;  
+            document.getElementById('installToast').classList.remove('show');  
+        } else {  
+            alert("لتثبيت التطبيق: اذهب لإعدادات المتصفح (3 نقاط) واختر 'إضافة للشاشة الرئيسية' أو 'تثبيت التطبيق' 📲");  
+        }  
+    };  
+  
+    const categoryNames = {  
+        'mobiles_new': '📱 موبايلات جديدة',  
+        'mobiles_used': '✨ موبايلات كسر زيرو',  
+        'appliances_new': '🧺 أجهزة كهربائية جديدة',  
+        'appliances_used': '🔌 أجهزة كسر زيرو',  
+        'other': '📦 عروض متنوعة'  
+    };  
+  
+    onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {  
+        allProducts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));  
+        renderCategorized(allProducts);  
+    });  
+  
+    function renderCategorized(products) {  
+        const area = document.getElementById('mainContentArea');  
+        const noProductMsg = document.getElementById('noProductMessage');  
+        area.innerHTML = '';  
+          
+        if (products.length === 0 && allProducts.length > 0) {  
+            noProductMsg.style.display = 'block';  
+        } else {  
+            noProductMsg.style.display = 'none';  
+        }  
+  
+        const grouped = products.reduce((acc, p) => {  
+            const c = p.category || 'other';  
+            if (!acc[c]) acc[c] = [];  
+            acc[c].push(p);  
+            return acc;  
+        }, {});  
+  
+        Object.keys(categoryNames).forEach(key => {  
+            if (grouped[key] && grouped[key].length > 0) {  
+                const wrapper = document.createElement('div');  
+                const header = document.createElement('div');  
+                header.className = 'category-header-btn';  
+                header.innerHTML = `<span>${categoryNames[key]}</span> <i class="fas fa-chevron-down"></i>`;  
+                  
+                const content = document.createElement('div');  
+                content.className = 'category-content';  
+                const grid = document.createElement('div');  
+                grid.className = 'container';  
+  
+                grouped[key].forEach(p => {  
+                    grid.innerHTML += `  
+                        <div class="product-card">  
+                            <div class="img-wrapper" onclick="openImageModal('${p.image}')">  
+                                <img src="${p.image}" class="product-img" loading="lazy">  
+                            </div>  
+                            <div class="product-info">  
+                                <h3 style="margin:0; font-size:1.1rem">${p.name}</h3>  
+                                <p style="color:#666; font-size:0.85rem; margin:5px 0;">${p.description || ''}</p>  
+                                <p class="price-tag"><small style="font-size:0.8rem; color:#666; font-weight:400">السعر كاش:</small> ${p.price.toLocaleString()} ج.م</p>  
+                                <p style="color:#888; font-size:0.9rem">مقدم يبدأ من: ${p.downPayment} ج.م</p>  
+                                <div class="action-btns">  
+                                    <button class="btn-calc" onclick="openInstallmentCalc('${p.name}', ${p.price}, ${p.downPayment}, ${p.interestRate || 20})">  
+                                        <i class="fas fa-calculator"></i> احسب قسطك  
+                                    </button>  
+                                    <button class="btn-share" onclick="shareProduct('${p.name}', ${p.price})">  
+                                        <i class="fas fa-share-alt"></i> مشاركة  
+                                    </button>  
+                                </div>  
+                                <a href="https://wa.me/201095890589?text=أريد الاستفسار عن ${p.name}" class="btn-wa">  
+                                   <i class="fab fa-whatsapp"></i> اطلبه الآن  
+                                </a>  
+                            </div>  
+                        </div>`;  
+                });  
+  
+                header.onclick = () => content.classList.toggle('hidden');  
+                content.appendChild(grid);  
+                wrapper.appendChild(header);  
+                wrapper.appendChild(content);  
+                area.appendChild(wrapper);  
+            }  
+        });  
+    }  
+  
+    window.filterProducts = () => {  
+        const term = document.getElementById('searchInput').value.toLowerCase();  
+        const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));  
+        renderCategorized(filtered);  
+    };  
+  
+    window.shareProduct = function(name, price) {  
+        const text = `شوف العرض ده من معرض خالد خفاجي للتقسيط:\n${name}\nبسعر كاش: ${price.toLocaleString()} ج.م\nتقدر تقسطه دلوقتي بأسهل الإجراءات!`;  
+        const url = window.location.href;  
+        if (navigator.share) {  
+            navigator.share({ title: 'معرض خالد خفاجي', text: text, url: url }).catch(console.error);  
+        } else {  
+            window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, '_blank');  
+        }  
+    };  
+  
+    window.checkInstallments = async function() {  
+        const phone = document.getElementById('clientPhone').value.trim();  
+        const secret = document.getElementById('clientSecret').value.trim();  
+        const modal = document.getElementById('resultModal');  
+        const body = document.getElementById('modalBody');  
+        modal.style.display = 'flex';  
+        body.innerHTML = `<p style="text-align:center; padding:40px;">جاري التحقق والبحث...</p>`;  
+          
+        try {  
+            const q = query(collection(db, "clients"), where("phone", "==", phone), where("secretCode", "==", secret));  
+            const querySnapshot = await getDocs(q);  
+            if (!querySnapshot.empty) {  
+                const clientName = querySnapshot.docs[0].data().name || "العميل";  
+                let htmlContent = `<h3 style="text-align:center; color:#27ae60; margin-bottom:15px;">مرحباً بك، ${clientName}</h3>`;  
+                querySnapshot.forEach((doc) => {  
+                    const c = doc.data();  
+                    const totalInstallment = c.price * (1 + c.interest);  
+                    const remaining = totalInstallment - c.paid;  
+                    let monthly = c.months > 0 ? totalInstallment / c.months : 0;  
+                    let remainingMonths = (monthly > 0 && remaining > 0) ? Math.ceil(remaining / monthly) : 0;  
+                      
+                    htmlContent += `  
+                        <button class="accordion"><span>${c.product || "منتج"}</span> <i class="fas fa-plus"></i></button>  
+                        <div class="panel">  
+                            <div style="padding: 15px; line-height: 2; font-size: 0.95rem;">  
+                                <p><strong>إجمالي التقسيط:</strong> ${Math.round(totalInstallment).toLocaleString()} ج.م</p>  
+                                <p><strong>المدفوع:</strong> ${c.paid.toLocaleString()} ج.م</p>  
+                                <p style="color:#e74c3c; font-weight:bold;">المتبقي: ${Math.round(remaining).toLocaleString()} ج.م</p>  
+                                ${monthly > 0 ? `<p><strong>القسط الشهري:</strong> ${Math.round(monthly).toLocaleString()} ج.م</p>` : ''}  
+                                ${remainingMonths > 0 ? `<p><strong>الشهور المتبقية:</strong> ${remainingMonths} شهر تقريباً</p>` : ''}  
+                            </div>  
+                        </div>`;  
+                });  
+                htmlContent += `<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:15px; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">إغلاق</button>`;  
+                body.innerHTML = htmlContent;  
+                  
+                const acc = body.getElementsByClassName("accordion");  
+                for (let i = 0; i < acc.length; i++) {  
+                    acc[i].onclick = function() {  
+                        this.classList.toggle("active");  
+                        const panel = this.nextElementSibling;  
+                        panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";  
+                        const icon = this.querySelector('i');  
+                        icon.classList.toggle('fa-plus');  
+                        icon.classList.toggle('fa-minus');  
+                    };  
+                }  
+            } else {   
+                body.innerHTML = `  
+                    <div style="text-align:center; padding:30px;">  
+                        <p style="color:red; font-size:1.1rem; margin-bottom:20px;">بيانات الاستعلام غير صحيحة</p>  
+                        <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">إغلاق</button>  
+                    </div>`;  
+            }  
+        } catch (e) {   
+            body.innerHTML = `<p style="text-align:center; padding:30px; color:red;">حدث خطأ أثناء البحث</p><button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">إغلاق</button>`;  
+        }  
+    };  
+  
+    window.openImageModal = (src) => { document.getElementById('modalImage').src = src; document.getElementById('imageModal').style.display = 'flex'; };  
+  
+    window.openInstallmentCalc = function(name, price, minDown, interest) {  
+        const body = document.getElementById('modalBody');  
+        document.getElementById('resultModal').style.display = 'flex';  
+        body.innerHTML = `  
+            <h3 style="text-align:center">🧮 حاسبة التقسيط لـ <br>${name}</h3>  
+            <label>المقدم:</label>  
+            <input type="number" id="userDown" style="width:90%; border:1px solid #ddd; border-radius:10px; margin:10px 0; padding:10px" value="${minDown}">  
+            <label>الشهور:</label>  
+            <select id="monthsCount" style="width:100%; padding:10px; margin:5px 0; border-radius:10px">  
+                <option value="6">6 شهور</option>  
+                <option value="10">10 شهور</option>  
+                <option value="12" selected>12 شهر</option>  
+                <option value="18">18 شهر</option>  
+            </select>  
+            <button onclick="calculateResult(${price}, ${interest})" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">احسب</button>  
+            <div id="finalCalcResult" style="margin-top:15px; text-align:center; font-weight:bold; background:#f9f9f9; padding:10px; border-radius:10px; display:none;"></div>  
+            <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:none; border:none; color:#999; margin-top:10px; cursor:pointer;">إغلاق</button>  
+        `;  
+    };  
+  
+    window.calculateResult = function(price, interestRate) {  
+        const userDown = parseFloat(document.getElementById('userDown').value) || 0;  
+        const months = parseInt(document.getElementById('monthsCount').value);  
+        const resultDiv = document.getElementById('finalCalcResult');  
+        const remaining = price - userDown;  
+        const total = remaining + (remaining * (interestRate / 100) * (months / 12));  
+        const monthly = Math.round(total / months);  
+        resultDiv.style.display = 'block';  
+        resultDiv.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span><hr style="opacity:0.1"><span style="color:#666;">إجمالي الأقساط: ${Math.round(total).toLocaleString()} ج.م</span>`;  
+    };  
+</script>  </body>  
 </html>
+    
+
+<!-- باقي الكود كما هو بدون أي تغيير -->
+<!-- انسخ هنا من عندك من mainContentArea لحد آخر script -->
