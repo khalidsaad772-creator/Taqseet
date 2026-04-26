@@ -69,7 +69,7 @@
             animation: fadeInUp 0.5s ease backwards;  
             display: flex;  
             flex-direction: column;  
-            height: 540px;  
+            height: 520px;  
         }  
 
         @keyframes fadeInUp {  
@@ -85,7 +85,7 @@
         .img-wrapper {  
             position: relative;  
             width: 100%;  
-            height: 220px;  
+            height: 200px;  
             background: #f5f5f5;  
             overflow: hidden;  
             cursor: pointer;  
@@ -95,8 +95,8 @@
             flex-shrink: 0;  
         }  
         .product-img {  
-            width: 75%;  
-            height: 75%;  
+            width: 70%;  
+            height: 70%;  
             object-fit: contain;  
             pointer-events: none;  
             transition: transform 0.4s ease;  
@@ -104,7 +104,7 @@
         .product-card:hover .product-img { transform: scale(1.05); }  
 
         .product-info {  
-            padding: 15px;  
+            padding: 12px;  
             text-align: center;  
             flex: 1;  
             display: flex;  
@@ -113,7 +113,7 @@
 
         .product-name {  
             margin: 0;  
-            font-size: 1rem;  
+            font-size: 0.95rem;  
             font-weight: 700;  
             line-height: 1.4;  
             height: 2.8em;  
@@ -125,7 +125,7 @@
 
         .product-desc {  
             color: #666;  
-            font-size: 0.75rem;  
+            font-size: 0.7rem;  
             margin: 5px 0;  
             line-height: 1.4;  
             height: 2.8em;  
@@ -138,13 +138,13 @@
         .price-tag {  
             color: #2ecc71;  
             font-weight: 800;  
-            font-size: 1.3rem;  
+            font-size: 1.2rem;  
             margin: 5px 0;  
         }  
 
         .downpayment-text {  
             color: #888;  
-            font-size: 0.8rem;  
+            font-size: 0.75rem;  
             margin: 3px 0;  
         }  
 
@@ -157,7 +157,7 @@
             background: linear-gradient(45deg, var(--green-wa), var(--green-wa-dark));  
             color: white;  
             text-decoration: none;  
-            padding: 10px;  
+            padding: 8px;  
             border-radius: 20px;  
             display: flex;  
             align-items: center;  
@@ -166,7 +166,7 @@
             margin-top: 8px;  
             font-weight: 700;  
             border: none;  
-            font-size: 0.9rem;  
+            font-size: 0.85rem;  
             transition: 0.2s;  
             animation: pulse 1.8s infinite ease;  
         }  
@@ -191,7 +191,7 @@
             background: #f0f4f8;  
             color: var(--blue-link);  
             border: 1px solid #dce4ec;  
-            padding: 8px;  
+            padding: 6px;  
             border-radius: 15px;  
             display: flex;  
             align-items: center;  
@@ -200,86 +200,98 @@
             font-weight: 600;  
             cursor: pointer;  
             font-family: 'Cairo';  
-            font-size: 0.75rem;  
+            font-size: 0.7rem;  
             transition: 0.2s;  
         }  
         .btn-calc:hover, .btn-share:hover { background: #e6edf4; transform: scale(0.98); }  
 
-        /* ========== ستايل الباقات الجديد ========== */
-        .packages-section {
-            background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
-            border-radius: 30px;
-            margin: 40px 20px;
-            padding: 20px 10px;
-            border: 2px solid var(--gold);
-        }
-        .packages-title {
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #c0392b;
-            margin-bottom: 20px;
-        }
-        .package-card {
-            background: white;
-            border-radius: 28px;
-            padding: 20px;
-            margin: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            transition: 0.3s;
-            min-width: 300px;
-            flex-shrink: 0;
-        }
-        .package-card:hover { transform: translateY(-5px); }
-        .package-price {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--gold-dark);
-            text-align: center;
-        }
-        .package-desc {
-            text-align: center;
-            color: #666;
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-        .customize-btn {
-            background: var(--gold);
-            color: #1a1a1a;
-            border: none;
-            padding: 12px;
-            border-radius: 25px;
-            font-weight: bold;
-            width: 100%;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-        .extra-item-checkbox {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px;
-            margin: 5px 0;
-            background: #f9f9f9;
-            border-radius: 12px;
-            font-size: 0.85rem;
-        }
-        .duration-select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            font-family: 'Cairo';
-        }
+        /* ستايل الباقات */  
+        .packages-section {  
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);  
+            border-radius: 30px;  
+            margin: 40px 20px;  
+            padding: 20px 10px;  
+            border: 2px solid var(--gold);  
+        }  
+        .packages-title {  
+            text-align: center;  
+            font-size: 1.5rem;  
+            font-weight: 800;  
+            color: #c0392b;  
+            margin-bottom: 20px;  
+        }  
+        .package-card {  
+            background: white;  
+            border-radius: 28px;  
+            padding: 15px;  
+            margin: 10px;  
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);  
+            transition: 0.3s;  
+            min-width: 280px;  
+            flex-shrink: 0;  
+        }  
+        .package-card:hover { transform: translateY(-5px); }  
+        .package-price {  
+            font-size: 1.5rem;  
+            font-weight: 800;  
+            color: var(--gold-dark);  
+            text-align: center;  
+        }  
+        .customize-btn {  
+            background: var(--gold);  
+            color: #1a1a1a;  
+            border: none;  
+            padding: 10px;  
+            border-radius: 25px;  
+            font-weight: bold;  
+            width: 100%;  
+            margin: 10px 0;  
+            cursor: pointer;  
+        }  
+        .extra-item-checkbox {  
+            display: flex;  
+            align-items: center;  
+            justify-content: space-between;  
+            padding: 5px;  
+            margin: 5px 0;  
+            background: #f9f9f9;  
+            border-radius: 12px;  
+            font-size: 0.75rem;  
+        }  
+        .duration-select {  
+            width: 100%;  
+            padding: 8px;  
+            margin: 10px 0;  
+            border-radius: 12px;  
+            border: 1px solid #ddd;  
+            font-family: 'Cairo';  
+        }  
+        .package-items-list {  
+            font-size: 0.7rem;  
+            color: #555;  
+            margin: 8px 0;  
+            padding-right: 15px;  
+            list-style-type: none;  
+        }  
+        .package-items-list li {  
+            margin: 3px 0;  
+            display: flex;  
+            align-items: center;  
+            gap: 5px;  
+        }  
+        .package-items-list li:before {  
+            content: "✓";  
+            color: #2ecc71;  
+            font-weight: bold;  
+        }  
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; }  
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: right; border-top: 6px solid var(--gold); max-height: 80vh; overflow-y: auto; }  
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; text-align: right; border-top: 6px solid var(--gold); max-height: 80vh; overflow-y: auto; }  
 
         #imageModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; }  
         .close-btn { position: fixed; top: 20px; right: 20px; color: white; background: none; border: none; font-size: 32px; cursor: pointer; }  
 
-        footer { background: #1a1a1a; color: white; padding: 30px 10px; text-align: center; border-top: 4px solid var(--gold); margin-top: 50px; }  
+        footer { background: #1a1a1a; color: white; padding: 30px 10px; text-align: center; border-top: 4px solid var(--gold); margin-top: 30px; }  
         .footer-call { background: var(--gold); color: black; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; }  
 
         .accordion { background-color: #f8f9fa; color: #333; cursor: pointer; padding: 15px; width: 100%; border: 1px solid #eee; text-align: right; border-radius: 12px; margin-bottom: 8px; font-family: 'Cairo'; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }  
@@ -288,20 +300,21 @@
         .search-section { background: #fff; padding: 25px; margin: 20px 20px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }  
         .search-section input { width: 85%; padding: 14px; border: 2px solid #eee; border-radius: 30px; font-family: 'Cairo'; margin-bottom: 10px; text-align: center; display: inline-block; box-sizing: border-box; }  
 
-        .skeleton-card { min-width: 280px; width: 280px; background: white; border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 15px; height: 540px; }  
-        .skeleton-img { width: 100%; height: 220px; background: #e0e0e0; border-radius: 20px; }  
+        .skeleton-card { min-width: 280px; width: 280px; background: white; border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 15px; height: 500px; }  
+        .skeleton-img { width: 100%; height: 200px; background: #e0e0e0; border-radius: 20px; }  
         .skeleton-text { width: 80%; height: 20px; background: #e0e0e0; border-radius: 10px; }  
         .skeleton-text.short { width: 50%; }  
         .loading-shimmer { background: linear-gradient(90deg, #eeeeee 25%, #f5f5f5 50%, #eeeeee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }  
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }  
 
         @media (max-width: 600px) {  
-            .product-card { min-width: 260px; width: 260px; height: 520px; }  
-            .img-wrapper { height: 200px; }  
-            .package-card { min-width: 280px; }
+            .product-card { min-width: 260px; width: 260px; height: 500px; }  
+            .img-wrapper { height: 180px; }  
+            .package-card { min-width: 260px; }  
         }  
         
-        .hidden { display: none; }
+        .hidden { display: none; }  
+        .text-center { text-align: center; }  
     </style>  
 </head>  
 <body>  
@@ -327,15 +340,6 @@
     <button onclick="checkInstallments()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:25px; margin-top:10px; font-weight:bold; cursor:pointer;"> استعلم </button>  
 </div>  
 
-<!-- سكشن الباقات الجديد -->
-<div id="weddingPackagesSection" class="packages-section hidden">
-    <div class="packages-title">
-        🎁 تجهيزي بالتقسيط - عروض العرائس 🎁
-        <p style="font-size: 0.9rem; color: #555;">أجهزة جديدة بالكامل - تقسيط حتى 24 شهر</p>
-    </div>
-    <div id="packagesContainer" class="horizontal-scroll" style="padding: 10px;"></div>
-</div>
-
 <div style="text-align: center; margin: 20px 0 10px;">  
     <h2 style="font-family: 'Cairo'; color: var(--dark); font-size: 1.5rem;">أحدث المنتجات والعروض المتاحة</h2>  
     <div style="background: var(--gold); color: #000; display: inline-flex; align-items: center; gap: 8px; padding: 10px 25px; border-radius: 20px; font-weight: 800; margin-top: 15px; font-size: 0.85rem;">  
@@ -343,15 +347,18 @@
         <span>خصم خاص لموظفي البريد المصري 🏤</span>  
     </div>  
 </div>  
+
 <div id="mainContentArea"></div>  
 
-<div id="resultModal" class="modal">  
-    <div class="modal-content" id="modalBody"></div>  
-</div>  
-<div id="imageModal" onclick="this.style.display='none'">  
-    <button class="close-btn">×</button>  
-    <img id="modalImage" src="" style="max-width:100%; max-height:100vh;">  
-</div>  
+<!-- ===== سكشن الباقات (يظهر تحت المنتجات) ===== -->
+<div id="weddingPackagesSection" class="packages-section hidden">
+    <div class="packages-title">
+        🎁 باقات التقسيط - عروض العرائس 🎁
+        <p style="font-size: 0.8rem; color: #555;">أجهزة جديدة بالكامل - تقسيط حتى 24 شهر</p>
+    </div>
+    <div id="packagesContainer" class="horizontal-scroll" style="padding: 10px;"></div>
+</div>
+<!-- ===== نهاية سكشن الباقات ===== -->
 
 <footer>  
     <p style="margin:0">جميع الحقوق محفوظة © معرض خالد خفاجي للتقسيط - كفر الشيخ</p>  
@@ -360,6 +367,14 @@
         <i class="fas fa-phone-alt"></i> اتصل بنا: 01095890589  
     </a>  
 </footer>  
+
+<div id="resultModal" class="modal">  
+    <div class="modal-content" id="modalBody"></div>  
+</div>  
+<div id="imageModal" onclick="this.style.display='none'">  
+    <button class="close-btn">×</button>  
+    <img id="modalImage" src="" style="max-width:100%; max-height:100vh;">  
+</div>  
 
 <script type="module">  
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";  
@@ -414,7 +429,7 @@
     const categoryNames = {  
         'mobiles_new': '📱 موبايلات جديدة',  
         'mobiles_used': '✨ موبايلات كسر زيرو',  
-        'appliances_new': '🧺 أجهزة كهربائية جديدة',  
+        'appliances_new': '📺 أجهزة كهربائية جديدة',  
         'appliances_used': '🔌 أجهزة كهربائية كسر زيرو',  
         'other': '📦 عروض متنوعة'  
     };  
@@ -459,139 +474,154 @@
         container.addEventListener('mousedown', stopScrollHandler, { once: true });  
     }  
 
-    // حساب القسط على أساس المبلغ والفائدة والمدة
-    function calculateMonthly(amount, interestRate, months, downPayment) {
-        const afterDown = amount - downPayment;
-        const totalInterest = afterDown * (interestRate / 100) * (months / 12);
-        const total = afterDown + totalInterest;
-        return Math.round(total / months);
-    }
+    function calculateMonthly(amount, interestRate, months, downPayment) {  
+        const afterDown = amount - downPayment;  
+        const totalInterest = afterDown * (interestRate / 100) * (months / 12);  
+        const total = afterDown + totalInterest;  
+        return Math.round(total / months);  
+    }  
 
-    // عرض الباقات
-    function renderPackages() {
-        const container = document.getElementById('packagesContainer');
-        const section = document.getElementById('weddingPackagesSection');
+    function renderPackages() {  
+        const container = document.getElementById('packagesContainer');  
+        const section = document.getElementById('weddingPackagesSection');  
         
-        if (!allPackages.length) {
-            section.classList.add('hidden');
-            return;
-        }
-        section.classList.remove('hidden');
-        container.innerHTML = '';
+        if (!allPackages.length) {  
+            section.classList.add('hidden');  
+            return;  
+        }  
+        section.classList.remove('hidden');  
+        container.innerHTML = '';  
         
-        allPackages.forEach((pkg, idx) => {
-            const card = document.createElement('div');
-            card.className = 'package-card';
-            card.style.animationDelay = `${idx * 0.1}s`;
+        allPackages.forEach((pkg, idx) => {  
+            const card = document.createElement('div');  
+            card.className = 'package-card';  
+            card.style.animationDelay = `${idx * 0.1}s`;  
             
-            // بناء قائمة الرفايع
-            let extrasHtml = '';
-            if (pkg.extras && pkg.extras.length) {
-                extrasHtml = '<div style="margin: 10px 0;"><strong>🧾 أضف رفايع:</strong></div>';
-                pkg.extras.forEach((extra, eIdx) => {
-                    extrasHtml += `
-                        <div class="extra-item-checkbox">
-                            <label>${extra.name}</label>
-                            <div>
-                                <span style="color:#2ecc71;">+${extra.price.toLocaleString()} ج.م</span>
-                                <input type="checkbox" class="extra-checkbox" data-price="${extra.price}" data-name="${extra.name}" data-pkg-idx="${idx}" data-extra-idx="${eIdx}">
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+            let shortItemsList = '';  
+            if (pkg.items && pkg.items.length) {  
+                shortItemsList = '<ul class="package-items-list">';  
+                pkg.items.slice(0, 3).forEach(item => {  
+                    shortItemsList += `<li>📦 ${item}</li>`;  
+                });  
+                if (pkg.items.length > 3) {  
+                    shortItemsList += `<li>➕ ${pkg.items.length - 3} أجهزة أخرى...</li>`;  
+                }  
+                shortItemsList += '</ul>';  
+            }  
             
-            card.innerHTML = `
-                <div style="text-align:center;">
-                    ${pkg.image ? `<img src="${pkg.image}" style="width:100px; height:100px; object-fit:contain; border-radius:15px;">` : '<div style="font-size:3rem;">🎁</div>'}
-                </div>
-                <h3 style="text-align:center; margin:10px 0;">${pkg.name}</h3>
-                <div class="package-price">${pkg.monthlyPrice.toLocaleString()} ج.م / شهر</div>
-                <div class="package-desc">${pkg.description || 'لمدة 24 شهر (تقسيط مريح)'}</div>
-                <div style="font-size:0.8rem; text-align:center; color:#888;">مقدم: ${pkg.downPayment.toLocaleString()} ج.م</div>
-                
-                <select class="duration-select" id="duration-${idx}">
-                    <option value="24">24 شهر (القسط الأساسي)</option>
-                    <option value="18">18 شهر</option>
-                    <option value="12">12 شهر</option>
-                </select>
-                
-                ${extrasHtml}
-                
-                <div id="package-total-${idx}" style="background:#f0f0f0; padding:10px; border-radius:15px; margin:10px 0; text-align:center;">
-                    <strong>الإجمالي: ${pkg.monthlyPrice.toLocaleString()} ج.م/شهر</strong>
-                </div>
-                
-                <div class="action-btns">
-                    <button class="btn-calc" onclick="showPackageDetails('${pkg.id}')">
-                        <i class="fas fa-info-circle"></i> تفاصيل الباقة
-                    </button>
-                    <button class="btn-share" onclick="shareProduct('${pkg.name}', ${pkg.monthlyPrice * 24})">
-                        <i class="fas fa-share-alt"></i> مشاركة
-                    </button>
-                </div>
-                <a href="https://wa.me/201095890589?text=أريد الاستفسار عن باكدج ${pkg.name}" class="btn-wa" style="animation:none; background: #25D366;">
-                   <i class="fab fa-whatsapp"></i> استفسار سريع
-                </a>
-            `;
-            container.appendChild(card);
+            card.innerHTML = `  
+                <div class="text-center">  
+                    ${pkg.image ? `<img src="${pkg.image}" style="width:80px; height:80px; object-fit:contain; border-radius:15px;">` : '<div style="font-size:2.5rem;">🎁</div>'}  
+                </div>  
+                <h3 style="text-align:center; margin:8px 0; font-size:1rem;">${pkg.name}</h3>  
+                <div class="package-price">${pkg.monthlyPrice.toLocaleString()} ج.م / شهر</div>  
+                <div style="font-size:0.75rem; text-align:center; color:#888;">مقدم: ${pkg.downPayment.toLocaleString()} ج.م</div>  
+                ${shortItemsList}  
+                <select class="duration-select" id="duration-${idx}">  
+                    <option value="24">24 شهر (القسط الأساسي)</option>  
+                    <option value="18">18 شهر</option>  
+                    <option value="12">12 شهر</option>  
+                </select>  
+                <div id="extras-${idx}" style="margin: 8px 0;"></div>  
+                <div id="package-total-${idx}" style="background:#f0f0f0; padding:8px; border-radius:12px; margin:8px 0; text-align:center; font-size:0.85rem;">  
+                    <strong>${pkg.monthlyPrice.toLocaleString()} ج.م/شهر</strong>  
+                </div>  
+                <div class="action-btns">  
+                    <button class="btn-calc" onclick="showPackageDetails('${pkg.id}')">  
+                        <i class="fas fa-info-circle"></i> تفاصيل الباقة  
+                    </button>  
+                    <button class="btn-share" onclick="shareProduct('${pkg.name}', ${pkg.monthlyPrice * 24})">  
+                        <i class="fas fa-share-alt"></i> مشاركة  
+                    </button>  
+                </div>  
+                <a href="https://wa.me/201095890589?text=أريد الاستفسار عن باكدج ${pkg.name}" class="btn-wa" style="animation:none; background: #25D366;">  
+                   <i class="fab fa-whatsapp"></i> استفسار سريع  
+                </a>  
+            `;  
+            container.appendChild(card);  
             
-            // إضافة حدث لحساب الإجمالي بعد اختيار المدة والرفايع
-            const durationSelect = document.getElementById(`duration-${idx}`);
-            const updateTotal = () => {
-                const duration = parseInt(durationSelect.value);
-                let baseMonthly = pkg.monthlyPrice;
-                let extrasTotal = 0;
-                
-                // جمع الرفايع المختارة
-                document.querySelectorAll(`.extra-checkbox[data-pkg-idx="${idx}"]:checked`).forEach(cb => {
-                    extrasTotal += parseFloat(cb.dataset.price);
-                });
-                
-                // حساب القسط الجديد (نفس الفائدة)
-                const totalAmount = (pkg.monthlyPrice * 24) + extrasTotal;
-                const newMonthly = calculateMonthly(totalAmount, pkg.interestRate || 27, duration, pkg.downPayment);
-                
-                document.getElementById(`package-total-${idx}`).innerHTML = `
-                    <strong>الإجمالي: ${newMonthly.toLocaleString()} ج.م/شهر</strong><br>
-                    <small style="color:#666;">لمدة ${duration} شهر | الرفايع: +${extrasTotal.toLocaleString()} ج.م</small>
-                `;
-            };
+            const extrasDiv = document.getElementById(`extras-${idx}`);  
+            if (pkg.extras && pkg.extras.length) {  
+                let extrasHtml = '<div style="margin: 5px 0;"><strong>🧾 أضف رفايع:</strong></div>';  
+                pkg.extras.forEach((extra, eIdx) => {  
+                    extrasHtml += `  
+                        <div class="extra-item-checkbox">  
+                            <label style="font-size:0.7rem;">${extra.name}</label>  
+                            <div>  
+                                <span style="color:#2ecc71; font-size:0.7rem;">+${extra.price.toLocaleString()} ج.م</span>  
+                                <input type="checkbox" class="extra-checkbox" data-price="${extra.price}" data-name="${extra.name}" data-pkg-idx="${idx}" data-extra-idx="${eIdx}">  
+                            </div>  
+                        </div>  
+                    `;  
+                });  
+                extrasDiv.innerHTML = extrasHtml;  
+            }  
             
-            durationSelect.addEventListener('change', updateTotal);
-            document.querySelectorAll(`.extra-checkbox[data-pkg-idx="${idx}"]`).forEach(cb => {
-                cb.addEventListener('change', updateTotal);
-            });
-        });
-    }
-    
-    window.showPackageDetails = (pkgId) => {
-        const pkg = allPackages.find(p => p.id === pkgId);
-        if (!pkg) return;
+            const durationSelect = document.getElementById(`duration-${idx}`);  
+            const updateTotal = () => {  
+                const duration = parseInt(durationSelect.value);  
+                let baseTotal = pkg.monthlyPrice * 24;  
+                let extrasTotal = 0;  
+                document.querySelectorAll(`.extra-checkbox[data-pkg-idx="${idx}"]:checked`).forEach(cb => {  
+                    extrasTotal += parseFloat(cb.dataset.price);  
+                });  
+                const totalAmount = baseTotal + extrasTotal;  
+                const newMonthly = calculateMonthly(totalAmount, pkg.interestRate || 27, duration, pkg.downPayment);  
+                document.getElementById(`package-total-${idx}`).innerHTML = `  
+                    <strong>${newMonthly.toLocaleString()} ج.م/شهر</strong><br>  
+                    <small style="color:#666;">لمدة ${duration} شهر | الرفايع: +${extrasTotal.toLocaleString()} ج.م</small>  
+                `;  
+            };  
+            
+            durationSelect.addEventListener('change', updateTotal);  
+            document.querySelectorAll(`.extra-checkbox[data-pkg-idx="${idx}"]`).forEach(cb => {  
+                cb.addEventListener('change', updateTotal);  
+            });  
+        });  
+    }  
+
+    window.showPackageDetails = (pkgId) => {  
+        const pkg = allPackages.find(p => p.id === pkgId);  
+        if (!pkg) return;  
         
-        const body = document.getElementById('modalBody');
-        document.getElementById('resultModal').style.display = 'flex';
+        const body = document.getElementById('modalBody');  
+        document.getElementById('resultModal').style.display = 'flex';  
         
-        let extrasList = '';
-        if (pkg.extras && pkg.extras.length) {
-            extrasList = '<ul style="margin-top:10px;">' + pkg.extras.map(e => `<li>${e.name} (+${e.price.toLocaleString()} ج.م)</li>`).join('') + '</ul>';
-        }
+        let itemsList = '';  
+        if (pkg.items && pkg.items.length) {  
+            itemsList = '<div style="margin:15px 0;"><strong>📦 الأجهزة الأساسية:</strong><ul style="margin-top:8px;">';  
+            pkg.items.forEach(item => {  
+                itemsList += `<li style="margin:5px 0;">${item}</li>`;  
+            });  
+            itemsList += '</ul></div>';  
+        }  
         
-        body.innerHTML = `
-            <h3 style="text-align:center">🎁 ${pkg.name}</h3>
-            <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin:15px 0;">
-                <p>${pkg.description || 'تجهيز كامل للعروسة'}</p>
-                <hr>
-                <p><strong>القسط الشهري الأساسي (24 شهر):</strong> ${pkg.monthlyPrice.toLocaleString()} ج.م</p>
-                <p><strong>المقدم:</strong> ${pkg.downPayment.toLocaleString()} ج.م</p>
-                <p><strong>نسبة الفائدة:</strong> ${pkg.interestRate || 27}% سنوياً</p>
-                ${extrasList}
-                <hr>
-                <p style="color:#2ecc71;">✅ يمكن تبديل الأجهزة بزيادة أو خصم حسب سعر الجهاز البديل</p>
-            </div>
-            <button onclick="document.getElementById('resultModal').style.display='none'" style="background:var(--gold); border:none; padding:12px; border-radius:12px; width:100%;">إغلاق</button>
-        `;
-    };
+        let extrasList = '';  
+        if (pkg.extras && pkg.extras.length) {  
+            extrasList = '<div style="margin:15px 0;"><strong>🧾 الرفايع الإضافية:</strong><ul style="margin-top:8px;">';  
+            pkg.extras.forEach(extra => {  
+                extrasList += `<li style="margin:5px 0;">${extra.name} (+${extra.price.toLocaleString()} ج.م)</li>`;  
+            });  
+            extrasList += '</ul></div>';  
+        }  
+        
+        body.innerHTML = `  
+            <h3 style="text-align:center; color:#c0392b;">🎁 ${pkg.name}</h3>  
+            <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin:15px 0;">  
+                <p style="line-height:1.7; font-size:0.9rem;"><strong>📝 وصف الباقة:</strong><br>${pkg.description || 'تجهيز كامل للعروسة بأجهزة اعتمادية وجودة ممتازة'}</p>  
+                ${itemsList}  
+                ${extrasList}  
+                <hr>  
+                <p><strong>💰 القسط الشهري الأساسي (24 شهر):</strong> ${pkg.monthlyPrice.toLocaleString()} ج.م</p>  
+                <p><strong>💵 المقدم:</strong> ${pkg.downPayment.toLocaleString()} ج.م</p>  
+                <p><strong>📊 نسبة الفائدة:</strong> ${pkg.interestRate || 27}% سنوياً</p>  
+                <hr>  
+                <p style="color:#2ecc71;">✅ يمكن تبديل الأجهزة بزيادة أو خصم حسب سعر الجهاز البديل</p>  
+                <p style="color:#3498db;">📞 للاستفسار: <a href="https://wa.me/201095890589" style="color:#25D366;">واتساب</a> أو اتصال: 01095890589</p>  
+            </div>  
+            <button onclick="document.getElementById('resultModal').style.display='none'" style="background:var(--gold); border:none; padding:12px; border-radius:12px; width:100%; font-weight:bold; cursor:pointer;">إغلاق</button>  
+        `;  
+    };  
 
     function renderCategorized(products) {  
         const area = document.getElementById('mainContentArea');  
@@ -637,7 +667,7 @@
                         <div class="product-info">  
                             <h3 class="product-name">${p.name}</h3>  
                             <p class="product-desc">${p.description || ''}</p>  
-                            <p class="price-tag"><small style="font-size:0.7rem; color:#666; font-weight:400">السعر كاش:</small> ${p.price.toLocaleString()} ج.م</p>  
+                            <p class="price-tag"><small style="font-size:0.65rem; color:#666; font-weight:400">السعر كاش:</small> ${p.price.toLocaleString()} ج.م</p>  
                             <p class="downpayment-text">مقدم يبدأ من: ${p.downPayment} ج.م</p>  
                             <div class="btns-container">  
                                 <div class="action-btns">  
@@ -684,22 +714,21 @@
         });  
     }  
 
-    // جلب البيانات من Firebase
     onSnapshot(query(collection(db, "products"), orderBy("date", "desc")), (snapshot) => {  
-        const products = [];
-        const packages = [];
-        snapshot.forEach(doc => {
-            const data = {id: doc.id, ...doc.data()};
-            if (data.category === 'wedding_packages') {
-                packages.push(data);
-            } else {
-                products.push(data);
-            }
-        });
-        allProducts = products;
-        allPackages = packages;
-        renderCategorized(allProducts);
-        renderPackages();
+        const products = [];  
+        const packages = [];  
+        snapshot.forEach(doc => {  
+            const data = {id: doc.id, ...doc.data()};  
+            if (data.category === 'wedding_packages') {  
+                packages.push(data);  
+            } else {  
+                products.push(data);  
+            }  
+        });  
+        allProducts = products;  
+        allPackages = packages;  
+        renderCategorized(allProducts);  
+        renderPackages();  
     });  
 
     window.filterProducts = () => {  
@@ -750,7 +779,7 @@
                     htmlContent += `  
                         <button class="accordion"><span>${c.product || "منتج"}</span> <i class="fas fa-plus"></i></button>  
                         <div class="panel">  
-                            <div style="padding: 15px; line-height: 2; font-size: 0.95rem;">  
+                            <div style="padding: 15px; line-height: 2; font-size: 0.9rem;">  
                                 <p><strong>إجمالي التقسيط:</strong> ${Math.round(totalInstallment).toLocaleString()} ج.م</p>  
                                 <p><strong>المدفوع:</strong> ${c.paid.toLocaleString()} ج.م</p>  
                                 <p style="color:#e74c3c; font-weight:bold;">المتبقي: ${Math.round(remaining).toLocaleString()} ج.م</p>  
@@ -776,7 +805,7 @@
             } else {   
                 body.innerHTML = `  
                     <div style="text-align:center; padding:30px;">  
-                        <p style="color:red; font-size:1.1rem; margin-bottom:20px;">بيانات الاستعلام غير صحيحة</p>  
+                        <p style="color:red; font-size:1rem; margin-bottom:20px;">بيانات الاستعلام غير صحيحة</p>  
                         <button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">إغلاق</button>  
                     </div>`;  
             }  
@@ -815,7 +844,7 @@
         const total = remaining + (remaining * (interestRate / 100) * (months / 12));  
         const monthly = Math.round(total / months);  
         resultDiv.style.display = 'block';  
-        resultDiv.innerHTML = `<span style="color:green; font-size:1.2rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span><hr style="opacity:0.1"><span style="color:#666;">إجمالي الأقساط: ${Math.round(total).toLocaleString()} ج.م</span>`;  
+        resultDiv.innerHTML = `<span style="color:green; font-size:1.1rem">القسط الشهري: ${monthly.toLocaleString()} ج.م</span><hr style="opacity:0.1"><span style="color:#666;">إجمالي الأقساط: ${Math.round(total).toLocaleString()} ج.م</span>`;  
     };  
 </script>  
 </body>  
