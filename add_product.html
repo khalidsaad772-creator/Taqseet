@@ -9,7 +9,6 @@
         body { background: #f5f5f5; padding: 20px; }
         .container { max-width: 1200px; margin: auto; }
         
-        /* تبويبات */
         .tabs {
             display: flex;
             gap: 10px;
@@ -30,7 +29,6 @@
             color: #1a1a1a;
         }
         
-        /* البطاقات */
         .card {
             background: white;
             border-radius: 20px;
@@ -93,6 +91,20 @@
         }
         .extra-item input { flex: 1; margin: 0; }
         
+        .items-list {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .item-field {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .item-field input { flex: 1; margin: 0; }
+        
         .hidden { display: none; }
         
         @media (max-width: 768px) {
@@ -106,7 +118,6 @@
 <div class="container">
     <h1 style="text-align:center; margin-bottom:20px;">🛠️ لوحة تحكم معرض خالد خفاجي</h1>
     
-    <!-- تبويبات -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('products')">📦 المنتجات العادية</button>
         <button class="tab-btn" onclick="switchTab('packages')">🎁 باكدجات العرائس</button>
@@ -150,12 +161,25 @@
         <div class="card">
             <h2>🎁 إضافة باكدج عرائس جديد</h2>
             <input type="text" id="pkgName" placeholder="اسم الباقة (مثال: باقة التميز)">
-            <textarea id="pkgDesc" placeholder="وصف الباقة والأجهزة الأساسية" rows="3"></textarea>
+            <textarea id="pkgDesc" placeholder="وصف الباقة الكامل (يظهر في نافذة التفاصيل)" rows="3"></textarea>
             <input type="text" id="pkgImage" placeholder="رابط صورة الباقة">
             <input type="number" id="pkgMonthly" placeholder="القسط الشهري على 24 شهر">
             <input type="number" id="pkgDown" placeholder="المقدم (ج.م)">
             <input type="number" id="pkgInterest" placeholder="نسبة الفائدة السنوية (25-30)">
             
+            <!-- قائمة الأجهزة الأساسية -->
+            <div class="items-list">
+                <h4>📦 الأجهزة الأساسية في الباقة</h4>
+                <div id="itemsContainer">
+                    <div class="item-field">
+                        <input type="text" placeholder="اسم الجهاز (مثال: ثلاجة كريازي 14 قدم)">
+                        <button onclick="removeItem(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>
+                    </div>
+                </div>
+                <button type="button" onclick="addItemField()" style="background:#3498db;">+ إضافة جهاز</button>
+            </div>
+            
+            <!-- قائمة الرفايع -->
             <div class="extras-list">
                 <h4>🧾 الرفايع الإضافية (العميل يختار منها)</h4>
                 <div id="extrasContainer">
@@ -175,7 +199,9 @@
             <h2>📋 قائمة الباقات</h2>
             <div style="overflow-x: auto;">
                 <table>
-                    <thead><tr><th>الصورة</th><th>الباقة</th><th>القسط</th><th>المقدم</th><th>الرفايع</th><th>إجراءات</th></tr></thead>
+                    <thead>
+                        <tr><th>الصورة</th><th>الباقة</th><th>القسط</th><th>المقدم</th><th>الأجهزة</th><th>الرفايع</th><th>إجراءات</th></tr>
+                    </thead>
                     <tbody id="packagesList"></tbody>
                 </table>
             </div>
@@ -201,7 +227,6 @@
     let editingProductId = null;
     let editingPackageId = null;
     
-    // ========== التبويبات ==========
     window.switchTab = (tab) => {
         document.getElementById('productsTab').classList.toggle('hidden', tab !== 'products');
         document.getElementById('packagesTab').classList.toggle('hidden', tab !== 'packages');
@@ -209,7 +234,7 @@
         event.target.classList.add('active');
     };
     
-    // ========== المنتجات العادية ==========
+    // ==================== المنتجات العادية ====================
     const loadProducts = () => {
         onSnapshot(collection(db, "products"), (snapshot) => {
             const tbody = document.getElementById('productsList');
@@ -282,7 +307,22 @@
         editingProductId = null;
     };
     
-    // ========== باكدجات العرائس ==========
+    // ==================== الباقات ====================
+    window.addItemField = () => {
+        const container = document.getElementById('itemsContainer');
+        const div = document.createElement('div');
+        div.className = 'item-field';
+        div.innerHTML = `
+            <input type="text" placeholder="اسم الجهاز">
+            <button onclick="removeItem(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>
+        `;
+        container.appendChild(div);
+    };
+    
+    window.removeItem = (btn) => {
+        btn.closest('.item-field').remove();
+    };
+    
     window.addExtraField = () => {
         const container = document.getElementById('extrasContainer');
         const div = document.createElement('div');
@@ -299,6 +339,14 @@
         btn.closest('.extra-item').remove();
     };
     
+    const getItemsArray = () => {
+        const items = [];
+        document.querySelectorAll('#itemsContainer .item-field input').forEach(input => {
+            if(input.value.trim()) items.push(input.value.trim());
+        });
+        return items;
+    };
+    
     const getExtrasArray = () => {
         const extras = [];
         document.querySelectorAll('#extrasContainer .extra-item').forEach(item => {
@@ -310,6 +358,7 @@
     };
     
     window.savePackage = async () => {
+        const items = getItemsArray();
         const extras = getExtrasArray();
         const data = {
             name: document.getElementById('pkgName').value,
@@ -319,6 +368,7 @@
             monthlyPrice: parseFloat(document.getElementById('pkgMonthly').value),
             downPayment: parseFloat(document.getElementById('pkgDown').value),
             interestRate: parseFloat(document.getElementById('pkgInterest').value),
+            items: items,
             extras: extras,
             date: serverTimestamp()
         };
@@ -341,6 +391,7 @@
         document.getElementById('pkgMonthly').value = '';
         document.getElementById('pkgDown').value = '';
         document.getElementById('pkgInterest').value = '';
+        document.getElementById('itemsContainer').innerHTML = '<div class="item-field"><input placeholder="اسم الجهاز"><button onclick="removeItem(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
         document.getElementById('extrasContainer').innerHTML = '<div class="extra-item"><input placeholder="اسم الرفاية"><input placeholder="السعر"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
         document.getElementById('savePackageBtn').innerText = '💾 حفظ الباقة';
         editingPackageId = null;
@@ -353,13 +404,15 @@
             snapshot.forEach(doc => {
                 const p = doc.data();
                 if(p.category !== 'wedding_packages') return;
-                const extrasText = p.extras?.map(e => `${e.name} (${e.price}ج)`).join(', ') || 'لا يوجد';
+                const itemsText = p.items?.slice(0,2).join(', ') + (p.items?.length > 2 ? '...' : '') || 'لا يوجد';
+                const extrasText = p.extras?.map(e => `${e.name}`).join(', ') || 'لا يوجد';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><img src="${p.image}" style="width:50px; height:50px; object-fit:contain;"></td>
                     <td>${p.name}</td>
                     <td>${p.monthlyPrice?.toLocaleString()} ج.م/شهر</td>
                     <td>${p.downPayment?.toLocaleString()} ج.م</td>
+                    <td style="font-size:12px;">${itemsText}</td>
                     <td style="font-size:12px;">${extrasText}</td>
                     <td>
                         <button class="btn-secondary" onclick="editPackage('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})">تعديل</button>
@@ -380,21 +433,30 @@
         document.getElementById('pkgDown').value = data.downPayment;
         document.getElementById('pkgInterest').value = data.interestRate;
         
-        const container = document.getElementById('extrasContainer');
-        container.innerHTML = '';
+        const itemsContainer = document.getElementById('itemsContainer');
+        itemsContainer.innerHTML = '';
+        if(data.items && data.items.length) {
+            data.items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item-field';
+                div.innerHTML = `<input type="text" value="${item}"><button onclick="removeItem(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>`;
+                itemsContainer.appendChild(div);
+            });
+        } else {
+            itemsContainer.innerHTML = '<div class="item-field"><input placeholder="اسم الجهاز"><button onclick="removeItem(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
+        }
+        
+        const extrasContainer = document.getElementById('extrasContainer');
+        extrasContainer.innerHTML = '';
         if(data.extras && data.extras.length) {
             data.extras.forEach(extra => {
                 const div = document.createElement('div');
                 div.className = 'extra-item';
-                div.innerHTML = `
-                    <input type="text" value="${extra.name}" placeholder="اسم الرفاية">
-                    <input type="number" value="${extra.price}" placeholder="السعر">
-                    <button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>
-                `;
-                container.appendChild(div);
+                div.innerHTML = `<input type="text" value="${extra.name}"><input type="number" value="${extra.price}"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>`;
+                extrasContainer.appendChild(div);
             });
         } else {
-            container.innerHTML = '<div class="extra-item"><input placeholder="اسم الرفاية"><input placeholder="السعر"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
+            extrasContainer.innerHTML = '<div class="extra-item"><input placeholder="اسم الرفاية"><input placeholder="السعر"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
         }
         document.getElementById('savePackageBtn').innerText = '💾 حفظ التعديلات';
     };
