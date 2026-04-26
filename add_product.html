@@ -3,160 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المنتجات - خالد خفاجي</title>
+    <title>لوحة التحكم - خالد خفاجي</title>
     <style>
-        body { font-family: Arial; padding: 10px; text-align: center; background: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; width: 95%; max-width: 400px; }
-        input, select, textarea { margin: 5px 0; padding: 12px; width: 90%; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-size: 16px; font-family: Arial; }
-        button { background: #28a745; color: white; border: none; padding: 12px; width: 95%; cursor: pointer; border-radius: 8px; font-weight: bold; margin-top: 10px; }
-        table { width: 100%; max-width: 600px; margin: 20px auto; background: white; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
-        th { background: #007bff; color: white; padding: 10px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-        .product-img { width: 60px; height: 60px; object-fit: contain; border-radius: 5px; background: #eee; }
-        .del-btn { background: #dc3545; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; }
-        .edit-btn { background: #ffc107; color: black; border: none; padding: 8px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
-        .interest-label { display: block; font-size: 12px; color: #666; margin-top: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; }
+        
+        /* تبويبات */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: #ddd;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: #d4af37;
+            color: #1a1a1a;
+        }
+        
+        /* البطاقات */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            border-right: 4px solid #d4af37;
+            padding-right: 15px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #d4af37;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-secondary { background: #3498db; color: white; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+        th { background: #1a1a1a; color: white; }
+        
+        .extras-list {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .extra-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .extra-item input { flex: 1; margin: 0; }
+        
+        .hidden { display: none; }
+        
+        @media (max-width: 768px) {
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <div class="card">
-        <h2>إدارة المنتجات 📱</h2>
-        <input type="text" id="pName" placeholder="اسم الموبايل أو الجهاز">
-        
-        <select id="pCategory">
-            <option value="mobiles_new">📱 موبايلات جديدة</option>
-            <option value="mobiles_used">✨ موبايلات كسر زيرو</option>
-            <option value="appliances_new">🧺 أجهزة كهربائية جديدة</option>
-            <option value="appliances_used">🔌 أجهزة كسر زيرو</option>
-            <option value="other">📦 عروض متنوعة</option>
-        </select>
-
-        <input type="number" id="pPrice" placeholder="السعر الكاش">
-        <input type="number" id="pDown" placeholder="أقل مقدم">
-        
-        <input type="number" id="pInterest" placeholder="نسبة الفائدة السنوية (مثلاً 20)">
-        <span class="interest-label">* هذه النسبة تستخدم في حاسبة التقسيط للعميل</span>
-        
-        <input type="text" id="pImgUrl" placeholder="رابط الصورة المباشر">
-        
-        <textarea id="pDesc" placeholder="وصف المنتج (المواصفات أو الحالة)" rows="3"></textarea>
-        
-        <button id="mainBtn" onclick="saveProduct()">نشر المنتج الآن</button>
-        <p id="status" style="color: green; font-weight: bold;"></p>
+<div class="container">
+    <h1 style="text-align:center; margin-bottom:20px;">🛠️ لوحة تحكم معرض خالد خفاجي</h1>
+    
+    <!-- تبويبات -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('products')">📦 المنتجات العادية</button>
+        <button class="tab-btn" onclick="switchTab('packages')">🎁 باكدجات العرائس</button>
     </div>
+    
+    <!-- قسم المنتجات العادية -->
+    <div id="productsTab">
+        <div class="card">
+            <h2>➕ إضافة منتج جديد</h2>
+            <input type="text" id="pName" placeholder="اسم المنتج">
+            <select id="pCategory">
+                <option value="mobiles_new">📱 موبايلات جديدة</option>
+                <option value="mobiles_used">✨ موبايلات كسر زيرو</option>
+                <option value="appliances_new">🧺 أجهزة كهربائية جديدة</option>
+                <option value="appliances_used">🔌 أجهزة كسر زيرو</option>
+                <option value="other">📦 عروض متنوعة</option>
+            </select>
+            <input type="number" id="pPrice" placeholder="السعر الكاش">
+            <input type="number" id="pDown" placeholder="أقل مقدم">
+            <input type="number" id="pInterest" placeholder="نسبة الفائدة السنوية (مثلاً 25)">
+            <input type="text" id="pImgUrl" placeholder="رابط الصورة">
+            <textarea id="pDesc" placeholder="وصف المنتج" rows="3"></textarea>
+            <button id="saveProductBtn">💾 نشر المنتج</button>
+        </div>
+        
+        <div class="card">
+            <h2>📋 قائمة المنتجات</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr><th>الصورة</th><th>المنتج</th><th>السعر</th><th>الإجراءات</th></tr>
+                    </thead>
+                    <tbody id="productsList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- قسم باكدجات العرائس -->
+    <div id="packagesTab" class="hidden">
+        <div class="card">
+            <h2>🎁 إضافة باكدج عرائس جديد</h2>
+            <input type="text" id="pkgName" placeholder="اسم الباقة (مثال: باقة التميز)">
+            <textarea id="pkgDesc" placeholder="وصف الباقة والأجهزة الأساسية" rows="3"></textarea>
+            <input type="text" id="pkgImage" placeholder="رابط صورة الباقة">
+            <input type="number" id="pkgMonthly" placeholder="القسط الشهري على 24 شهر">
+            <input type="number" id="pkgDown" placeholder="المقدم (ج.م)">
+            <input type="number" id="pkgInterest" placeholder="نسبة الفائدة السنوية (25-30)">
+            
+            <div class="extras-list">
+                <h4>🧾 الرفايع الإضافية (العميل يختار منها)</h4>
+                <div id="extrasContainer">
+                    <div class="extra-item">
+                        <input type="text" placeholder="اسم الرفاية (مثال: خلاط كامل)">
+                        <input type="number" placeholder="سعر الرفاية (ج.م)">
+                        <button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>
+                    </div>
+                </div>
+                <button type="button" onclick="addExtraField()" style="background:#3498db;">+ إضافة رفاية جديدة</button>
+            </div>
+            
+            <button id="savePackageBtn">💾 حفظ الباقة</button>
+        </div>
+        
+        <div class="card">
+            <h2>📋 قائمة الباقات</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>الصورة</th><th>الباقة</th><th>القسط</th><th>المقدم</th><th>الرفايع</th><th>إجراءات</th></tr></thead>
+                    <tbody id="packagesList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>الصورة</th>
-                <th>المنتج</th>
-                <th>إدارة</th>
-            </tr>
-        </thead>
-        <tbody id="productsBody"></tbody>
-    </table>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
+        authDomain: "taqseet-f4aaf.firebaseapp.com",
+        projectId: "taqseet-f4aaf",
+        storageBucket: "taqseet-f4aaf.firebasestorage.app",
+        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
+    };
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
-            authDomain: "taqseet-f4aaf.firebaseapp.com",
-            projectId: "taqseet-f4aaf",
-            storageBucket: "taqseet-f4aaf.firebasestorage.app",
-            appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        let editingId = null;
-
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    let editingProductId = null;
+    let editingPackageId = null;
+    
+    // ========== التبويبات ==========
+    window.switchTab = (tab) => {
+        document.getElementById('productsTab').classList.toggle('hidden', tab !== 'products');
+        document.getElementById('packagesTab').classList.toggle('hidden', tab !== 'packages');
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    };
+    
+    // ========== المنتجات العادية ==========
+    const loadProducts = () => {
         onSnapshot(collection(db, "products"), (snapshot) => {
-            const tbody = document.getElementById('productsBody');
+            const tbody = document.getElementById('productsList');
             tbody.innerHTML = "";
-            snapshot.forEach((pDoc) => {
-                const p = pDoc.data();
-                const id = pDoc.id;
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                if(p.category === 'wedding_packages') return;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><img src="${p.image}" class="product-img"></td>
-                    <td><b>${p.name}</b><br>${p.price} ج.م <br> <small style="color:blue">فائدة: ${p.interestRate || 0}%</small></td>
+                    <td><img src="${p.image}" style="width:50px; height:50px; object-fit:contain;"></td>
+                    <td>${p.name}</td>
+                    <td>${p.price?.toLocaleString()} ج.م</td>
                     <td>
-                        <button class="edit-btn" id="edit-${id}">تعديل</button>
-                        <button class="del-btn" id="del-${id}">حذف</button>
-                    </td>`;
+                        <button class="btn-secondary" onclick="editProduct('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})">تعديل</button>
+                        <button class="btn-danger" onclick="deleteProduct('${doc.id}')">حذف</button>
+                    </td>
+                `;
                 tbody.appendChild(tr);
-                document.getElementById(`edit-${id}`).onclick = () => prepareEdit(id, p);
-                document.getElementById(`del-${id}`).onclick = () => deleteProduct(id);
             });
         });
-
-        window.saveProduct = async () => {
-            const n = document.getElementById('pName').value.trim();
-            const cat = document.getElementById('pCategory').value;
-            const p = document.getElementById('pPrice').value;
-            const d = document.getElementById('pDown').value;
-            const intr = document.getElementById('pInterest').value;
-            const i = document.getElementById('pImgUrl').value.trim();
-            const desc = document.getElementById('pDesc').value.trim();
-            
-            if(!n || !p || !i || !intr) return alert("أكمل كافة البيانات الأساسية");
-            
-            try {
-                const productData = { 
-                    name: n,
-                    category: cat, // حفظ القسم
-                    price: parseFloat(p), 
-                    downPayment: parseFloat(d), 
-                    interestRate: parseFloat(intr),
-                    image: i, 
-                    description: desc, // حفظ الوصف
-                    whatsapp: "201095890589", 
-                    date: serverTimestamp() 
-                };
-
-                if(editingId) {
-                    await updateDoc(doc(db, "products", editingId), productData);
-                    editingId = null;
-                    document.getElementById('mainBtn').innerText = "نشر المنتج الآن";
-                } else {
-                    await addDoc(collection(db, "products"), productData);
-                }
-                
-                // تفريغ الخانات
-                document.getElementById('pName').value = '';
-                document.getElementById('pPrice').value = '';
-                document.getElementById('pDown').value = '';
-                document.getElementById('pInterest').value = '';
-                document.getElementById('pImgUrl').value = '';
-                document.getElementById('pDesc').value = '';
-                
-                document.getElementById('status').innerText = "تم التحديث بنجاح ✅";
-                setTimeout(() => { document.getElementById('status').innerText = ""; }, 3000);
-            } catch(e) { 
-                console.error(e);
-                alert("خطأ في الاتصال بقاعدة البيانات"); 
-            }
+    };
+    
+    window.saveProduct = async () => {
+        const data = {
+            name: document.getElementById('pName').value,
+            category: document.getElementById('pCategory').value,
+            price: parseFloat(document.getElementById('pPrice').value),
+            downPayment: parseFloat(document.getElementById('pDown').value),
+            interestRate: parseFloat(document.getElementById('pInterest').value),
+            image: document.getElementById('pImgUrl').value,
+            description: document.getElementById('pDesc').value,
+            date: serverTimestamp()
         };
-
-        async function deleteProduct(id) { 
-            if(confirm("هل متأكد من الحذف؟")) await deleteDoc(doc(db, "products", id)); 
+        if(!data.name || !data.price) return alert('املأ البيانات الأساسية');
+        
+        if(editingProductId) {
+            await updateDoc(doc(db, "products", editingProductId), data);
+            editingProductId = null;
+        } else {
+            await addDoc(collection(db, "products"), data);
         }
-
-        function prepareEdit(id, data) {
-            editingId = id;
-            document.getElementById('pName').value = data.name;
-            document.getElementById('pCategory').value = data.category || 'other';
-            document.getElementById('pPrice').value = data.price;
-            document.getElementById('pDown').value = data.downPayment;
-            document.getElementById('pInterest').value = data.interestRate || 0;
-            document.getElementById('pImgUrl').value = data.image;
-            document.getElementById('pDesc').value = data.description || '';
-            document.getElementById('mainBtn').innerText = "حفظ التعديلات";
-            window.scrollTo(0,0);
+        alert('تم الحفظ');
+        clearProductForm();
+    };
+    
+    window.editProduct = (id, data) => {
+        editingProductId = id;
+        document.getElementById('pName').value = data.name;
+        document.getElementById('pCategory').value = data.category;
+        document.getElementById('pPrice').value = data.price;
+        document.getElementById('pDown').value = data.downPayment;
+        document.getElementById('pInterest').value = data.interestRate;
+        document.getElementById('pImgUrl').value = data.image;
+        document.getElementById('pDesc').value = data.description;
+        document.getElementById('saveProductBtn').innerText = '💾 حفظ التعديلات';
+    };
+    
+    window.deleteProduct = async (id) => {
+        if(confirm('تأكيد الحذف؟')) await deleteDoc(doc(db, "products", id));
+    };
+    
+    const clearProductForm = () => {
+        document.getElementById('pName').value = '';
+        document.getElementById('pPrice').value = '';
+        document.getElementById('pDown').value = '';
+        document.getElementById('pInterest').value = '';
+        document.getElementById('pImgUrl').value = '';
+        document.getElementById('pDesc').value = '';
+        document.getElementById('saveProductBtn').innerText = '💾 نشر المنتج';
+        editingProductId = null;
+    };
+    
+    // ========== باكدجات العرائس ==========
+    window.addExtraField = () => {
+        const container = document.getElementById('extrasContainer');
+        const div = document.createElement('div');
+        div.className = 'extra-item';
+        div.innerHTML = `
+            <input type="text" placeholder="اسم الرفاية">
+            <input type="number" placeholder="السعر">
+            <button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>
+        `;
+        container.appendChild(div);
+    };
+    
+    window.removeExtra = (btn) => {
+        btn.closest('.extra-item').remove();
+    };
+    
+    const getExtrasArray = () => {
+        const extras = [];
+        document.querySelectorAll('#extrasContainer .extra-item').forEach(item => {
+            const name = item.querySelector('input:first-child').value;
+            const price = parseFloat(item.querySelector('input[type="number"]').value);
+            if(name && price) extras.push({ name, price });
+        });
+        return extras;
+    };
+    
+    window.savePackage = async () => {
+        const extras = getExtrasArray();
+        const data = {
+            name: document.getElementById('pkgName').value,
+            category: 'wedding_packages',
+            description: document.getElementById('pkgDesc').value,
+            image: document.getElementById('pkgImage').value,
+            monthlyPrice: parseFloat(document.getElementById('pkgMonthly').value),
+            downPayment: parseFloat(document.getElementById('pkgDown').value),
+            interestRate: parseFloat(document.getElementById('pkgInterest').value),
+            extras: extras,
+            date: serverTimestamp()
+        };
+        if(!data.name || !data.monthlyPrice) return alert('املأ البيانات الأساسية');
+        
+        if(editingPackageId) {
+            await updateDoc(doc(db, "products", editingPackageId), data);
+            editingPackageId = null;
+        } else {
+            await addDoc(collection(db, "products"), data);
         }
-    </script>
+        alert('تم حفظ الباقة');
+        clearPackageForm();
+    };
+    
+    const clearPackageForm = () => {
+        document.getElementById('pkgName').value = '';
+        document.getElementById('pkgDesc').value = '';
+        document.getElementById('pkgImage').value = '';
+        document.getElementById('pkgMonthly').value = '';
+        document.getElementById('pkgDown').value = '';
+        document.getElementById('pkgInterest').value = '';
+        document.getElementById('extrasContainer').innerHTML = '<div class="extra-item"><input placeholder="اسم الرفاية"><input placeholder="السعر"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
+        document.getElementById('savePackageBtn').innerText = '💾 حفظ الباقة';
+        editingPackageId = null;
+    };
+    
+    const loadPackages = () => {
+        onSnapshot(collection(db, "products"), (snapshot) => {
+            const tbody = document.getElementById('packagesList');
+            tbody.innerHTML = "";
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                if(p.category !== 'wedding_packages') return;
+                const extrasText = p.extras?.map(e => `${e.name} (${e.price}ج)`).join(', ') || 'لا يوجد';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${p.image}" style="width:50px; height:50px; object-fit:contain;"></td>
+                    <td>${p.name}</td>
+                    <td>${p.monthlyPrice?.toLocaleString()} ج.م/شهر</td>
+                    <td>${p.downPayment?.toLocaleString()} ج.م</td>
+                    <td style="font-size:12px;">${extrasText}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="editPackage('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})">تعديل</button>
+                        <button class="btn-danger" onclick="deletePackage('${doc.id}')">حذف</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    };
+    
+    window.editPackage = (id, data) => {
+        editingPackageId = id;
+        document.getElementById('pkgName').value = data.name;
+        document.getElementById('pkgDesc').value = data.description || '';
+        document.getElementById('pkgImage').value = data.image || '';
+        document.getElementById('pkgMonthly').value = data.monthlyPrice;
+        document.getElementById('pkgDown').value = data.downPayment;
+        document.getElementById('pkgInterest').value = data.interestRate;
+        
+        const container = document.getElementById('extrasContainer');
+        container.innerHTML = '';
+        if(data.extras && data.extras.length) {
+            data.extras.forEach(extra => {
+                const div = document.createElement('div');
+                div.className = 'extra-item';
+                div.innerHTML = `
+                    <input type="text" value="${extra.name}" placeholder="اسم الرفاية">
+                    <input type="number" value="${extra.price}" placeholder="السعر">
+                    <button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button>
+                `;
+                container.appendChild(div);
+            });
+        } else {
+            container.innerHTML = '<div class="extra-item"><input placeholder="اسم الرفاية"><input placeholder="السعر"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
+        }
+        document.getElementById('savePackageBtn').innerText = '💾 حفظ التعديلات';
+    };
+    
+    window.deletePackage = async (id) => {
+        if(confirm('تأكيد حذف الباقة؟')) await deleteDoc(doc(db, "products", id));
+    };
+    
+    document.getElementById('saveProductBtn').onclick = () => window.saveProduct();
+    document.getElementById('savePackageBtn').onclick = () => window.savePackage();
+    
+    loadProducts();
+    loadPackages();
+</script>
 </body>
 </html>
