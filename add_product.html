@@ -106,6 +106,7 @@
         .item-field input { flex: 1; margin: 0; }
         
         .hidden { display: none; }
+        small { display: block; color: #666; margin-top: -5px; margin-bottom: 10px; font-size: 12px; }
         
         @media (max-width: 768px) {
             table { font-size: 12px; }
@@ -163,9 +164,14 @@
             <input type="text" id="pkgName" placeholder="اسم الباقة (مثال: باقة التميز)">
             <textarea id="pkgDesc" placeholder="وصف الباقة الكامل (يظهر في نافذة التفاصيل)" rows="3"></textarea>
             <input type="text" id="pkgImage" placeholder="رابط صورة الباقة">
+            
+            <input type="number" id="pkgCashPrice" placeholder="سعر الكاش الإجمالي للأجهزة (بدون فوايد)">
+            <small>📌 مثال: 70000 ج.م (مجموع أسعار جميع الأجهزة في الباقة)</small>
+            
             <input type="number" id="pkgMonthly" placeholder="القسط الشهري على 24 شهر">
             <input type="number" id="pkgDown" placeholder="المقدم (ج.م)">
-            <input type="number" id="pkgInterest" placeholder="نسبة الفائدة السنوية (25-30)">
+            <input type="number" id="pkgInterest" placeholder="نسبة الفائدة السنوية (للحساب فقط)">
+            <small>🔒 هذه النسبة تستخدم للحساب فقط ولن تظهر للعميل</small>
             
             <!-- قائمة الأجهزة الأساسية -->
             <div class="items-list">
@@ -200,7 +206,7 @@
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
-                        <tr><th>الصورة</th><th>الباقة</th><th>القسط</th><th>المقدم</th><th>الأجهزة</th><th>الرفايع</th><th>إجراءات</th></tr>
+                        <tr><th>الصورة</th><th>الباقة</th><th>القسط</th><th>المقدم</th><th>سعر الكاش</th><th>الأجهزة</th><th>الرفايع</th><th>إجراءات</th></tr>
                     </thead>
                     <tbody id="packagesList"></tbody>
                 </table>
@@ -365,6 +371,7 @@
             category: 'wedding_packages',
             description: document.getElementById('pkgDesc').value,
             image: document.getElementById('pkgImage').value,
+            cashPrice: parseFloat(document.getElementById('pkgCashPrice').value),
             monthlyPrice: parseFloat(document.getElementById('pkgMonthly').value),
             downPayment: parseFloat(document.getElementById('pkgDown').value),
             interestRate: parseFloat(document.getElementById('pkgInterest').value),
@@ -372,7 +379,7 @@
             extras: extras,
             date: serverTimestamp()
         };
-        if(!data.name || !data.monthlyPrice) return alert('املأ البيانات الأساسية');
+        if(!data.name || !data.monthlyPrice || !data.cashPrice) return alert('املأ البيانات الأساسية (الاسم، القسط، سعر الكاش)');
         
         if(editingPackageId) {
             await updateDoc(doc(db, "products", editingPackageId), data);
@@ -388,6 +395,7 @@
         document.getElementById('pkgName').value = '';
         document.getElementById('pkgDesc').value = '';
         document.getElementById('pkgImage').value = '';
+        document.getElementById('pkgCashPrice').value = '';
         document.getElementById('pkgMonthly').value = '';
         document.getElementById('pkgDown').value = '';
         document.getElementById('pkgInterest').value = '';
@@ -412,6 +420,7 @@
                     <td>${p.name}</td>
                     <td>${p.monthlyPrice?.toLocaleString()} ج.م/شهر</td>
                     <td>${p.downPayment?.toLocaleString()} ج.م</td>
+                    <td>${p.cashPrice?.toLocaleString()} ج.م</td>
                     <td style="font-size:12px;">${itemsText}</td>
                     <td style="font-size:12px;">${extrasText}</td>
                     <td>
@@ -429,6 +438,7 @@
         document.getElementById('pkgName').value = data.name;
         document.getElementById('pkgDesc').value = data.description || '';
         document.getElementById('pkgImage').value = data.image || '';
+        document.getElementById('pkgCashPrice').value = data.cashPrice || '';
         document.getElementById('pkgMonthly').value = data.monthlyPrice;
         document.getElementById('pkgDown').value = data.downPayment;
         document.getElementById('pkgInterest').value = data.interestRate;
