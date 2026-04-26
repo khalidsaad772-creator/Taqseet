@@ -52,6 +52,11 @@
             font-size: 14px;
         }
         
+        input[readonly] {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+        
         button {
             background: #d4af37;
             color: #1a1a1a;
@@ -107,6 +112,15 @@
         
         .hidden { display: none; }
         small { display: block; color: #666; margin-top: -5px; margin-bottom: 10px; font-size: 12px; }
+        .preview-box {
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #2e7d32;
+        }
         
         @media (max-width: 768px) {
             table { font-size: 12px; }
@@ -163,15 +177,19 @@
             <h2>🎁 إضافة باكدج عرائس جديد</h2>
             <input type="text" id="pkgName" placeholder="اسم الباقة (مثال: باقة التميز)">
             <textarea id="pkgDesc" placeholder="وصف الباقة الكامل (يظهر في نافذة التفاصيل)" rows="3"></textarea>
-            <input type="text" id="pkgImage" placeholder="رابط صورة الباقة">
+            <input type="text" id="pkgImage" placeholder="رابط صورة الباقة (اختياري)">
             
             <input type="number" id="pkgCashPrice" placeholder="سعر الكاش الإجمالي للأجهزة (بدون فوايد)">
             <small>📌 مثال: 70000 ج.م (مجموع أسعار جميع الأجهزة في الباقة)</small>
             
-            <input type="number" id="pkgMonthly" placeholder="القسط الشهري على 24 شهر">
             <input type="number" id="pkgDown" placeholder="المقدم (ج.م)">
             <input type="number" id="pkgInterest" placeholder="نسبة الفائدة السنوية (للحساب فقط)">
-            <small>🔒 هذه النسبة تستخدم للحساب فقط ولن تظهر للعميل</small>
+            <small>🔒 مثال: 25 (تعني 25% سنوياً)</small>
+            
+            <input type="number" id="pkgMonthly" placeholder="القسط الشهري" readonly>
+            <small>🔢 يتم حساب القسط تلقائياً من سعر الكاش والفائدة والمقدم</small>
+            
+            <div id="monthlyPreview" class="preview-box hidden"></div>
             
             <!-- قائمة الأجهزة الأساسية -->
             <div class="items-list">
@@ -239,6 +257,33 @@
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
     };
+    
+    // ==================== حساب القسط التلقائي ====================
+    function calculateMonthlyFromCash(cashPrice, downPayment, interestRate, months = 24) {
+        if (!cashPrice || cashPrice <= 0) return 0;
+        const afterDown = cashPrice - downPayment;
+        if (afterDown <= 0) return 0;
+        const totalInterest = afterDown * (interestRate / 100) * (months / 12);
+        const total = afterDown + totalInterest;
+        return Math.round(total / months);
+    }
+    
+    function updateMonthlyPreview() {
+        const cashPrice = parseFloat(document.getElementById('pkgCashPrice').value) || 0;
+        const downPayment = parseFloat(document.getElementById('pkgDown').value) || 0;
+        const interestRate = parseFloat(document.getElementById('pkgInterest').value) || 0;
+        
+        if (cashPrice > 0 && interestRate > 0) {
+            const monthly = calculateMonthlyFromCash(cashPrice, downPayment, interestRate, 24);
+            document.getElementById('pkgMonthly').value = monthly;
+            const preview = document.getElementById('monthlyPreview');
+            preview.innerHTML = `📊 القسط الشهري المتوقع: <span style="color:#2e7d32; font-size:1.2rem;">${monthly.toLocaleString()} ج.م</span> (لمدة 24 شهر)`;
+            preview.classList.remove('hidden');
+        } else {
+            document.getElementById('pkgMonthly').value = '';
+            document.getElementById('monthlyPreview').classList.add('hidden');
+        }
+    }
     
     // ==================== المنتجات العادية ====================
     const loadProducts = () => {
@@ -366,20 +411,31 @@
     window.savePackage = async () => {
         const items = getItemsArray();
         const extras = getExtrasArray();
+        const cashPrice = parseFloat(document.getElementById('pkgCashPrice').value);
+        const downPayment = parseFloat(document.getElementById('pkgDown').value);
+        const interestRate = parseFloat(document.getElementById('pkgInterest').value);
+        
+        if (!cashPrice || cashPrice <= 0) return alert('يرجى إدخال سعر الكاش الإجمالي');
+        if (!interestRate || interestRate <= 0) return alert('يرجى إدخال نسبة الفائدة');
+        
+        // حساب القسط الشهري تلقائياً (على 24 شهر)
+        const monthlyPrice = calculateMonthlyFromCash(cashPrice, downPayment, interestRate, 24);
+        
         const data = {
             name: document.getElementById('pkgName').value,
             category: 'wedding_packages',
             description: document.getElementById('pkgDesc').value,
             image: document.getElementById('pkgImage').value,
-            cashPrice: parseFloat(document.getElementById('pkgCashPrice').value),
-            monthlyPrice: parseFloat(document.getElementById('pkgMonthly').value),
-            downPayment: parseFloat(document.getElementById('pkgDown').value),
-            interestRate: parseFloat(document.getElementById('pkgInterest').value),
+            cashPrice: cashPrice,
+            monthlyPrice: monthlyPrice,
+            downPayment: downPayment || 0,
+            interestRate: interestRate,
             items: items,
             extras: extras,
             date: serverTimestamp()
         };
-        if(!data.name || !data.monthlyPrice || !data.cashPrice) return alert('املأ البيانات الأساسية (الاسم، القسط، سعر الكاش)');
+        
+        if(!data.name) return alert('يرجى إدخال اسم الباقة');
         
         if(editingPackageId) {
             await updateDoc(doc(db, "products", editingPackageId), data);
@@ -387,7 +443,7 @@
         } else {
             await addDoc(collection(db, "products"), data);
         }
-        alert('تم حفظ الباقة');
+        alert(`✅ تم حفظ الباقة. القسط الشهري: ${monthlyPrice.toLocaleString()} ج.م`);
         clearPackageForm();
     };
     
@@ -396,9 +452,10 @@
         document.getElementById('pkgDesc').value = '';
         document.getElementById('pkgImage').value = '';
         document.getElementById('pkgCashPrice').value = '';
-        document.getElementById('pkgMonthly').value = '';
         document.getElementById('pkgDown').value = '';
         document.getElementById('pkgInterest').value = '';
+        document.getElementById('pkgMonthly').value = '';
+        document.getElementById('monthlyPreview').classList.add('hidden');
         document.getElementById('itemsContainer').innerHTML = '<div class="item-field"><input placeholder="اسم الجهاز"><button onclick="removeItem(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
         document.getElementById('extrasContainer').innerHTML = '<div class="extra-item"><input placeholder="اسم الرفاية"><input placeholder="السعر"><button onclick="removeExtra(this)" style="background:#e74c3c; padding:8px 12px;">✖</button></div>';
         document.getElementById('savePackageBtn').innerText = '💾 حفظ الباقة';
@@ -416,7 +473,7 @@
                 const extrasText = p.extras?.map(e => `${e.name}`).join(', ') || 'لا يوجد';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><img src="${p.image}" style="width:50px; height:50px; object-fit:contain;"></td>
+                    <td><img src="${p.image}" style="width:50px; height:50px; object-fit:contain;">${!p.image ? '🎁' : ''}</td>
                     <td>${p.name}</td>
                     <td>${p.monthlyPrice?.toLocaleString()} ج.م/شهر</td>
                     <td>${p.downPayment?.toLocaleString()} ج.م</td>
@@ -439,9 +496,16 @@
         document.getElementById('pkgDesc').value = data.description || '';
         document.getElementById('pkgImage').value = data.image || '';
         document.getElementById('pkgCashPrice').value = data.cashPrice || '';
-        document.getElementById('pkgMonthly').value = data.monthlyPrice;
-        document.getElementById('pkgDown').value = data.downPayment;
-        document.getElementById('pkgInterest').value = data.interestRate;
+        document.getElementById('pkgDown').value = data.downPayment || 0;
+        document.getElementById('pkgInterest').value = data.interestRate || '';
+        
+        // عرض القسط المحسوب
+        if (data.cashPrice && data.interestRate) {
+            const monthly = calculateMonthlyFromCash(data.cashPrice, data.downPayment || 0, data.interestRate, 24);
+            document.getElementById('pkgMonthly').value = monthly;
+            document.getElementById('monthlyPreview').innerHTML = `📊 القسط الشهري المتوقع: <span style="color:#2e7d32; font-size:1.2rem;">${monthly.toLocaleString()} ج.م</span> (لمدة 24 شهر)`;
+            document.getElementById('monthlyPreview').classList.remove('hidden');
+        }
         
         const itemsContainer = document.getElementById('itemsContainer');
         itemsContainer.innerHTML = '';
@@ -474,6 +538,11 @@
     window.deletePackage = async (id) => {
         if(confirm('تأكيد حذف الباقة؟')) await deleteDoc(doc(db, "products", id));
     };
+    
+    // أحداث التحديث التلقائي للقسط
+    document.getElementById('pkgCashPrice')?.addEventListener('input', updateMonthlyPreview);
+    document.getElementById('pkgDown')?.addEventListener('input', updateMonthlyPreview);
+    document.getElementById('pkgInterest')?.addEventListener('input', updateMonthlyPreview);
     
     document.getElementById('saveProductBtn').onclick = () => window.saveProduct();
     document.getElementById('savePackageBtn').onclick = () => window.savePackage();
