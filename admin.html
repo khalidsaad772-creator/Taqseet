@@ -54,11 +54,12 @@ td{border:1px solid #ddd;padding:10px;text-align:center;background:#fff}
 
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            // إذا لم يكن مسجل الدخول، توجه لصفحة تسجيل الدخول
+            // خلي بالك: بنحفظ اسم الصفحة الحالية عشان نرجع لها بعد تسجيل الدخول
+            sessionStorage.setItem('redirectAfterLogin', window.location.pathname.split('/').pop());
             window.location.href = "login.html";
         }
     });
-</script>
+    </script>
 <div class="container">
     <h1>محل التقسيط 💰</h1>
     <input type="text" id="name" placeholder="* اسم العميل">
