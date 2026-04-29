@@ -147,7 +147,8 @@
 
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            // إذا لم يكن مسجل الدخول، توجه لصفحة تسجيل الدخول
+            // خلي بالك: بنحفظ اسم الصفحة الحالية عشان نرجع لها بعد تسجيل الدخول
+            sessionStorage.setItem('redirectAfterLogin', window.location.pathname.split('/').pop());
             window.location.href = "login.html";
         }
     });
