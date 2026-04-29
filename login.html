@@ -2,13 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تسجيل الدخول - لوحة التحكم</title>
+    <title>تسجيل الدخول</title>
     <style>
         body { font-family: 'Cairo', sans-serif; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .login-box { background: white; padding: 40px; border-radius: 30px; width: 90%; max-width: 400px; text-align: center; border-top: 6px solid #d4af37; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 15px; }
         button { background: #d4af37; width: 100%; padding: 12px; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
-        .error { color: red; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -17,7 +16,6 @@
     <input type="email" id="email" placeholder="البريد الإلكتروني">
     <input type="password" id="password" placeholder="كلمة المرور">
     <button onclick="login()">دخول</button>
-    <div id="errorMsg" class="error"></div>
 </div>
 
 <script type="module">
@@ -40,9 +38,11 @@
         const password = document.getElementById('password').value;
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = "admin.html"; // بعد النجاح، اذهب للوحة تحكم المنتجات
+            // خليها توديك على الصفحة اللي جيت منها
+            const redirect = sessionStorage.getItem('redirectAfterLogin') || 'admin.html';
+            window.location.href = redirect;
         } catch (error) {
-            document.getElementById('errorMsg').innerText = 'خطأ في البريد أو كلمة المرور';
+            alert("بيانات غير صحيحة");
         }
     };
 </script>
