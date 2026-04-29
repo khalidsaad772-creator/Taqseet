@@ -130,6 +130,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBs4516o79M6NqDPkiqBn2hlcWz6Fh5PQ4",
+        authDomain: "taqseet-f4aaf.firebaseapp.com",
+        projectId: "taqseet-f4aaf",
+        storageBucket: "taqseet-f4aaf.firebasestorage.app",
+        appId: "1:436609051568:web:8a6d40e2b08ddc2aad8475"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            // إذا لم يكن مسجل الدخول، توجه لصفحة تسجيل الدخول
+            window.location.href = "login.html";
+        }
+    });
+    </script>
 <div class="container">
     <h1 style="text-align:center; margin-bottom:20px;">🛠️ لوحة تحكم معرض خالد خفاجي</h1>
     
