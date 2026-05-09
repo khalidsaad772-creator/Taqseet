@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Khalid Helmy Khafagy | السيرة الذاتية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خالد حلمي خفاجي - السيرة الذاتية الاحترافية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -19,6 +19,7 @@
         body.english-mode { direction: ltr; text-align: left; font-family: 'Inter', 'Cairo', sans-serif; }
         .app-container { max-width: 1500px; margin: 0 auto; }
         
+        /* Language Switcher */
         .lang-switch { display: flex; justify-content: flex-end; margin-bottom: 1rem; gap: 0.5rem; }
         .lang-btn {
             background: white; border: none; padding: 0.5rem 1.2rem; border-radius: 40px;
@@ -58,6 +59,7 @@
         .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .download-btn:hover { background: #0f5a4a; }
         
+        /* CV Preview Styles - Enhanced */
         .cv-preview {
             padding: 1.8rem;
             background: white;
@@ -65,30 +67,55 @@
             border-radius: 16px;
             width: 100%;
             font-size: 11pt;
-            line-height: 1.45;
+            line-height: 1.5;
         }
-        .template-modern .cv-header { text-align: center; margin-bottom: 1rem; }
-        .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #0f3b4a; }
-        .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 700; border-right: 4px solid #2c7da0; padding-right: 0.8rem; margin: 0.8rem 0 0.5rem 0; }
+        /* Template Modern */
+        .template-modern .cv-header { text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; }
+        .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #1e4a6b; }
+        .template-modern .cv-title { font-size: 1rem; color: #2c7da0; font-weight: 600; margin-top: 5px; }
+        .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 800; border-right: 4px solid #2c7da0; padding-right: 0.7rem; margin: 1rem 0 0.6rem 0; color: #1e4a6b; }
+        
+        /* Template Elegant */
         .template-elegant .cv-header { background: #2c3e4e; color: white; margin: -1.8rem -1.8rem 1.2rem -1.8rem; padding: 1.5rem 1.8rem; border-radius: 16px 16px 30px 30px; }
-        .template-sidebar { display: grid; grid-template-columns: 0.85fr 2.15fr; gap: 1.2rem; }
-        .template-sidebar .sidebar-col { background: #eef3fa; padding: 1rem; border-radius: 16px; }
-        .job-item, .edu-item { margin-bottom: 0.7rem; }
-        .job-title, .edu-degree { font-weight: 700; }
-        .job-date, .edu-date { font-size: 0.7rem; color: #5b6e8c; }
-        p { margin-bottom: 0.3rem; }
+        .template-elegant .cv-name { font-size: 1.6rem; font-weight: 800; }
+        .template-elegant .section-title-preview { font-size: 1rem; font-weight: 800; border-bottom: 2px solid #d4c2a7; display: inline-block; margin-bottom: 0.6rem; }
+        
+        /* Template Sidebar - FIXED */
+        .template-sidebar {
+            display: grid;
+            grid-template-columns: 0.85fr 2.15fr;
+            gap: 1.2rem;
+        }
+        .template-sidebar .sidebar-col {
+            background: #eef3fa;
+            padding: 1rem;
+            border-radius: 16px;
+        }
+        .template-sidebar .sidebar-col .cv-name-sidebar { font-size: 1.2rem; font-weight: 800; color: #1e4a6b; margin-bottom: 0.3rem; }
+        .template-sidebar .sidebar-col .cv-title-sidebar { font-size: 0.85rem; color: #2c7da0; font-weight: 600; margin-bottom: 0.8rem; }
+        .template-sidebar .sidebar-col .contact-item { font-size: 0.75rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .template-sidebar .main-col .section-title-preview { font-size: 1rem; font-weight: 800; color: #1f6392; border-bottom: 2px solid #cbdbe2; margin: 0.8rem 0 0.5rem 0; padding-bottom: 0.2rem; }
+        
+        /* Common styles */
+        .job-item, .edu-item { margin-bottom: 0.8rem; }
+        .job-title { font-weight: 800; font-size: 0.95rem; }
+        .job-date { font-size: 0.7rem; color: #5b6e8c; margin-bottom: 0.3rem; }
+        .job-desc { font-size: 0.85rem; white-space: pre-line; }
+        .cv-contact i { width: 20px; margin-left: 5px; color: #5b7c99; }
+        .skills-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+        .skill-tag { background: #eef2ff; padding: 4px 12px; border-radius: 30px; font-size: 0.8rem; }
         
         @media (max-width: 950px) { .dashboard { grid-template-columns: 1fr; } }
         footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #556b82; }
-        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.8rem; padding-right: 0; }
+        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.7rem; padding-right: 0; }
         
         .loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
-            z-index: 9999; color: white; font-size: 1.5rem; flex-direction: column; gap: 1rem;
+            z-index: 9999; color: white; font-size: 1.2rem; flex-direction: column; gap: 1rem;
             backdrop-filter: blur(3px);
         }
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -115,6 +142,7 @@
             <div class="form-group"><label id="emailLabel"><i class="fas fa-envelope"></i> البريد الإلكتروني</label><input type="email" id="email" value="khalidhelmy772@gmail.com"></div>
             <div class="form-group"><label id="phoneLabel"><i class="fas fa-phone-alt"></i> رقم الهاتف</label><input type="text" id="phone" value="+201095890589"></div>
             <div class="form-group"><label id="locationLabel"><i class="fas fa-map-marker-alt"></i> العنوان</label><input type="text" id="location" value="Egypt"></div>
+            <div class="form-group"><label id="linkedinLabel"><i class="fab fa-linkedin"></i> LinkedIn</label><input type="text" id="linkedin" value="https://www.linkedin.com/in/khalid-helmy"></div>
             <div class="form-group"><label id="summaryLabel"><i class="fas fa-align-left"></i> نبذة شخصية</label><textarea id="summary" rows="3">Results-oriented Payroll Specialist with over 15 years of experience managing end-to-end payroll for large-scale government-sector workforces. LL.B. background combined with technical mastery of SAP and Oracle Payroll ensures 100% compliance with Egyptian labor law, social insurance, and tax regulations.</textarea></div>
             <div><span class="section-title" id="expTitle">الخبرات العملية</span></div>
             <div id="experiencesContainer"></div>
@@ -138,12 +166,12 @@
 </div>
 
 <script>
-    // البيانات المُعبأة مسبقاً (خاصة بخالد حلمي خفاجي)
+    // البيانات المُعبأة مسبقاً
     let experiences = [
-        { title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "Manage full-cycle payroll for 1,200+ employees using SAP and Oracle with 99.9% accuracy\n- Reduced payroll processing time by 30% through automation\n- Ensure 100% compliance on social insurance and tax filings\n- Maintain employee records across ERP platforms; reduced data discrepancies by 25%\n- Generate financial and HR reports to support audits\n- Resolved 50+ system tickets annually" }
+        { title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "• Manage full-cycle payroll for 1,200+ employees using SAP and Oracle with 99.9% accuracy\n• Reduced payroll processing time by 30% through automation\n• Ensure 100% compliance on social insurance and tax filings\n• Maintain employee records across ERP platforms; reduced data discrepancies by 25%\n• Generate financial and HR reports to support audits\n• Resolved 50+ system tickets annually" }
     ];
     let educations = [
-        { degree: "LL.B. (Bachelor of Laws)", institution: "Cairo University", year: "2005", description: "Background in Egyptian labor law and legal compliance" }
+        { degree: "LL.B. (Bachelor of Laws)", institution: "Cairo University", year: "2018", description: "Background in Egyptian labor law and legal compliance" }
     ];
     let currentTemplate = "modern";
     let currentLang = "ar";
@@ -154,6 +182,7 @@
     const emailInp = document.getElementById("email");
     const phoneInp = document.getElementById("phone");
     const locationInp = document.getElementById("location");
+    const linkedinInp = document.getElementById("linkedin");
     const summaryInp = document.getElementById("summary");
     const skillsInp = document.getElementById("skills");
     const languagesInp = document.getElementById("languages");
@@ -170,7 +199,7 @@
             previewTitle: "معاينة السيرة الذاتية", downloadText: "تحميل PDF (A4 كامل)", footerText: "يمكنك تعديل البيانات والتبديل بين القوالب — PDF بجودة عالية ويملأ صفحة A4 بالكامل.",
             mainTitle: "منشئ السيرة الذاتية الاحترافية", subTitle: "أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | PDF بملء صفحة A4",
             tempModern: "✨ عصري", tempElegant: "💎 أنيق", tempSidebar: "📐 جانبي",
-            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات"
+            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات", linkedinLabel: "LinkedIn"
         },
         en: {
             fullNameLabel: "Full Name", jobTitleLabel: "Job Title", emailLabel: "Email", phoneLabel: "Phone",
@@ -179,7 +208,7 @@
             previewTitle: "CV Preview", downloadText: "Download PDF (Full A4)", footerText: "Edit data, switch templates — high-quality PDF that fills the entire A4 page.",
             mainTitle: "Professional CV Builder", subTitle: "Create your CV with 3 unique templates | Perfect full-page A4 PDF export",
             tempModern: "✨ Modern", tempElegant: "💎 Elegant", tempSidebar: "📐 Sidebar",
-            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages"
+            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages", linkedinLabel: "LinkedIn"
         }
     };
 
@@ -190,6 +219,7 @@
         document.getElementById("emailLabel").innerHTML = `<i class="fas fa-envelope"></i> ${t.emailLabel}`;
         document.getElementById("phoneLabel").innerHTML = `<i class="fas fa-phone-alt"></i> ${t.phoneLabel}`;
         document.getElementById("locationLabel").innerHTML = `<i class="fas fa-map-marker-alt"></i> ${t.locationLabel}`;
+        document.getElementById("linkedinLabel").innerHTML = `<i class="fab fa-linkedin"></i> ${t.linkedinLabel}`;
         document.getElementById("summaryLabel").innerHTML = `<i class="fas fa-align-left"></i> ${t.summaryLabel}`;
         document.getElementById("skillsLabel").innerHTML = `<i class="fas fa-code"></i> ${t.skillsLabel}`;
         document.getElementById("langsLabel").innerHTML = `<i class="fas fa-language"></i> ${t.langsLabel}`;
@@ -297,6 +327,7 @@
             email: emailInp.value,
             phone: phoneInp.value,
             location: locationInp.value,
+            linkedin: linkedinInp.value,
             summary: summaryInp.value,
             skills: skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s),
             languages: languagesInp.value,
@@ -307,29 +338,48 @@
     function renderCVByTemplate(data, template) {
         const t = trans[currentLang];
         const summarySec = t.summarySec, expSec = t.experienceSec, eduSec = t.educationSec, skillsSec = t.skillsSec, langsSec = t.languagesSec;
-        if(template === "modern") {
-            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}</div></div>
-            <div class="section-block"><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div class="section-block"><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)} (${exp.startDate} - ${exp.endDate})</div><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div>`).join('')}</div>
-            <div class="section-block"><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="edu-degree">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)} (${edu.year})</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
-            <div class="section-block"><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' • ')}</p></div>
-            <div class="section-block"><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
+        
+        // قالب جانبي (Sidebar) - تم إصلاحه بالكامل
+        if(template === "sidebar") {
+            return `<div class="template-sidebar">
+                <div class="sidebar-col">
+                    <div class="cv-name-sidebar">${escapeHtml(data.fullName)}</div>
+                    <div class="cv-title-sidebar">${escapeHtml(data.jobTitle)}</div>
+                    <hr>
+                    <div class="contact-item"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)}</div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i> ${escapeHtml(data.phone)}</div>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}</div>
+                    ${data.linkedin ? `<div class="contact-item"><i class="fab fa-linkedin"></i> ${escapeHtml(data.linkedin)}</div>` : ''}
+                    <hr>
+                    <div><strong>${skillsSec}</strong></div>
+                    <div class="skills-list" style="flex-direction:column; gap:4px;">${data.skills.map(s => `<span>• ${s}</span>`).join('')}</div>
+                    <hr>
+                    <div><strong>${langsSec}</strong><br>${escapeHtml(data.languages)}</div>
+                </div>
+                <div class="main-col">
+                    <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
+                    <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><p style="white-space:pre-line; font-size:0.85rem;">${escapeHtml(exp.description)}</p></div><br/>`).join('')}</div>
+                    <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong> - ${escapeHtml(edu.institution)} (${edu.year})<br/><p>${escapeHtml(edu.description)}</p></div><br/>`).join('')}</div>
+                </div>
+            </div>`;
         }
-        // تبسيط: نفس الشيء للقوالب الأخرى لكن بنفس المنطق (يمكن توسيعه)
-        else if(template === "elegant") {
-            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem">${escapeHtml(data.email)} | ${escapeHtml(data.phone)} | ${escapeHtml(data.location)}</div></div>
+        // قالب عصري (Modern)
+        else if(template === "modern") {
+            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div class="cv-contact" style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)} ${data.linkedin ? `| <i class="fab fa-linkedin"></i> ${escapeHtml(data.linkedin)}` : ''}</div></div>
+            <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
+            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)} (${exp.startDate} - ${exp.endDate})</div><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div>`).join('')}</div>
+            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="job-title">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)} (${edu.year})</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
+            <div><div class="section-title-preview">${skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div></div>
+            <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
+        }
+        // قالب أنيق (Elegant)
+        else {
+            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)} ${data.linkedin ? `| <i class="fab fa-linkedin"></i> ${escapeHtml(data.linkedin)}` : ''}</div></div>
             <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
             <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div><hr/>`).join('')}</div>
             <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong>, ${escapeHtml(edu.institution)} (${edu.year})<br/><p>${escapeHtml(edu.description)}</p></div><hr/>`).join('')}</div>
-            <div><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' - ')}</p></div>
+            <div><div class="section-title-preview">${skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div></div>
             <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
-        }
-        else {
-            return `<div class="template-sidebar"><div class="sidebar-col"><div><strong>${escapeHtml(data.fullName)}</strong><div>${escapeHtml(data.jobTitle)}</div><hr/><i class="fas fa-envelope"></i> ${escapeHtml(data.email)}<br/><i class="fas fa-phone"></i> ${escapeHtml(data.phone)}<br/><i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}<hr/><div><strong>${skillsSec}</strong><br/>${data.skills.map(s=>`• ${s}`).join('<br>')}</div><hr/><div><strong>${langsSec}</strong><br/>${escapeHtml(data.languages)}</div></div></div>
-            <div class="main-col"><div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong>, ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div><br/>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong> - ${escapeHtml(edu.institution)} (${edu.year})<br/><p>${escapeHtml(edu.description)}</p></div><br/>`).join('')}</div>
-            </div></div>`;
         }
     }
 
@@ -359,7 +409,7 @@
         });
     });
 
-    const mainInputs = [fullNameInp, jobTitleInp, emailInp, phoneInp, locationInp, summaryInp, skillsInp, languagesInp];
+    const mainInputs = [fullNameInp, jobTitleInp, emailInp, phoneInp, locationInp, linkedinInp, summaryInp, skillsInp, languagesInp];
     mainInputs.forEach(inp => inp.addEventListener("input", () => updateCVPreview()));
 
     document.getElementById("langArBtn").addEventListener("click", () => { currentLang = "ar"; document.getElementById("langArBtn").classList.add("active"); document.getElementById("langEnBtn").classList.remove("active"); applyLanguage(); });
@@ -372,9 +422,7 @@
         document.body.appendChild(loadingDiv);
         
         try {
-            const originalClasses = cvPreview.className;
             const originalStyle = cvPreview.getAttribute('style') || '';
-            
             cvPreview.style.width = "794px";
             cvPreview.style.margin = "0 auto";
             cvPreview.style.padding = "12mm 10mm";
