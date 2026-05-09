@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CV Builder | باني السيرة الذاتية - عربي / English</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f4fc 0%, #e9eef5 100%);
+            font-family: 'Cairo', 'Inter', sans-serif;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        body.english-mode {
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', 'Cairo', sans-serif;
+        }
+
+        body.english-mode .form-panel,
+        body.english-mode .preview-panel,
+        body.english-mode .header,
+        body.english-mode footer {
+            text-align: left;
+        }
+
+        .app-container {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        /* Language Switcher */
+        .lang-switch {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+        .lang-btn {
+            background: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lang-btn.active {
+            background: #1e6f5c;
+            color: white;
+        }
+        body.english-mode .lang-btn.active {
+            background: #2c7da0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1f3b4c, #2c5a6e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-panel {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #0f2b3b;
+            font-size: 0.85rem;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 18px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 1.2rem 0 0.8rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 3px solid #2c7da0;
+            display: inline-block;
+            color: #1e4a6b;
+        }
+        .dynamic-item {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #eef2f8;
+        }
+        .dynamic-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        .remove-btn {
+            background: #fee2e2;
+            border: none;
+            color: #b91c1c;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .add-btn {
+            background: #eef2ff;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #1e4a6b;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-selector {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 0.2rem;
+            display: flex;
+            margin: 1rem 0 1.2rem 0;
+            gap: 0.5rem;
+        }
+        .template-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.6rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .template-option.active {
+            background: white;
+            color: #1f6e8c;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .preview-panel {
+            background: #fefefe;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .preview-header {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9edf2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .download-btn {
+            background: #1e6f5c;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cv-preview {
+            padding: 2rem;
+            background: white;
+            margin: 1rem;
+            border-radius: 24px;
+            min-height: 600px;
+        }
+
+        /* Template Styles */
+        .template-modern .cv-header { text-align: center; margin-bottom:1.5rem; }
+        .template-modern .cv-name { font-size:2rem; font-weight:800; color:#0f3b4a; }
+        .template-modern .section-title-preview { font-size:1.2rem; font-weight:700; border-right:4px solid #2c7da0; padding-right:0.8rem; margin:1rem 0 0.8rem 0; }
+        .template-elegant .cv-header { background:#2c3e4e; color:white; margin:-2rem -2rem 1.5rem -2rem; padding:1.8rem 2rem; border-radius:24px 24px 30px 30px; }
+        .template-sidebar { display:grid; grid-template-columns:0.9fr 2fr; gap:1.5rem; }
+        .template-sidebar .sidebar-col { background:#eef3fa; padding:1rem; border-radius:20px; }
+        .job-item, .edu-item { margin-bottom:0.8rem; }
+        .job-title, .edu-degree { font-weight:700; }
+        .job-date, .edu-date { font-size:0.75rem; color:#5b6e8c; }
+
+        @media (max-width: 950px) { .dashboard { grid-template-columns:1fr; } }
+        footer { text-align:center; margin-top:2rem; font-size:0.8rem; color:#556b82; }
+        body.english-mode .template-modern .section-title-preview { border-right: none; border-left:4px solid #2c7da0; padding-left:0.8rem; padding-right:0; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="lang-switch">
+        <button id="langArBtn" class="lang-btn active"><i class="fas fa-language"></i> 🇸🇪 العربية</button>
+        <button id="langEnBtn" class="lang-btn"><i class="fas fa-language"></i> English</button>
+    </div>
+    <div class="header">
+        <h1 id="mainTitle"><i class="fas fa-file-alt"></i> منشئ السيرة الذاتية الاحترافية</h1>
+        <p id="subTitle">أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | عربي / English</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Form Panel -->
+        <div class="form-panel" id="formPanel">
+            <div class="template-selector" id="templateSelector">
+                <div data-template="modern" class="template-option active" id="tempModern">✨ عصري / Modern</div>
+                <div data-template="elegant" class="template-option" id="tempElegant">💎 أنيق / Elegant</div>
+                <div data-template="sidebar" class="template-option" id="tempSidebar">📐 جانبي / Sidebar</div>
+            </div>
+
+            <div class="form-group"><label id="fullNameLabel"><i class="fas fa-user"></i> الاسم الكامل / Full Name</label><input type="text" id="fullName" value="ليلى السيد" placeholder="أحمد محمد"></div>
+            <div class="form-group"><label id="jobTitleLabel"><i class="fas fa-briefcase"></i> المسمى الوظيفي / Job Title</label><input type="text" id="jobTitle" value="مصممة تجربة مستخدم أول" placeholder="Senior UX Designer"></div>
+            <div class="form-group"><label id="emailLabel"><i class="fas fa-envelope"></i> البريد الإلكتروني / Email</label><input type="email" id="email" value="laila@example.com"></div>
+            <div class="form-group"><label id="phoneLabel"><i class="fas fa-phone-alt"></i> رقم الهاتف / Phone</label><input type="text" id="phone" value="+966 55 123 4567"></div>
+            <div class="form-group"><label id="locationLabel"><i class="fas fa-map-marker-alt"></i> العنوان / Location</label><input type="text" id="location" value="دبي، الإمارات"></div>
+            <div class="form-group"><label id="summaryLabel"><i class="fas fa-align-left"></i> نبذة شخصية / Summary</label><textarea id="summary" rows="2">مصممة UX محترفة بخبرة 6 سنوات في تصميم تجارب رقمية مبتكرة. شغوفة بتحويل الأفكار إلى منتجات سهلة الاستخدام.</textarea></div>
+
+            <div><span class="section-title" id="expTitle">الخبرات العملية / Experience</span></div>
+            <div id="experiencesContainer"></div>
+            <button class="add-btn" id="addExperienceBtn"><i class="fas fa-plus-circle"></i> <span id="addExpText">إضافة خبرة / Add Experience</span></button>
+
+            <div style="margin-top:1rem;"><span class="section-title" id="eduTitle">التعليم / Education</span></div>
+            <div id="educationContainer"></div>
+            <button class="add-btn" id="addEducationBtn"><i class="fas fa-plus-circle"></i> <span id="addEduText">إضافة تعليم / Add Education</span></button>
+
+            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel"><i class="fas fa-code"></i> المهارات / Skills (comma separated)</label><input type="text" id="skills" value="Figma, Adobe XD, User Research, Prototyping, CSS"></div>
+            <div class="form-group"><label id="langsLabel"><i class="fas fa-language"></i> اللغات / Languages</label><input type="text" id="languages" value="العربية (لغة أم)، الإنجليزية (ممتاز)"></div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h3 id="previewTitle"><i class="fas fa-eye"></i> معاينة السيرة الذاتية / CV Preview</h3>
+                <button id="downloadPDFBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF / Download PDF</span></button>
+            </div>
+            <div id="cvPreviewContainer" class="cv-preview template-modern"></div>
+        </div>
+    </div>
+    <footer id="footerText">يمكنك تعديل البيانات والتبديل بين القوالب — معاينة فورية وجاهزة للطباعة. / Edit data, switch templates, live preview & PDF export.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // ---------- Data Models ----------
+    let experiences = [
+        { title: "مصممة UX كبيرة", company: "شركة تكامل", startDate: "2022", endDate: "حالياً", description: "قيادة فريق التصميم وتطوير تجربة مستخدم لمنصة رقمية." },
+        { title: "مصممة UI/UX", company: "وكالة إبداع", startDate: "2019", endDate: "2022", description: "تصميم واجهات تطبيقات الهاتف واختبارات المستخدم." }
+    ];
+    let educations = [
+        { degree: "ماجستير في التفاعل الإنساني", institution: "جامعة القاهرة", year: "2018", description: "تخصص تصميم تجارب المستخدم" },
+        { degree: "بكالوريوس علوم الحاسب", institution: "جامعة الملك سعود", year: "2015", description: "تقدير ممتاز" }
+    ];
+
+    let currentTemplate = "modern";
+    let currentLang = "ar"; // 'ar' or 'en'
+
+    // DOM elements bindings
+    const fullNameInp = document.getElementById("fullName");
+    const jobTitleInp = document.getElementById("jobTitle");
+    const emailInp = document.getElementById("email");
+    const phoneInp = document.getElementById("phone");
+    const locationInp = document.getElementById("location");
+    const summaryInp = document.getElementById("summary");
+    const skillsInp = document.getElementById("skills");
+    const languagesInp = document.getElementById("languages");
+    const expContainer = document.getElementById("experiencesContainer");
+    const eduContainer = document.getElementById("educationContainer");
+    const cvPreview = document.getElementById("cvPreviewContainer");
+
+    // Translation dictionaries (AR / EN)
+    const translations = {
+        ar: {
+            fullNameLabel: "الاسم الكامل", jobTitleLabel: "المسمى الوظيفي", emailLabel: "البريد الإلكتروني", phoneLabel: "رقم الهاتف",
+            locationLabel: "العنوان", summaryLabel: "نبذة شخصية", skillsLabel: "المهارات (افصل بينها بفاصلة)", langsLabel: "اللغات",
+            expTitle: "الخبرات العملية", eduTitle: "التعليم", addExpText: "إضافة خبرة", addEduText: "إضافة تعليم",
+            previewTitle: "معاينة السيرة الذاتية", downloadText: "تحميل PDF", footerText: "يمكنك تعديل البيانات والتبديل بين القوالب — معاينة فورية وجاهزة للطباعة.",
+            mainTitle: "منشئ السيرة الذاتية الاحترافية", subTitle: "أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | عربي / English",
+            tempModern: "✨ عصري", tempElegant: "💎 أنيق", tempSidebar: "📐 جانبي",
+            // section headers within preview (dynamic)
+            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات",
+            // placeholders dynamic
+            jobTitlePlace: "مطور برمجيات", fullNamePlace: "أحمد محمد", emailPlace: "example@domain.com", phonePlace: "+966 5XXXXXX", locationPlace: "الرياض، السعودية"
+        },
+        en: {
+            fullNameLabel: "Full Name", jobTitleLabel: "Job Title", emailLabel: "Email", phoneLabel: "Phone",
+            locationLabel: "Location", summaryLabel: "Professional Summary", skillsLabel: "Skills (comma separated)", langsLabel: "Languages",
+            expTitle: "Work Experience", eduTitle: "Education", addExpText: "Add Experience", addEduText: "Add Education",
+            previewTitle: "CV Preview", downloadText: "Download PDF", footerText: "Edit data, switch between templates — live preview & ready to print.",
+            mainTitle: "Professional CV Builder", subTitle: "Create your professional CV with 3 unique templates | English / عربي",
+            tempModern: "✨ Modern", tempElegant: "💎 Elegant", tempSidebar: "📐 Sidebar",
+            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages",
+            jobTitlePlace: "Software Engineer", fullNamePlace: "Ahmed Mohamed", emailPlace: "example@domain.com", phonePlace: "+966 5XXXXXX", locationPlace: "Riyadh, Saudi Arabia"
+        }
+    };
+
+    function applyLanguage() {
+        const t = translations[currentLang];
+        document.getElementById("fullNameLabel").innerHTML = `<i class="fas fa-user"></i> ${t.fullNameLabel}`;
+        document.getElementById("jobTitleLabel").innerHTML = `<i class="fas fa-briefcase"></i> ${t.jobTitleLabel}`;
+        document.getElementById("emailLabel").innerHTML = `<i class="fas fa-envelope"></i> ${t.emailLabel}`;
+        document.getElementById("phoneLabel").innerHTML = `<i class="fas fa-phone-alt"></i> ${t.phoneLabel}`;
+        document.getElementById("locationLabel").innerHTML = `<i class="fas fa-map-marker-alt"></i> ${t.locationLabel}`;
+        document.getElementById("summaryLabel").innerHTML = `<i class="fas fa-align-left"></i> ${t.summaryLabel}`;
+        document.getElementById("skillsLabel").innerHTML = `<i class="fas fa-code"></i> ${t.skillsLabel}`;
+        document.getElementById("langsLabel").innerHTML = `<i class="fas fa-language"></i> ${t.langsLabel}`;
+        document.getElementById("expTitle").innerHTML = t.expTitle;
+        document.getElementById("eduTitle").innerHTML = t.eduTitle;
+        document.getElementById("addExpText").innerText = t.addExpText;
+        document.getElementById("addEduText").innerText = t.addEduText;
+        document.getElementById("previewTitle").innerHTML = `<i class="fas fa-eye"></i> ${t.previewTitle}`;
+        document.getElementById("downloadText").innerText = t.downloadText;
+        document.getElementById("footerText").innerHTML = t.footerText;
+        document.getElementById("mainTitle").innerHTML = `<i class="fas fa-file-alt"></i> ${t.mainTitle}`;
+        document.getElementById("subTitle").innerText = t.subTitle;
+        document.getElementById("tempModern").innerHTML = t.tempModern;
+        document.getElementById("tempElegant").innerHTML = t.tempElegant;
+        document.getElementById("tempSidebar").innerHTML = t.tempSidebar;
+
+        // set placeholders
+        fullNameInp.placeholder = t.fullNamePlace;
+        jobTitleInp.placeholder = t.jobTitlePlace;
+        emailInp.placeholder = t.emailPlace;
+        phoneInp.placeholder = t.phonePlace;
+        locationInp.placeholder = t.locationPlace;
+
+        // change body direction
+        const body = document.body;
+        if (currentLang === 'ar') {
+            body.classList.remove('english-mode');
+            body.setAttribute('dir', 'rtl');
+            body.style.textAlign = 'right';
+            document.documentElement.lang = 'ar';
+        } else {
+            body.classList.add('english-mode');
+            body.setAttribute('dir', 'ltr');
+            body.style.textAlign = 'left';
+            document.documentElement.lang = 'en';
+        }
+        // re-render dynamic forms texts + refresh preview
+        renderDynamicForms();
+        updateCVPreview();
+    }
+
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    function renderDynamicForms() {
+        expContainer.innerHTML = "";
+        experiences.forEach((exp, idx) => {
+            const div = document.createElement("div");
+            div.className = "dynamic-item";
+            div.innerHTML = `
+                <div class="dynamic-item-header"><strong>${currentLang === 'ar' ? `خبرة ${idx+1}` : `Experience ${idx+1}`}</strong><button class="remove-btn" data-type="exp" data-index="${idx}"><i class="fas fa-trash-alt"></i></button></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'المسمى الوظيفي' : 'Job Title'}</label><input class="exp-title" value="${escapeHtml(exp.title)}" placeholder="${currentLang === 'ar' ? 'مصمم' : 'Designer'}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}</label><input class="exp-company" value="${escapeHtml(exp.company)}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date'}</label><input class="exp-start" value="${escapeHtml(exp.startDate)}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date'}</label><input class="exp-end" value="${escapeHtml(exp.endDate)}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'وصف' : 'Description'}</label><textarea class="exp-desc" rows="2">${escapeHtml(exp.description)}</textarea></div>
+            `;
+            expContainer.appendChild(div);
+        });
+        eduContainer.innerHTML = "";
+        educations.forEach((edu, idx) => {
+            const div = document.createElement("div");
+            div.className = "dynamic-item";
+            div.innerHTML = `
+                <div class="dynamic-item-header"><strong>${currentLang === 'ar' ? `تعليم ${idx+1}` : `Education ${idx+1}`}</strong><button class="remove-btn" data-type="edu" data-index="${idx}"><i class="fas fa-trash-alt"></i></button></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'الشهادة / الدرجة' : 'Degree'}</label><input class="edu-degree" value="${escapeHtml(edu.degree)}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'المؤسسة' : 'Institution'}</label><input class="edu-institution" value="${escapeHtml(edu.institution)}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'السنة' : 'Year'}</label><input class="edu-year" value="${escapeHtml(edu.year)}"></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'ملاحظات' : 'Notes'}</label><textarea class="edu-desc" rows="2">${escapeHtml(edu.description)}</textarea></div>
+            `;
+            eduContainer.appendChild(div);
+        });
+        attachDynamicEvents();
+    }
+
+    function attachDynamicEvents() {
+        document.querySelectorAll(".remove-btn[data-type='exp']").forEach(btn => {
+            btn.addEventListener("click", (e) => { const idx = parseInt(btn.dataset.index); experiences.splice(idx,1); renderDynamicForms(); updateCVPreview(); });
+        });
+        document.querySelectorAll(".remove-btn[data-type='edu']").forEach(btn => {
+            btn.addEventListener("click", (e) => { const idx = parseInt(btn.dataset.index); educations.splice(idx,1); renderDynamicForms(); updateCVPreview(); });
+        });
+        document.querySelectorAll(".exp-title, .exp-company, .exp-start, .exp-end, .exp-desc").forEach(inp => inp.addEventListener("input", () => syncExperiences()));
+        document.querySelectorAll(".edu-degree, .edu-institution, .edu-year, .edu-desc").forEach(inp => inp.addEventListener("input", () => syncEducations()));
+    }
+
+    function syncExperiences() {
+        const newExps = [];
+        document.querySelectorAll("#experiencesContainer .dynamic-item").forEach(item => {
+            newExps.push({
+                title: item.querySelector(".exp-title")?.value || "",
+                company: item.querySelector(".exp-company")?.value || "",
+                startDate: item.querySelector(".exp-start")?.value || "",
+                endDate: item.querySelector(".exp-end")?.value || "",
+                description: item.querySelector(".exp-desc")?.value || ""
+            });
+        });
+        experiences = newExps;
+        updateCVPreview();
+    }
+    function syncEducations() {
+        const newEdus = [];
+        document.querySelectorAll("#educationContainer .dynamic-item").forEach(item => {
+            newEdus.push({
+                degree: item.querySelector(".edu-degree")?.value || "",
+                institution: item.querySelector(".edu-institution")?.value || "",
+                year: item.querySelector(".edu-year")?.value || "",
+                description: item.querySelector(".edu-desc")?.value || ""
+            });
+        });
+        educations = newEdus;
+        updateCVPreview();
+    }
+
+    function getBaseData() {
+        return {
+            fullName: fullNameInp.value,
+            jobTitle: jobTitleInp.value,
+            email: emailInp.value,
+            phone: phoneInp.value,
+            location: locationInp.value,
+            summary: summaryInp.value,
+            skills: skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s),
+            languages: languagesInp.value,
+            experiences, educations, lang: currentLang
+        };
+    }
+
+    function renderCVByTemplate(data, template) {
+        const t = currentLang === 'ar' ? translations.ar : translations.en;
+        const summarySec = t.summarySec;
+        const expSec = t.experienceSec;
+        const eduSec = t.educationSec;
+        const skillsSec = t.skillsSec;
+        const langsSec = t.languagesSec;
+        if(template === "modern") {
+            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div class="cv-contact" style="margin-top:8px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}</div></div>
+            <div class="section-block"><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
+            <div class="section-block"><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)}</div><div class="job-date">${escapeHtml(exp.startDate)} - ${escapeHtml(exp.endDate)}</div><p>${escapeHtml(exp.description)}</p></div>`).join('')}</div>
+            <div class="section-block"><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="edu-degree">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)}</div><div class="edu-date">${escapeHtml(edu.year)}</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
+            <div class="section-block"><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' • ')}</p></div>
+            <div class="section-block"><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
+        }
+        else if(template === "elegant") {
+            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:8px;font-size:0.8rem">${escapeHtml(data.email)} | ${escapeHtml(data.phone)} | ${escapeHtml(data.location)}</div></div>
+            <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
+            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><span>${escapeHtml(exp.description)}</span></div><hr/>`).join('')}</div>
+            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong>, ${escapeHtml(edu.institution)} (${edu.year})<br/><span>${escapeHtml(edu.description)}</span></div><hr/>`).join('')}</div>
+            <div><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' - ')}</p></div>
+            <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
+        }
+        else {
+            return `<div class="template-sidebar"><div class="sidebar-col"><div style="text-align:left; ${currentLang==='ar'?'text-align:right':''}"><strong>${escapeHtml(data.fullName)}</strong><div>${escapeHtml(data.jobTitle)}</div><hr/><i class="fas fa-envelope"></i> ${escapeHtml(data.email)}<br/><i class="fas fa-phone"></i> ${escapeHtml(data.phone)}<br/><i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}<hr/><div><strong>${skillsSec}</strong><br/>${data.skills.map(s=>`• ${s}`).join('<br>')}</div><hr/><div><strong>${langsSec}</strong><br/>${escapeHtml(data.languages)}</div></div></div>
+            <div class="main-col"><div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
+            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong>, ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><span>${escapeHtml(exp.description)}</span></div><br/>`).join('')}</div>
+            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong> - ${escapeHtml(edu.institution)} (${edu.year})<br/><span>${escapeHtml(edu.description)}</span></div><br/>`).join('')}</div>
+            </div></div>`;
+        }
+    }
+
+    function updateCVPreview() {
+        const data = getBaseData();
+        cvPreview.innerHTML = renderCVByTemplate(data, currentTemplate);
+        cvPreview.className = `cv-preview template-${currentTemplate}`;
+    }
+
+    // Event listeners for adding items
+    document.getElementById("addExperienceBtn").addEventListener("click", () => {
+        experiences.push({ title: currentLang==='ar'?"وظيفة جديدة":"New Role", company: currentLang==='ar'?"الشركة":"Company", startDate: "2024", endDate: currentLang==='ar'?"الآن":"Present", description: "" });
+        renderDynamicForms();
+        updateCVPreview();
+    });
+    document.getElementById("addEducationBtn").addEventListener("click", () => {
+        educations.push({ degree: currentLang==='ar'?"درجة البكالوريوس":"Bachelor's Degree", institution: currentLang==='ar'?"الجامعة":"University", year: "2024", description: "" });
+        renderDynamicForms();
+        updateCVPreview();
+    });
+
+    // Template switching
+    document.querySelectorAll(".template-option").forEach(opt => {
+        opt.addEventListener("click", () => {
+            document.querySelectorAll(".template-option").forEach(o=>o.classList.remove("active"));
+            opt.classList.add("active");
+            currentTemplate = opt.dataset.template;
+            updateCVPreview();
+        });
+    });
+
+    // Main inputs change
+    const mainInputs = [fullNameInp, jobTitleInp, emailInp, phoneInp, locationInp, summaryInp, skillsInp, languagesInp];
+    mainInputs.forEach(inp => inp.addEventListener("input", () => updateCVPreview()));
+
+    // Language switching
+    document.getElementById("langArBtn").addEventListener("click", () => {
+        currentLang = "ar";
+        document.getElementById("langArBtn").classList.add("active");
+        document.getElementById("langEnBtn").classList.remove("active");
+        applyLanguage();
+    });
+    document.getElementById("langEnBtn").addEventListener("click", () => {
+        currentLang = "en";
+        document.getElementById("langEnBtn").classList.add("active");
+        document.getElementById("langArBtn").classList.remove("active");
+        applyLanguage();
+    });
+
+    // PDF Download
+    document.getElementById("downloadPDFBtn").addEventListener("click", () => {
+        const element = cvPreview;
+        const opt = {
+            margin: [0.5,0.5,0.5,0.5],
+            filename: `CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, letterRendering: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    });
+
+    // initial render
+    renderDynamicForms();
+    applyLanguage();
+    updateCVPreview();
+</script>
+</body>
+</html>
