@@ -54,30 +54,29 @@
         .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         
-        /* CV Preview Styles - Optimized for perfect A4 */
+        /* CV Preview Styles - Optimized */
         .cv-preview {
             padding: 1.8rem;
             background: white;
             margin: 1rem;
             border-radius: 16px;
             min-height: auto;
-            width: 100%;
+            width: calc(100% - 2rem);
             font-size: 11pt;
             line-height: 1.45;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
-        /* Force perfect A4 width during PDF capture */
-        .cv-preview-for-pdf {
-            width: 794px !important;
-            margin: 0 auto !important;
-            padding: 12mm 10mm !important;
-            box-sizing: border-box !important;
-        }
+
         .template-modern .cv-header { text-align: center; margin-bottom: 1rem; }
         .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #0f3b4a; }
         .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 700; border-right: 4px solid #2c7da0; padding-right: 0.8rem; margin: 0.8rem 0 0.5rem 0; }
+        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.8rem; }
+        
         .template-elegant .cv-header { background: #2c3e4e; color: white; margin: -1.8rem -1.8rem 1.2rem -1.8rem; padding: 1.5rem 1.8rem; border-radius: 16px 16px 30px 30px; }
+        
         .template-sidebar { display: grid; grid-template-columns: 0.85fr 2.15fr; gap: 1.2rem; }
         .template-sidebar .sidebar-col { background: #eef3fa; padding: 1rem; border-radius: 16px; }
+        
         .job-item, .edu-item { margin-bottom: 0.7rem; }
         .job-title, .edu-degree { font-weight: 700; }
         .job-date, .edu-date { font-size: 0.7rem; color: #5b6e8c; }
@@ -85,7 +84,6 @@
         
         @media (max-width: 950px) { .dashboard { grid-template-columns: 1fr; } }
         footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #556b82; }
-        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.8rem; padding-right: 0; }
     </style>
 </head>
 <body>
@@ -367,51 +365,47 @@
     document.getElementById("langArBtn").addEventListener("click", () => { currentLang = "ar"; document.getElementById("langArBtn").classList.add("active"); document.getElementById("langEnBtn").classList.remove("active"); applyLanguage(); });
     document.getElementById("langEnBtn").addEventListener("click", () => { currentLang = "en"; document.getElementById("langEnBtn").classList.add("active"); document.getElementById("langArBtn").classList.remove("active"); applyLanguage(); });
 
-    // ========== الحل السحري لـ PDF بملء صفحة A4 ==========
+    // ========== الحل السحري المُحسّن لـ PDF بملء صفحة A4 وبدون مشاكل ==========
     document.getElementById("downloadPDFBtn").addEventListener("click", function() {
-        // 1. نحفظ الوضع الأصلي للعنصر
+        // 1. حفظ الحالة الأصلية
         const originalWidth = cvPreview.style.width;
         const originalMargin = cvPreview.style.margin;
         const originalPadding = cvPreview.style.padding;
+        const originalBoxShadow = cvPreview.style.boxShadow;
         
-        // 2. نطبق العرض المثالي لـ A4 (794px = 210mm * 96dpi / 25.4mm)
+        // 2. تطبيق العرض الصارم لـ A4 (794px تقريباً)
         cvPreview.style.width = "794px";
-        cvPreview.style.margin = "0 auto";
-        cvPreview.style.padding = "12mm 10mm";  // هوامش داخلية مريحة
+        cvPreview.style.margin = "0";
+        cvPreview.style.padding = "12mm 10mm"; // هوامش داخلية للـ PDF
+        cvPreview.style.boxShadow = "none";
         
-        // 3. نخليها تاخذ وقت صغير عشان المتصفح يطبق التغييرات
-        setTimeout(function() {
-            // خيارات التصدير المثالية
-            const opt = {
-                margin: [0, 0, 0, 0],  // بدون هوامش خارجية لأننا حاطين هوامش داخلية
-                filename: `CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 3,              // دقة عالية جداً
-                    letterRendering: true,
-                    useCORS: true,
-                    logging: false
-                },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait' 
-                }
-            };
-            
-            // تصدير PDF
-            html2pdf().set(opt).from(cvPreview).save().then(() => {
-                // 4. نرجع العنصر لحالته الأصلية بعد التحميل
-                cvPreview.style.width = originalWidth;
-                cvPreview.style.margin = originalMargin;
-                cvPreview.style.padding = originalPadding;
-            }).catch(() => {
-                // لو حصل خطأ نرجع الحالة برضه
-                cvPreview.style.width = originalWidth;
-                cvPreview.style.margin = originalMargin;
-                cvPreview.style.padding = originalPadding;
-            });
-        }, 50);
+        // 3. خيارات html2pdf
+        const opt = {
+            margin: 0,
+            filename: `CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2.5, // دقة عالية
+                useCORS: true, 
+                letterRendering: true,
+                width: 794
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 4. التنفيذ مع إعادة الشكل الأصلي فور الانتهاء
+        html2pdf().set(opt).from(cvPreview).save().then(() => {
+            cvPreview.style.width = originalWidth;
+            cvPreview.style.margin = originalMargin;
+            cvPreview.style.padding = originalPadding;
+            cvPreview.style.boxShadow = originalBoxShadow;
+        }).catch(err => {
+            console.error("PDF Error:", err);
+            cvPreview.style.width = originalWidth;
+            cvPreview.style.margin = originalMargin;
+            cvPreview.style.padding = originalPadding;
+            cvPreview.style.boxShadow = originalBoxShadow;
+        });
     });
 
     renderDynamicForms();
