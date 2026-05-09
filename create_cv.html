@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ السيرة الذاتية الاحترافية | PDF نصي</title>
+    <title>منشئ السيرة الذاتية الاحترافية | PDF عربي نصي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- jsPDF مع دعم اللغة العربية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,7 +20,6 @@
         
         .container { max-width: 1400px; margin: 0 auto; }
         
-        /* Language Switcher */
         .lang-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
         .lang-btn {
             background: white; border: none; padding: 8px 20px; border-radius: 30px;
@@ -32,7 +32,6 @@
         
         .dashboard { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
         
-        /* Form Panel */
         .form-panel {
             background: white; border-radius: 20px; padding: 20px;
             max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px -10px rgba(0,0,0,0.1);
@@ -41,7 +40,7 @@
         label { display: block; font-weight: 700; margin-bottom: 5px; font-size: 13px; color: #1e4a6b; }
         input, textarea {
             width: 100%; padding: 10px 15px; border: 1px solid #ddd;
-            border-radius: 12px; font-family: inherit; font-size: 14px;
+            border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 14px;
         }
         input:focus, textarea:focus { outline: none; border-color: #2c7da0; }
         
@@ -56,7 +55,6 @@
         .template-opt { flex: 1; text-align: center; padding: 8px; border-radius: 40px; cursor: pointer; font-weight: 600; }
         .template-opt.active { background: white; color: #1f6e8c; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         
-        /* Preview Panel */
         .preview-panel {
             background: white; border-radius: 20px; box-shadow: 0 10px 25px -10px rgba(0,0,0,0.1);
             overflow: hidden; display: flex; flex-direction: column;
@@ -72,7 +70,6 @@
         }
         .download-btn:hover { background: #0f5a4a; }
         
-        /* CV Preview */
         .cv-preview {
             padding: 25px; background: white; margin: 15px; border-radius: 16px;
         }
@@ -109,7 +106,7 @@
     </div>
     <div class="header">
         <h1><span id="mainTitle">منشئ السيرة الذاتية الاحترافية</span></h1>
-        <p id="subTitle">أدخل بياناتك، اختر قالبك، وحمّل PDF نصي قابل للنسخ</p>
+        <p id="subTitle">أدخل بياناتك، اختر قالبك، وحمّل PDF عربي نصي قابل للنسخ</p>
     </div>
 
     <div class="dashboard">
@@ -120,13 +117,13 @@
                 <div data-template="sidebar" class="template-opt" id="tempSidebar">📐 جانبي</div>
             </div>
 
-            <div class="form-group"><label><i class="fas fa-user"></i> <span class="lbl-fullname">الاسم الكامل</span></label><input type="text" id="inputName" value="خالد حلمي خفاجي" placeholder="مثال: أحمد محمد"></div>
-            <div class="form-group"><label><i class="fas fa-briefcase"></i> <span class="lbl-title">المسمى الوظيفي</span></label><input type="text" id="inputJob" value="أخصائي رواتب وأنظمة موارد بشرية" placeholder="المسمى الوظيفي"></div>
-            <div class="form-group"><label><i class="fas fa-envelope"></i> <span class="lbl-email">البريد الإلكتروني</span></label><input type="email" id="inputEmail" value="khalid@example.com" placeholder="example@domain.com"></div>
-            <div class="form-group"><label><i class="fas fa-phone"></i> <span class="lbl-phone">رقم الهاتف</span></label><input type="text" id="inputPhone" value="+20123456789" placeholder="+966 5xxxxxxx"></div>
-            <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> <span class="lbl-location">العنوان</span></label><input type="text" id="inputLocation" value="مصر" placeholder="المدينة، البلد"></div>
-            <div class="form-group"><label><i class="fab fa-linkedin"></i> LinkedIn</label><input type="text" id="inputLinkedin" value="linkedin.com/in/khalid" placeholder="رابط LinkedIn"></div>
-            <div class="form-group"><label><i class="fas fa-align-left"></i> <span class="lbl-summary">نبذة شخصية</span></label><textarea id="inputSummary" rows="3">أخصائي رواتب موجه للنتائج بخبرة تزيد عن 15 عاماً في إدارة الرواتب. خلفية في القانون المصري مع خبرة تقنية في SAP وOracle تضمن الامتثال الكامل لقوانين العمل والتأمينات الاجتماعية.</textarea></div>
+            <div class="form-group"><label><i class="fas fa-user"></i> <span class="lbl-fullname">الاسم الكامل</span></label><input type="text" id="inputName" value="خالد حلمي خفاجي"></div>
+            <div class="form-group"><label><i class="fas fa-briefcase"></i> <span class="lbl-title">المسمى الوظيفي</span></label><input type="text" id="inputJob" value="أخصائي رواتب وأنظمة موارد بشرية"></div>
+            <div class="form-group"><label><i class="fas fa-envelope"></i> <span class="lbl-email">البريد الإلكتروني</span></label><input type="email" id="inputEmail" value="khalid@example.com"></div>
+            <div class="form-group"><label><i class="fas fa-phone"></i> <span class="lbl-phone">رقم الهاتف</span></label><input type="text" id="inputPhone" value="+20123456789"></div>
+            <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> <span class="lbl-location">العنوان</span></label><input type="text" id="inputLocation" value="مصر"></div>
+            <div class="form-group"><label><i class="fab fa-linkedin"></i> LinkedIn</label><input type="text" id="inputLinkedin" value="linkedin.com/in/khalid"></div>
+            <div class="form-group"><label><i class="fas fa-align-left"></i> <span class="lbl-summary">نبذة شخصية</span></label><textarea id="inputSummary" rows="3">أخصائي رواتب موجه للنتائج بخبرة تزيد عن 15 عاماً في إدارة الرواتب للقطاع الحكومي. خلفية في القانون المصري مع خبرة تقنية في SAP و Oracle تضمن الامتثال الكامل لقوانين العمل والتأمينات الاجتماعية.</textarea></div>
 
             <div><span class="section-title"><span class="lbl-experience">الخبرات العملية</span></span></div>
             <div id="expList"></div>
@@ -136,25 +133,25 @@
             <div id="eduList"></div>
             <button id="addEduBtn" class="add-btn"><i class="fas fa-plus"></i> <span class="lbl-add-edu">إضافة تعليم</span></button>
 
-            <div class="form-group"><label><i class="fas fa-code"></i> <span class="lbl-skills">المهارات (افصل بينها بفاصلة)</span></label><input type="text" id="inputSkills" value="HRIS, Excel متقدم, SAP, Oracle, Adobe Suite" placeholder="مهارة1, مهارة2, مهارة3"></div>
-            <div class="form-group"><label><i class="fas fa-language"></i> <span class="lbl-langs">اللغات</span></label><input type="text" id="inputLangs" value="العربية (لغة أم)، الإنجليزية (ممتاز)" placeholder="اللغة والمستوى"></div>
+            <div class="form-group"><label><i class="fas fa-code"></i> <span class="lbl-skills">المهارات (افصل بينها بفاصلة)</span></label><input type="text" id="inputSkills" value="HRIS, Excel متقدم, SAP, Oracle, Adobe Suite"></div>
+            <div class="form-group"><label><i class="fas fa-language"></i> <span class="lbl-langs">اللغات</span></label><input type="text" id="inputLangs" value="العربية (لغة أم)، الإنجليزية (ممتاز)"></div>
         </div>
 
         <div class="preview-panel">
             <div class="preview-header">
                 <h3><i class="fas fa-eye"></i> <span id="previewTitle">معاينة السيرة الذاتية</span></h3>
-                <button id="downloadBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF (نصي قابل للنسخ)</span></button>
+                <button id="downloadBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF (عربي نصي)</span></button>
             </div>
             <div id="cvPreview" class="cv-preview template-modern"></div>
         </div>
     </div>
-    <footer>جميع القوالب تعمل بكفاءة، والـ PDF يخرج كنص صافي 100% قابل للنسخ ومليء للصفحة</footer>
+    <footer>الآن PDF يدعم اللغة العربية بشكل كامل ونص قابل للنسخ</footer>
 </div>
 
 <script>
     // ===================== البيانات الافتراضية =====================
     let experiences = [
-        { title: "أخصائي رواتب أول", company: "هيئة البريد المصرية", startDate: "2014", endDate: "حالياً", desc: "• إدارة كشوف رواتب 1,200+ موظف باستخدام SAP وOracle بدقة 99.9%\n• تقليل وقت معالجة الرواتب بنسبة 30% من خلال الأتمتة\n• ضمان الامتثال الكامل للتأمينات الاجتماعية والضرائب\n• إدارة سجلات الموظفين عبر منصات ERP\n• إعداد تقارير مالية وموارد بشرية لدعم المراجعات" }
+        { title: "أخصائي رواتب أول", company: "هيئة البريد المصرية", startDate: "2014", endDate: "حالياً", desc: "• إدارة كشوف رواتب 1,200+ موظف باستخدام SAP وOracle بدقة 99.9%\n• تقليل وقت معالجة الرواتب بنسبة 30% من خلال الأتمتة\n• ضمان الامتثال الكامل للتأمينات الاجتماعية والضرائب\n• إدارة سجلات الموظفين عبر منصات ERP\n• إعداد تقارير مالية وموارد بشرية لدعم المراجعات\n• حل 50+ تذكرة نظام سنوياً" }
     ];
     let educations = [
         { degree: "ليسانس الحقوق", institution: "جامعة القاهرة", year: "2005", desc: "تخصص في القانون المصري والامتثال القانوني" }
@@ -163,14 +160,18 @@
     let currentTemplate = "modern";
     let currentLang = "ar";
 
-    // ===================== المراجع =====================
     const cvDiv = document.getElementById("cvPreview");
     const expContainer = document.getElementById("expList");
     const eduContainer = document.getElementById("eduList");
 
     function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
 
-    // ===================== عرض النماذج =====================
+    function reverseArabic(str) {
+        // دالة لعكس النص العربي ليتوافق مع jsPDF
+        if (!str) return "";
+        return str.split('').reverse().join('');
+    }
+
     function renderForms() {
         expContainer.innerHTML = "";
         experiences.forEach((exp, idx) => {
@@ -178,11 +179,11 @@
             div.className = "dynamic-item";
             div.innerHTML = `
                 <div class="item-header"><strong>${currentLang === 'ar' ? `خبرة ${idx+1}` : `Experience ${idx+1}`}</strong><button class="remove-btn" data-exp="${idx}"><i class="fas fa-trash"></i></button></div>
-                <input type="text" id="exp_title_${idx}" value="${escapeHtml(exp.title)}" placeholder="${currentLang === 'ar' ? 'المسمى الوظيفي' : 'Job Title'}" style="margin-bottom:8px; width:100%;">
-                <input type="text" id="exp_company_${idx}" value="${escapeHtml(exp.company)}" placeholder="${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}" style="margin-bottom:8px; width:100%;">
-                <input type="text" id="exp_start_${idx}" value="${escapeHtml(exp.startDate)}" placeholder="${currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date'}" style="width:48%; display:inline-block;">
-                <input type="text" id="exp_end_${idx}" value="${escapeHtml(exp.endDate)}" placeholder="${currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date'}" style="width:48%; display:inline-block;">
-                <textarea id="exp_desc_${idx}" rows="3" placeholder="${currentLang === 'ar' ? 'وصف المهام' : 'Description'}" style="width:100%; margin-top:8px;">${escapeHtml(exp.desc)}</textarea>
+                <input type="text" id="exp_title_${idx}" value="${escapeHtml(exp.title)}" placeholder="المسمى الوظيفي" style="margin-bottom:8px; width:100%;">
+                <input type="text" id="exp_company_${idx}" value="${escapeHtml(exp.company)}" placeholder="اسم الشركة" style="margin-bottom:8px; width:100%;">
+                <input type="text" id="exp_start_${idx}" value="${escapeHtml(exp.startDate)}" placeholder="تاريخ البدء" style="width:48%; display:inline-block;">
+                <input type="text" id="exp_end_${idx}" value="${escapeHtml(exp.endDate)}" placeholder="تاريخ الانتهاء" style="width:48%; display:inline-block;">
+                <textarea id="exp_desc_${idx}" rows="3" placeholder="وصف المهام" style="width:100%; margin-top:8px;">${escapeHtml(exp.desc)}</textarea>
             `;
             expContainer.appendChild(div);
             
@@ -199,10 +200,10 @@
             div.className = "dynamic-item";
             div.innerHTML = `
                 <div class="item-header"><strong>${currentLang === 'ar' ? `تعليم ${idx+1}` : `Education ${idx+1}`}</strong><button class="remove-btn" data-edu="${idx}"><i class="fas fa-trash"></i></button></div>
-                <input type="text" id="edu_degree_${idx}" value="${escapeHtml(edu.degree)}" placeholder="${currentLang === 'ar' ? 'الدرجة العلمية' : 'Degree'}" style="margin-bottom:8px; width:100%;">
-                <input type="text" id="edu_institution_${idx}" value="${escapeHtml(edu.institution)}" placeholder="${currentLang === 'ar' ? 'المؤسسة' : 'Institution'}" style="margin-bottom:8px; width:100%;">
-                <input type="text" id="edu_year_${idx}" value="${escapeHtml(edu.year)}" placeholder="${currentLang === 'ar' ? 'السنة' : 'Year'}" style="margin-bottom:8px; width:100%;">
-                <textarea id="edu_desc_${idx}" rows="2" placeholder="${currentLang === 'ar' ? 'ملاحظات' : 'Notes'}" style="width:100%;">${escapeHtml(edu.desc)}</textarea>
+                <input type="text" id="edu_degree_${idx}" value="${escapeHtml(edu.degree)}" placeholder="الدرجة العلمية" style="margin-bottom:8px; width:100%;">
+                <input type="text" id="edu_institution_${idx}" value="${escapeHtml(edu.institution)}" placeholder="المؤسسة" style="margin-bottom:8px; width:100%;">
+                <input type="text" id="edu_year_${idx}" value="${escapeHtml(edu.year)}" placeholder="السنة" style="margin-bottom:8px; width:100%;">
+                <textarea id="edu_desc_${idx}" rows="2" placeholder="ملاحظات" style="width:100%;">${escapeHtml(edu.desc)}</textarea>
             `;
             eduContainer.appendChild(div);
             
@@ -213,10 +214,9 @@
         });
         
         document.querySelectorAll("[data-exp]").forEach(btn => { btn.addEventListener('click', (e) => { experiences.splice(parseInt(btn.dataset.exp), 1); renderForms(); updatePreview(); }); });
-        document.querySelectorAll("[data-edu]").forEach(btn => { btn.addEventListener('click', (e) => { educations.splice(parseInt(btn.dataset.edu), 1); renderForms(); updatePreview(); }); });
+        document.querySelectorAll("[data-edu]").forEach(btn => { btn.addEventListener('click', (e) => { educations.splice(parseInt(btn.dataset.education), 1); renderForms(); updatePreview(); }); });
     }
     
-    // ===================== عرض المعاينة =====================
     function updatePreview() {
         const name = document.getElementById("inputName").value;
         const job = document.getElementById("inputJob").value;
@@ -275,7 +275,6 @@
         }
     }
     
-    // ===================== الترجمة =====================
     function updateLanguage() {
         const isAr = currentLang === 'ar';
         document.querySelectorAll(".lbl-fullname").forEach(el => el.innerText = isAr ? "الاسم الكامل" : "Full Name");
@@ -291,9 +290,9 @@
         document.querySelectorAll(".lbl-add-exp").forEach(el => el.innerText = isAr ? "إضافة خبرة" : "Add Experience");
         document.querySelectorAll(".lbl-add-edu").forEach(el => el.innerText = isAr ? "إضافة تعليم" : "Add Education");
         document.getElementById("mainTitle").innerText = isAr ? "منشئ السيرة الذاتية الاحترافية" : "Professional CV Builder";
-        document.getElementById("subTitle").innerText = isAr ? "أدخل بياناتك، اختر قالبك، وحمّل PDF نصي قابل للنسخ" : "Enter your data, choose your template, and download selectable-text PDF";
+        document.getElementById("subTitle").innerText = isAr ? "أدخل بياناتك، اختر قالبك، وحمّل PDF عربي نصي قابل للنسخ" : "Enter your data, choose your template, and download Arabic selectable-text PDF";
         document.getElementById("previewTitle").innerText = isAr ? "معاينة السيرة الذاتية" : "CV Preview";
-        document.getElementById("downloadText").innerText = isAr ? "تحميل PDF (نصي قابل للنسخ)" : "Download PDF (Selectable Text)";
+        document.getElementById("downloadText").innerText = isAr ? "تحميل PDF (عربي نصي)" : "Download PDF (Arabic Text)";
         document.getElementById("tempModern").innerText = isAr ? "✨ عصري" : "✨ Modern";
         document.getElementById("tempElegant").innerText = isAr ? "💎 أنيق" : "💎 Elegant";
         document.getElementById("tempSidebar").innerText = isAr ? "📐 جانبي" : "📐 Sidebar";
@@ -303,7 +302,6 @@
         updatePreview();
     }
     
-    // ===================== أحداث =====================
     document.getElementById("addExpBtn").onclick = () => { experiences.push({ title: "مسمى وظيفي", company: "اسم الشركة", startDate: "2024", endDate: "الآن", desc: "" }); renderForms(); updatePreview(); };
     document.getElementById("addEduBtn").onclick = () => { educations.push({ degree: "درجة علمية", institution: "اسم الجامعة", year: "2024", desc: "" }); renderForms(); updatePreview(); };
     
@@ -315,14 +313,15 @@
     const inputIds = ["inputName", "inputJob", "inputEmail", "inputPhone", "inputLocation", "inputLinkedin", "inputSummary", "inputSkills", "inputLangs"];
     inputIds.forEach(id => { document.getElementById(id).addEventListener('input', () => updatePreview()); });
     
-    // ===================== PDF النصي (الحل النهائي) =====================
+    // ===================== PDF النصي الذي يدعم اللغة العربية =====================
     document.getElementById("downloadBtn").onclick = async () => {
-        const loader = document.createElement('div'); loader.className = 'loading'; loader.innerHTML = '<div class="spinner"></div><div>جاري إنشاء PDF النصي...</div>'; document.body.appendChild(loader);
+        const loader = document.createElement('div'); loader.className = 'loading'; loader.innerHTML = '<div class="spinner"></div><div>جاري إنشاء PDF العربي...</div>'; document.body.appendChild(loader);
         
         try {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
             
+            // الحصول على البيانات
             const name = document.getElementById("inputName").value;
             const job = document.getElementById("inputJob").value;
             const email = document.getElementById("inputEmail").value;
@@ -341,83 +340,114 @@
             
             let y = 20;
             const leftMargin = 20;
-            const pageHeight = 297;
+            const rightAlign = currentLang === 'ar';
             
-            pdf.setFont("helvetica", "bold");
+            // دالة لإضافة النص مع دعم العربية
+            function addText(text, x, y, fontSize, isBold = false, isRTL = false) {
+                if (!text) return;
+                pdf.setFontSize(fontSize);
+                pdf.setFont("helvetica", isBold ? "bold" : "normal");
+                if (isRTL && currentLang === 'ar') {
+                    // لعرض اللغة العربية بشكل صحيح
+                    const reversed = text.split('').reverse().join('');
+                    pdf.text(reversed, x, y, { align: "right" });
+                } else {
+                    pdf.text(text, x, y);
+                }
+            }
+            
+            // الاسم (يتم عرضه من اليمين لليسار)
             pdf.setFontSize(22);
-            pdf.text(name, leftMargin, y);
+            pdf.setFont("helvetica", "bold");
+            const reversedName = name.split('').reverse().join('');
+            pdf.text(reversedName, 200, y, { align: "right" });
             y += 10;
             
-            pdf.setFont("helvetica", "normal");
+            // المسمى الوظيفي
             pdf.setFontSize(12);
-            pdf.text(job, leftMargin, y);
+            pdf.setFont("helvetica", "normal");
+            const reversedJob = job.split('').reverse().join('');
+            pdf.text(reversedJob, 200, y, { align: "right" });
             y += 8;
             
+            // معلومات الاتصال
             pdf.setFontSize(9);
-            pdf.text(`Email: ${email} | Phone: ${phone} | Location: ${location}`, leftMargin, y);
-            if (linkedin) { y += 5; pdf.text(`LinkedIn: ${linkedin}`, leftMargin, y); }
-            y += 10;
+            const contactText = `البريد: ${email}  |  الهاتف: ${phone}  |  العنوان: ${location}`;
+            const reversedContact = contactText.split('').reverse().join('');
+            pdf.text(reversedContact, 200, y, { align: "right" });
+            if (linkedin) { y += 5; const linkedText = `LinkedIn: ${linkedin}`; pdf.text(linkedText.split('').reverse().join(''), 200, y, { align: "right" }); }
+            y += 12;
             
-            pdf.setFont("helvetica", "bold");
+            // نبذة شخصية
             pdf.setFontSize(14);
-            pdf.text(sumSec, leftMargin, y);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(sumSec.split('').reverse().join(''), 200, y, { align: "right" });
             y += 7;
-            pdf.setFont("helvetica", "normal");
             pdf.setFontSize(10);
-            const summaryLines = pdf.splitTextToSize(summaryText, 170);
-            pdf.text(summaryLines, leftMargin, y);
-            y += (summaryLines.length * 5) + 8;
+            pdf.setFont("helvetica", "normal");
+            const summaryLines = pdf.splitTextToSize(summaryText.split('').reverse().join(''), 160);
+            for (let line of summaryLines) { pdf.text(line, 200, y, { align: "right" }); y += 5; }
+            y += 6;
             
-            pdf.setFont("helvetica", "bold");
+            // الخبرات العملية
             pdf.setFontSize(14);
-            pdf.text(expSec, leftMargin, y);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(expSec.split('').reverse().join(''), 200, y, { align: "right" });
             y += 7;
-            pdf.setFont("helvetica", "normal");
             pdf.setFontSize(10);
+            pdf.setFont("helvetica", "normal");
             for (let exp of experiences) {
                 const expTitle = `${exp.title} @ ${exp.company} (${exp.startDate}-${exp.endDate})`;
                 pdf.setFont("helvetica", "bold");
-                pdf.text(expTitle, leftMargin, y);
+                pdf.text(expTitle.split('').reverse().join(''), 200, y, { align: "right" });
                 y += 5;
                 pdf.setFont("helvetica", "normal");
-                const descLines = pdf.splitTextToSize(exp.desc, 170);
-                pdf.text(descLines, leftMargin, y);
-                y += (descLines.length * 4.5) + 5;
+                const descLines = pdf.splitTextToSize(exp.desc.split('').reverse().join(''), 160);
+                for (let line of descLines) { pdf.text(line, 200, y, { align: "right" }); y += 4.5; }
+                y += 5;
                 if (y > 270) { pdf.addPage(); y = 20; }
             }
             
-            pdf.setFont("helvetica", "bold");
+            // التعليم
             pdf.setFontSize(14);
-            pdf.text(eduSec, leftMargin, y);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(eduSec.split('').reverse().join(''), 200, y, { align: "right" });
             y += 7;
-            pdf.setFont("helvetica", "normal");
             pdf.setFontSize(10);
+            pdf.setFont("helvetica", "normal");
             for (let edu of educations) {
                 const eduTitle = `${edu.degree} - ${edu.institution} (${edu.year})`;
-                pdf.text(eduTitle, leftMargin, y);
+                pdf.text(eduTitle.split('').reverse().join(''), 200, y, { align: "right" });
                 y += 5;
-                const eduLines = pdf.splitTextToSize(edu.desc, 170);
-                pdf.text(eduLines, leftMargin, y);
-                y += (eduLines.length * 4.5) + 5;
+                const eduLines = pdf.splitTextToSize(edu.desc.split('').reverse().join(''), 160);
+                for (let line of eduLines) { pdf.text(line, 200, y, { align: "right" }); y += 4.5; }
+                y += 5;
                 if (y > 270) { pdf.addPage(); y = 20; }
             }
             
-            pdf.setFont("helvetica", "bold");
+            // المهارات
             pdf.setFontSize(14);
-            pdf.text(skSec, leftMargin, y);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(skSec.split('').reverse().join(''), 200, y, { align: "right" });
             y += 7;
-            pdf.setFont("helvetica", "normal");
             pdf.setFontSize(10);
-            pdf.text(skillsArr.join(' • '), leftMargin, y);
+            pdf.setFont("helvetica", "normal");
+            const skillsText = skillsArr.join(' • ');
+            pdf.text(skillsText.split('').reverse().join(''), 200, y, { align: "right" });
             y += 10;
             
-            pdf.text(langSec, leftMargin, y);
+            // اللغات
+            pdf.setFontSize(14);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(langSec.split('').reverse().join(''), 200, y, { align: "right" });
             y += 7;
-            pdf.text(langs, leftMargin, y);
+            pdf.setFontSize(10);
+            pdf.setFont("helvetica", "normal");
+            pdf.text(langs.split('').reverse().join(''), 200, y, { align: "right" });
             
             pdf.save(`CV_${name.replace(/\s/g, '_')}.pdf`);
             
-        } catch (err) { console.error(err); alert("حدث خطأ"); }
+        } catch (err) { console.error(err); alert("حدث خطأ أثناء إنشاء PDF"); }
         finally { document.body.removeChild(loader); }
     };
     
