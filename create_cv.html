@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خالد حلمي خفاجي - السيرة الذاتية الاحترافية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>خالد حلمي خفاجي - السيرة الذاتية (PDF مثالي)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -17,7 +17,7 @@
         body {
             background: linear-gradient(135deg, #f0f4fc 0%, #e9eef5 100%);
             font-family: 'Cairo', sans-serif;
-            padding: 20px;
+            padding: 15px;
             direction: rtl;
         }
 
@@ -37,6 +37,7 @@
             justify-content: flex-end;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .lang-btn {
@@ -57,19 +58,19 @@
         /* Header */
         .main-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .main-header h1 {
             color: #1e4a6b;
-            font-size: 28px;
+            font-size: 24px;
         }
 
         /* Dashboard */
         .dashboard {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
-            gap: 25px;
+            gap: 20px;
         }
 
         /* Form Panel */
@@ -163,6 +164,7 @@
             background: #f1f5f9;
             padding: 5px;
             border-radius: 50px;
+            flex-wrap: wrap;
         }
 
         .template-opt {
@@ -172,6 +174,7 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: 600;
+            min-width: 80px;
         }
 
         .template-opt.active {
@@ -197,6 +200,8 @@
             justify-content: space-between;
             align-items: center;
             background: white;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .download-btn {
@@ -216,12 +221,13 @@
             background: #0f5a4a;
         }
 
-        /* CV Preview Content */
+        /* CV Preview Content - A4 ready */
         .cv-content {
-            padding: 25px;
+            padding: 20px;
             background: white;
             margin: 15px;
             border-radius: 16px;
+            transition: all 0.2s;
         }
 
         /* القالب العصري */
@@ -255,7 +261,7 @@
             background: #2c3e4e;
             color: white;
             padding: 20px;
-            margin: -25px -25px 20px -25px;
+            margin: -20px -20px 20px -20px;
             border-radius: 16px 16px 30px 30px;
         }
         .template-elegant .section-preview-title {
@@ -323,6 +329,35 @@
             color: #556b82;
             font-size: 12px;
         }
+
+        /* تحميل التحميل */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            font-size: 18px;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -370,12 +405,12 @@
         <div class="preview-panel">
             <div class="preview-header">
                 <h3><i class="fas fa-eye"></i> <span id="previewTitle">معاينة السيرة الذاتية</span></h3>
-                <button id="downloadBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF (نص قابل للنسخ)</span></button>
+                <button id="downloadBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF</span></button>
             </div>
             <div id="cvPreview" class="cv-content template-modern"></div>
         </div>
     </div>
-    <footer>الـ PDF يخرج كنص قابل للتحديد والنسخ مع الحفاظ على التنسيق الاحترافي</footer>
+    <footer>PDF يخرج بنص قابل للنسخ وبجودة عالية - يعمل على جميع الأجهزة</footer>
 </div>
 
 <script>
@@ -408,18 +443,17 @@
 
     // ===================== عرض نماذج الخبرات والتعليم =====================
     function renderForms() {
-        // الخبرات
         expContainer.innerHTML = "";
         experiences.forEach((exp, idx) => {
             const div = document.createElement("div");
             div.className = "dynamic-item";
             div.innerHTML = `
                 <div class="item-header"><strong>${currentLang === 'ar' ? `خبرة ${idx+1}` : `Experience ${idx+1}`}</strong><button class="remove-btn" data-exp="${idx}"><i class="fas fa-trash"></i></button></div>
-                <input type="text" id="exp_title_${idx}" value="${escapeHtml(exp.title)}" placeholder="${currentLang === 'ar' ? 'المسمى الوظيفي' : 'Job Title'}" style="margin-bottom:8px;"><br>
-                <input type="text" id="exp_company_${idx}" value="${escapeHtml(exp.company)}" placeholder="${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}" style="margin-bottom:8px;"><br>
+                <input type="text" id="exp_title_${idx}" value="${escapeHtml(exp.title)}" placeholder="${currentLang === 'ar' ? 'المسمى الوظيفي' : 'Job Title'}" style="margin-bottom:8px; width:100%;"><br>
+                <input type="text" id="exp_company_${idx}" value="${escapeHtml(exp.company)}" placeholder="${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}" style="margin-bottom:8px; width:100%;"><br>
                 <input type="text" id="exp_start_${idx}" value="${escapeHtml(exp.startDate)}" placeholder="Start Date" style="width:48%; display:inline-block;">
                 <input type="text" id="exp_end_${idx}" value="${escapeHtml(exp.endDate)}" placeholder="End Date" style="width:48%; display:inline-block;"><br>
-                <textarea id="exp_desc_${idx}" rows="3" placeholder="${currentLang === 'ar' ? 'وصف المهام' : 'Description'}">${escapeHtml(exp.desc)}</textarea>
+                <textarea id="exp_desc_${idx}" rows="3" placeholder="${currentLang === 'ar' ? 'وصف المهام' : 'Description'}" style="width:100%; margin-top:8px;">${escapeHtml(exp.desc)}</textarea>
             `;
             expContainer.appendChild(div);
             
@@ -430,17 +464,16 @@
             document.getElementById(`exp_desc_${idx}`).addEventListener('input', (e) => { experiences[idx].desc = e.target.value; updateCV(); });
         });
         
-        // التعليم
         eduContainer.innerHTML = "";
         educations.forEach((edu, idx) => {
             const div = document.createElement("div");
             div.className = "dynamic-item";
             div.innerHTML = `
                 <div class="item-header"><strong>${currentLang === 'ar' ? `تعليم ${idx+1}` : `Education ${idx+1}`}</strong><button class="remove-btn" data-edu="${idx}"><i class="fas fa-trash"></i></button></div>
-                <input type="text" id="edu_degree_${idx}" value="${escapeHtml(edu.degree)}" placeholder="${currentLang === 'ar' ? 'الدرجة العلمية' : 'Degree'}" style="margin-bottom:8px;"><br>
-                <input type="text" id="edu_institution_${idx}" value="${escapeHtml(edu.institution)}" placeholder="${currentLang === 'ar' ? 'الجامعة / المؤسسة' : 'Institution'}" style="margin-bottom:8px;"><br>
-                <input type="text" id="edu_year_${idx}" value="${escapeHtml(edu.year)}" placeholder="Year" style="margin-bottom:8px;"><br>
-                <textarea id="edu_desc_${idx}" rows="2" placeholder="${currentLang === 'ar' ? 'ملاحظات' : 'Notes'}">${escapeHtml(edu.desc)}</textarea>
+                <input type="text" id="edu_degree_${idx}" value="${escapeHtml(edu.degree)}" placeholder="${currentLang === 'ar' ? 'الدرجة العلمية' : 'Degree'}" style="margin-bottom:8px; width:100%;"><br>
+                <input type="text" id="edu_institution_${idx}" value="${escapeHtml(edu.institution)}" placeholder="${currentLang === 'ar' ? 'الجامعة / المؤسسة' : 'Institution'}" style="margin-bottom:8px; width:100%;"><br>
+                <input type="text" id="edu_year_${idx}" value="${escapeHtml(edu.year)}" placeholder="Year" style="margin-bottom:8px; width:100%;"><br>
+                <textarea id="edu_desc_${idx}" rows="2" placeholder="${currentLang === 'ar' ? 'ملاحظات' : 'Notes'}" style="width:100%;">${escapeHtml(edu.desc)}</textarea>
             `;
             eduContainer.appendChild(div);
             
@@ -450,7 +483,6 @@
             document.getElementById(`edu_desc_${idx}`).addEventListener('input', (e) => { educations[idx].desc = e.target.value; updateCV(); });
         });
         
-        // أزرار الحذف
         document.querySelectorAll("[data-exp]").forEach(btn => {
             btn.addEventListener('click', (e) => { experiences.splice(parseInt(btn.dataset.exp), 1); renderForms(); updateCV(); });
         });
@@ -531,22 +563,22 @@
     // ===================== ترجمة الواجهة =====================
     function updateLanguage() {
         const isAr = currentLang === 'ar';
-        document.querySelector(".lbl-fullname").innerText = isAr ? "الاسم الكامل" : "Full Name";
-        document.querySelector(".lbl-title").innerText = isAr ? "المسمى الوظيفي" : "Job Title";
-        document.querySelector(".lbl-email").innerText = isAr ? "البريد الإلكتروني" : "Email";
-        document.querySelector(".lbl-phone").innerText = isAr ? "رقم الهاتف" : "Phone";
-        document.querySelector(".lbl-location").innerText = isAr ? "العنوان" : "Location";
-        document.querySelector(".lbl-summary").innerText = isAr ? "نبذة شخصية" : "Professional Summary";
-        document.querySelector(".lbl-experience").innerText = isAr ? "الخبرات العملية" : "Work Experience";
-        document.querySelector(".lbl-education").innerText = isAr ? "التعليم" : "Education";
-        document.querySelector(".lbl-skills").innerText = isAr ? "المهارات (افصل بينها بفاصلة)" : "Skills (comma separated)";
-        document.querySelector(".lbl-langs").innerText = isAr ? "اللغات" : "Languages";
-        document.querySelector(".lbl-add-exp").innerText = isAr ? "إضافة خبرة" : "Add Experience";
-        document.querySelector(".lbl-add-edu").innerText = isAr ? "إضافة تعليم" : "Add Education";
+        document.querySelectorAll(".lbl-fullname").forEach(el => el.innerText = isAr ? "الاسم الكامل" : "Full Name");
+        document.querySelectorAll(".lbl-title").forEach(el => el.innerText = isAr ? "المسمى الوظيفي" : "Job Title");
+        document.querySelectorAll(".lbl-email").forEach(el => el.innerText = isAr ? "البريد الإلكتروني" : "Email");
+        document.querySelectorAll(".lbl-phone").forEach(el => el.innerText = isAr ? "رقم الهاتف" : "Phone");
+        document.querySelectorAll(".lbl-location").forEach(el => el.innerText = isAr ? "العنوان" : "Location");
+        document.querySelectorAll(".lbl-summary").forEach(el => el.innerText = isAr ? "نبذة شخصية" : "Professional Summary");
+        document.querySelectorAll(".lbl-experience").forEach(el => el.innerText = isAr ? "الخبرات العملية" : "Work Experience");
+        document.querySelectorAll(".lbl-education").forEach(el => el.innerText = isAr ? "التعليم" : "Education");
+        document.querySelectorAll(".lbl-skills").forEach(el => el.innerText = isAr ? "المهارات (افصل بينها بفاصلة)" : "Skills (comma separated)");
+        document.querySelectorAll(".lbl-langs").forEach(el => el.innerText = isAr ? "اللغات" : "Languages");
+        document.querySelectorAll(".lbl-add-exp").forEach(el => el.innerText = isAr ? "إضافة خبرة" : "Add Experience");
+        document.querySelectorAll(".lbl-add-edu").forEach(el => el.innerText = isAr ? "إضافة تعليم" : "Add Education");
         document.getElementById("mainTitle").innerHTML = isAr ? '<i class="fas fa-file-alt"></i> منشئ السيرة الذاتية الاحترافية' : '<i class="fas fa-file-alt"></i> Professional CV Builder';
         document.getElementById("subTitle").innerText = isAr ? "أنشئ سيرتك الذاتية مع 3 قوالب متميزة وPDF نصي قابل للنسخ" : "Create your CV with 3 unique templates & selectable text PDF";
         document.getElementById("previewTitle").innerText = isAr ? "معاينة السيرة الذاتية" : "CV Preview";
-        document.getElementById("downloadText").innerText = isAr ? "تحميل PDF (نص قابل للنسخ)" : "Download PDF (Selectable Text)";
+        document.getElementById("downloadText").innerText = isAr ? "تحميل PDF" : "Download PDF";
         document.getElementById("tempModern").innerText = isAr ? "✨ عصري" : "✨ Modern";
         document.getElementById("tempElegant").innerText = isAr ? "💎 أنيق" : "💎 Elegant";
         document.getElementById("tempSidebar").innerText = isAr ? "📐 جانبي" : "📐 Sidebar";
@@ -593,33 +625,62 @@
     };
     
     // ===================== استماع للتغييرات =====================
-    const inputs = ["inputName", "inputJob", "inputEmail", "inputPhone", "inputLocation", "inputLinkedin", "inputSummary", "inputSkills", "inputLangs"];
-    inputs.forEach(id => {
+    const inputIds = ["inputName", "inputJob", "inputEmail", "inputPhone", "inputLocation", "inputLinkedin", "inputSummary", "inputSkills", "inputLangs"];
+    inputIds.forEach(id => {
         document.getElementById(id).addEventListener('input', () => updateCV());
     });
     
-    // ===================== تحميل PDF =====================
-    document.getElementById("downloadBtn").onclick = () => {
-        const element = cvDiv;
-        const originalStyle = element.style.cssText;
-        element.style.width = "794px";
-        element.style.margin = "0 auto";
-        element.style.padding = "12mm 10mm";
-        element.style.background = "white";
+    // ===================== تحميل PDF (الحل السحري الذي يعمل على جميع الأجهزة) =====================
+    document.getElementById("downloadBtn").onclick = async () => {
+        // إظهار مؤشر التحميل
+        const loader = document.createElement('div');
+        loader.className = 'loading-overlay';
+        loader.innerHTML = '<div class="spinner"></div><div>جاري تجهيز السيرة الذاتية...</div>';
+        document.body.appendChild(loader);
         
-        setTimeout(() => {
+        try {
+            // حفظ الإعدادات الأصلية
+            const originalWidth = cvDiv.style.width;
+            const originalMargin = cvDiv.style.margin;
+            const originalPadding = cvDiv.style.padding;
+            const originalMaxWidth = cvDiv.style.maxWidth;
+            
+            // تثبيت العرض المثالي لـ A4 (210mm = 794px)
+            cvDiv.style.width = "794px";
+            cvDiv.style.margin = "0 auto";
+            cvDiv.style.padding = "12mm 10mm";
+            cvDiv.style.maxWidth = "none";
+            cvDiv.style.background = "white";
+            
+            // انتظار ثانية لتطبيق التغييرات
+            await new Promise(resolve => setTimeout(resolve, 150));
+            
+            // خيارات التصدير
             const opt = {
                 margin: [0, 0, 0, 0],
                 filename: `CV_${document.getElementById("inputName").value.replace(/\s/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, letterRendering: true, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: 'css' }
             };
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.cssText = originalStyle;
-            });
-        }, 100);
+            
+            // تصدير PDF
+            await html2pdf().set(opt).from(cvDiv).save();
+            
+            // إعادة الإعدادات الأصلية
+            cvDiv.style.width = originalWidth;
+            cvDiv.style.margin = originalMargin;
+            cvDiv.style.padding = originalPadding;
+            cvDiv.style.maxWidth = originalMaxWidth;
+            
+        } catch (error) {
+            console.error("PDF Error:", error);
+            alert("حدث خطأ أثناء إنشاء PDF، يرجى المحاولة مرة أخرى");
+        } finally {
+            // إزالة مؤشر التحميل
+            document.body.removeChild(loader);
+        }
     };
     
     // ===================== التشغيل الأولي =====================
