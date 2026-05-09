@@ -3,395 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Builder Pro | سيرة ذاتية احترافية - عربي / English</title>
+    <title>CV Builder Pro | سيرة ذاتية احترافية - نسخة مطورة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2c7da0;
+            --secondary: #1e6f5c;
+            --bg-gray: #f4f7f9;
+            --text-dark: #0f2b3b;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #f0f4fc 0%, #e9eef5 100%);
-            font-family: 'Cairo', 'Inter', sans-serif;
-            padding: 1.5rem;
-            transition: all 0.2s;
+            background: linear-gradient(135deg, #eef2f7 0%, #dfe9f3 100%);
+            font-family: 'Cairo', sans-serif;
+            color: var(--text-dark);
+            padding: 20px;
         }
-        body.english-mode { direction: ltr; text-align: left; font-family: 'Inter', 'Cairo', sans-serif; }
-        .app-container { max-width: 1500px; margin: 0 auto; }
-        
-        /* Language Switcher */
-        .lang-switch { display: flex; justify-content: flex-end; margin-bottom: 1rem; gap: 0.5rem; }
-        .lang-btn {
-            background: white; border: none; padding: 0.5rem 1.2rem; border-radius: 40px;
-            font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: inline-flex; align-items: center; gap: 8px;
+
+        .app-container {
+            max-width: 1500px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 25px;
         }
-        .lang-btn.active { background: #1e6f5c; color: white; }
-        body.english-mode .lang-btn.active { background: #2c7da0; }
-        
-        .header { text-align: center; margin-bottom: 2rem; }
-        .header h1 { font-size: 2.3rem; font-weight: 800; background: linear-gradient(135deg, #1f3b4c, #2c5a6e); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        
-        .dashboard { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; margin-bottom: 2rem; }
-        .form-panel {
-            background: white; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
-            padding: 1.5rem; max-height: 85vh; overflow-y: auto;
+
+        /* التحكم في اللغات */
+        .lang-switch {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        .form-group { margin-bottom: 1.2rem; }
-        label { display: block; font-weight: 600; margin-bottom: 0.4rem; color: #0f2b3b; font-size: 0.85rem; }
-        input, textarea, select {
-            width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #e2e8f0;
-            border-radius: 18px; font-family: inherit; font-size: 0.9rem;
-        }
-        input:focus, textarea:focus { outline: none; border-color: #2c7da0; box-shadow: 0 0 0 3px rgba(44,125,160,0.2); }
-        .section-title { font-size: 1.2rem; font-weight: 700; margin: 1.2rem 0 0.8rem 0; padding-bottom: 0.3rem; border-bottom: 3px solid #2c7da0; display: inline-block; color: #1e4a6b; }
-        .dynamic-item { background: #f8fafc; border-radius: 20px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #eef2f8; }
-        .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-        .remove-btn { background: #fee2e2; border: none; color: #b91c1c; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
-        .add-btn { background: #eef2ff; border: none; padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: 600; color: #1e4a6b; cursor: pointer; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 8px; }
-        .template-selector { background: #f1f5f9; border-radius: 40px; padding: 0.2rem; display: flex; margin: 1rem 0 1.2rem 0; gap: 0.5rem; }
-        .template-option { flex: 1; text-align: center; padding: 0.6rem; border-radius: 40px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .template-option.active { background: white; color: #1f6e8c; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-        
-        .preview-panel { background: #fefefe; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        
-        /* CV Preview Styles - Optimized for A4 */
-        .cv-preview {
-            padding: 1.8rem;
+
+        .btn-lang {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
             background: white;
-            margin: 1rem;
-            border-radius: 16px;
-            min-height: auto;
-            max-width: 100%;
-            font-size: 11pt;
-            line-height: 1.45;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        /* Prevent page breaks inside major blocks when printing */
-        .cv-preview .section-block, .cv-preview .job-item, .cv-preview .edu-item, .cv-preview .cv-header {
-            page-break-inside: avoid;
-            break-inside: avoid;
+
+        .btn-lang.active { background: var(--primary); color: white; }
+
+        /* لوحة التحكم (المدخلات) */
+        .form-panel {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        .template-modern .cv-header { text-align: center; margin-bottom: 1rem; }
-        .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #0f3b4a; }
-        .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 700; border-right: 4px solid #2c7da0; padding-right: 0.8rem; margin: 0.8rem 0 0.5rem 0; }
-        .template-elegant .cv-header { background: #2c3e4e; color: white; margin: -1.8rem -1.8rem 1.2rem -1.8rem; padding: 1.5rem 1.8rem; border-radius: 16px 16px 30px 30px; }
-        .template-sidebar { display: grid; grid-template-columns: 0.85fr 2.15fr; gap: 1.2rem; }
-        .template-sidebar .sidebar-col { background: #eef3fa; padding: 1rem; border-radius: 16px; }
-        .job-item, .edu-item { margin-bottom: 0.7rem; }
-        .job-title, .edu-degree { font-weight: 700; }
-        .job-date, .edu-date { font-size: 0.7rem; color: #5b6e8c; }
-        p { margin-bottom: 0.3rem; }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            border-bottom: 2px solid #eee;
+            margin: 20px 0 15px;
+            padding-bottom: 5px;
+            font-weight: 800;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.85rem; }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+        }
+
+        .dynamic-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #edf2f7;
+        }
+
+        .add-btn {
+            background: #eef2ff;
+            color: var(--primary);
+            border: 1px dashed var(--primary);
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* لوحة المعاينة (الـ PDF) */
+        .preview-area {
+            background: #525659;
+            border-radius: 25px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 88vh;
+            overflow-y: auto;
+        }
+
+        .download-header {
+            width: 100%;
+            max-width: 210mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+        }
+
+        .btn-download {
+            background: var(--secondary);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* مقاسات الورقة الثابتة لمنع المشكلة التي ظهرت بالصورة */
+        #cvPreviewContainer {
+            width: 210mm; /* عرض A4 ثابت */
+            min-height: 297mm; /* طول A4 ثابت */
+            background: white;
+            padding: 20mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: block;
+            position: relative;
+        }
+
+        /* ستايل المحتوى داخل الـ CV */
+        .cv-preview-content { color: #333; line-height: 1.5; }
+        .cv-header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        .cv-name { font-size: 26pt; font-weight: 800; color: var(--text-dark); }
+        .cv-job { font-size: 16pt; color: var(--primary); margin-top: 5px; }
         
-        @media (max-width: 950px) { .dashboard { grid-template-columns: 1fr; } }
-        footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #556b82; }
-        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.8rem; padding-right: 0; }
+        .cv-section-title {
+            font-size: 13pt;
+            font-weight: 700;
+            background: #f0f4f8;
+            padding: 5px 15px;
+            margin: 15px 0 10px;
+            border-right: 5px solid var(--primary);
+        }
         
-        /* Print-specific styles for better PDF */
-        @media print {
-            body { background: white; padding: 0; margin: 0; }
-            .form-panel, .lang-switch, .preview-header, footer, .template-selector { display: none; }
-            .preview-panel { box-shadow: none; margin: 0; padding: 0; }
-            .cv-preview { margin: 0; padding: 0.5cm; border-radius: 0; }
-            .cv-preview, .cv-preview * { page-break-inside: avoid; break-inside: avoid; }
+        body.en-mode .cv-section-title { border-right: none; border-left: 5px solid var(--primary); }
+
+        .item-row { margin-bottom: 15px; page-break-inside: avoid; }
+        .item-head { display: flex; justify-content: space-between; font-weight: 700; }
+        .item-sub { color: var(--primary); font-style: italic; font-size: 10pt; }
+
+        @media (max-width: 1000px) {
+            .app-container { grid-template-columns: 1fr; }
+            #cvPreviewContainer { transform: scale(0.5); transform-origin: top center; }
         }
     </style>
 </head>
 <body>
+
 <div class="app-container">
     <div class="lang-switch">
-        <button id="langArBtn" class="lang-btn active"><i class="fas fa-language"></i> العربية</button>
-        <button id="langEnBtn" class="lang-btn"><i class="fas fa-language"></i> English</button>
-    </div>
-    <div class="header">
-        <h1 id="mainTitle"><i class="fas fa-file-alt"></i> منشئ السيرة الذاتية الاحترافية</h1>
-        <p id="subTitle">أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | تحميل PDF بصفحة واحدة بتنسيق مثالي</p>
+        <button id="arBtn" class="btn-lang active" onclick="setLang('ar')">العربية</button>
+        <button id="enBtn" class="btn-lang" onclick="setLang('en')">English</button>
     </div>
 
-    <div class="dashboard">
-        <div class="form-panel">
-            <div class="template-selector" id="templateSelector">
-                <div data-template="modern" class="template-option active" id="tempModern">✨ عصري / Modern</div>
-                <div data-template="elegant" class="template-option" id="tempElegant">💎 أنيق / Elegant</div>
-                <div data-template="sidebar" class="template-option" id="tempSidebar">📐 جانبي / Sidebar</div>
-            </div>
-            <div class="form-group"><label id="fullNameLabel"><i class="fas fa-user"></i> الاسم الكامل</label><input type="text" id="fullName" value="ليلى السيد"></div>
-            <div class="form-group"><label id="jobTitleLabel"><i class="fas fa-briefcase"></i> المسمى الوظيفي</label><input type="text" id="jobTitle" value="مصممة تجربة مستخدم أول"></div>
-            <div class="form-group"><label id="emailLabel"><i class="fas fa-envelope"></i> البريد الإلكتروني</label><input type="email" id="email" value="laila@example.com"></div>
-            <div class="form-group"><label id="phoneLabel"><i class="fas fa-phone-alt"></i> رقم الهاتف</label><input type="text" id="phone" value="+966 55 123 4567"></div>
-            <div class="form-group"><label id="locationLabel"><i class="fas fa-map-marker-alt"></i> العنوان</label><input type="text" id="location" value="دبي، الإمارات"></div>
-            <div class="form-group"><label id="summaryLabel"><i class="fas fa-align-left"></i> نبذة شخصية</label><textarea id="summary" rows="2">مصممة UX محترفة بخبرة 6 سنوات في تصميم تجارب رقمية مبتكرة. شغوفة بتحويل الأفكار إلى منتجات سهلة الاستخدام.</textarea></div>
-            <div><span class="section-title" id="expTitle">الخبرات العملية</span></div>
-            <div id="experiencesContainer"></div>
-            <button class="add-btn" id="addExperienceBtn"><i class="fas fa-plus-circle"></i> <span id="addExpText">إضافة خبرة</span></button>
-            <div style="margin-top:1rem;"><span class="section-title" id="eduTitle">التعليم</span></div>
-            <div id="educationContainer"></div>
-            <button class="add-btn" id="addEducationBtn"><i class="fas fa-plus-circle"></i> <span id="addEduText">إضافة تعليم</span></button>
-            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel"><i class="fas fa-code"></i> المهارات (افصل بينها بفاصلة)</label><input type="text" id="skills" value="Figma, Adobe XD, User Research, Prototyping, CSS"></div>
-            <div class="form-group"><label id="langsLabel"><i class="fas fa-language"></i> اللغات</label><input type="text" id="languages" value="العربية (لغة أم)، الإنجليزية (ممتاز)"></div>
+    <!-- لوحة الإدخال -->
+    <div class="form-panel">
+        <h2 id="panelTitle">بيانات السيرة الذاتية</h2>
+        
+        <div class="section-title" id="personalTitle">المعلومات الشخصية</div>
+        <div class="form-group"><label id="nameL">الاسم الكامل</label><input type="text" id="fullName" value="ليلى السيد"></div>
+        <div class="form-group"><label id="jobL">المسمى الوظيفي</label><input type="text" id="jobTitle" value="مصممة تجربة مستخدم أول"></div>
+        <div class="form-group"><label id="sumL">نبذة شخصية</label><textarea id="summary" rows="3">مصممة UX محترفة بخبرة 6 سنوات في تصميم تجارب رقمية مبتكرة.</textarea></div>
+
+        <div class="section-title" id="expTitle">الخبرة العملية</div>
+        <div id="experienceInputs"></div>
+        <button class="add-btn" onclick="addExperience()">+ إضافة خبرة</button>
+
+        <div class="section-title" id="skillTitle">المهارات واللغات</div>
+        <div class="form-group"><label id="skillL">المهارات (فاصلة بين كل مهارة)</label><input type="text" id="skills" value="Figma, UI Design, Research"></div>
+    </div>
+
+    <!-- لوحة المعاينة -->
+    <div class="preview-area">
+        <div class="download-header">
+            <span id="previewLabel">معاينة مباشرة (A4)</span>
+            <button class="btn-download" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i> <span id="dlText">تحميل PDF</span>
+            </button>
         </div>
 
-        <div class="preview-panel">
-            <div class="preview-header">
-                <h3 id="previewTitle"><i class="fas fa-eye"></i> معاينة السيرة الذاتية</h3>
-                <button id="downloadPDFBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF بصفحة واحدة</span></button>
+        <div id="cvPreviewContainer">
+            <div id="cvContent" class="cv-preview-content">
+                <!-- الـ JavaScript سيضع المحتوى هنا -->
             </div>
-            <div id="cvPreviewContainer" class="cv-preview template-modern"></div>
         </div>
     </div>
-    <footer id="footerText">يمكنك تعديل البيانات والتبديل بين القوالب — معاينة فورية، والـ PDF يظهر بصفحة واحدة بتنسيق احترافي.</footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-    // Data
+    let currentLang = 'ar';
     let experiences = [
-        { title: "مصممة UX كبيرة", company: "شركة تكامل", startDate: "2022", endDate: "حالياً", description: "قيادة فريق التصميم وتطوير تجربة مستخدم لمنصة رقمية." },
-        { title: "مصممة UI/UX", company: "وكالة إبداع", startDate: "2019", endDate: "2022", description: "تصميم واجهات تطبيقات الهاتف واختبارات المستخدم." }
+        { title: "مصممة UX كبيرة", company: "شركة تكامل", date: "2022 - الآن", desc: "قيادة فريق التصميم وتطوير تجربة مستخدم لمنصة رقمية." }
     ];
-    let educations = [
-        { degree: "ماجستير في التفاعل الإنساني", institution: "جامعة القاهرة", year: "2018", description: "تخصص تصميم تجارب المستخدم" },
-        { degree: "بكالوريوس علوم الحاسب", institution: "جامعة الملك سعود", year: "2015", description: "تقدير ممتاز" }
-    ];
-    let currentTemplate = "modern";
-    let currentLang = "ar";
 
-    // DOM elements
-    const fullNameInp = document.getElementById("fullName");
-    const jobTitleInp = document.getElementById("jobTitle");
-    const emailInp = document.getElementById("email");
-    const phoneInp = document.getElementById("phone");
-    const locationInp = document.getElementById("location");
-    const summaryInp = document.getElementById("summary");
-    const skillsInp = document.getElementById("skills");
-    const languagesInp = document.getElementById("languages");
-    const expContainer = document.getElementById("experiencesContainer");
-    const eduContainer = document.getElementById("educationContainer");
-    const cvPreview = document.getElementById("cvPreviewContainer");
-
-    // Translations
-    const trans = {
+    const translations = {
         ar: {
-            fullNameLabel: "الاسم الكامل", jobTitleLabel: "المسمى الوظيفي", emailLabel: "البريد الإلكتروني", phoneLabel: "رقم الهاتف",
-            locationLabel: "العنوان", summaryLabel: "نبذة شخصية", skillsLabel: "المهارات (افصل بينها بفاصلة)", langsLabel: "اللغات",
-            expTitle: "الخبرات العملية", eduTitle: "التعليم", addExpText: "إضافة خبرة", addEduText: "إضافة تعليم",
-            previewTitle: "معاينة السيرة الذاتية", downloadText: "تحميل PDF بصفحة واحدة", footerText: "يمكنك تعديل البيانات والتبديل بين القوالب — معاينة فورية، والـ PDF يظهر بصفحة واحدة بتنسيق احترافي.",
-            mainTitle: "منشئ السيرة الذاتية الاحترافية", subTitle: "أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | تحميل PDF بصفحة واحدة بتنسيق مثالي",
-            tempModern: "✨ عصري", tempElegant: "💎 أنيق", tempSidebar: "📐 جانبي",
-            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات",
-            jobTitlePlace: "مطور برمجيات", fullNamePlace: "أحمد محمد"
+            panelTitle: "بيانات السيرة الذاتية", personalTitle: "المعلومات الشخصية", nameL: "الاسم الكامل", jobL: "المسمى الوظيفي",
+            sumL: "نبذة شخصية", expTitle: "الخبرة العملية", skillTitle: "المهارات واللغات", skillL: "المهارات", 
+            previewLabel: "معاينة مباشرة (A4)", dlText: "تحميل PDF بصفحة واحدة", sumSec: "الملخص المهني", expSec: "الخبرة العملية", skillSec: "المهارات"
         },
         en: {
-            fullNameLabel: "Full Name", jobTitleLabel: "Job Title", emailLabel: "Email", phoneLabel: "Phone",
-            locationLabel: "Location", summaryLabel: "Professional Summary", skillsLabel: "Skills (comma separated)", langsLabel: "Languages",
-            expTitle: "Work Experience", eduTitle: "Education", addExpText: "Add Experience", addEduText: "Add Education",
-            previewTitle: "CV Preview", downloadText: "Download PDF (Single Page)", footerText: "Edit data, switch templates — live preview & clean one-page PDF export.",
-            mainTitle: "Professional CV Builder", subTitle: "Create your CV with 3 unique templates | One-page perfect PDF export",
-            tempModern: "✨ Modern", tempElegant: "💎 Elegant", tempSidebar: "📐 Sidebar",
-            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages",
-            jobTitlePlace: "Software Engineer", fullNamePlace: "Ahmed Mohamed"
+            panelTitle: "CV Information", personalTitle: "Personal Info", nameL: "Full Name", jobL: "Job Title",
+            sumL: "Professional Summary", expTitle: "Work Experience", skillTitle: "Skills & Languages", skillL: "Skills",
+            previewLabel: "Live Preview (A4)", dlText: "Download One-Page PDF", sumSec: "Summary", expSec: "Experience", skillSec: "Skills"
         }
     };
 
-    function applyLanguage() {
-        const t = trans[currentLang];
-        document.getElementById("fullNameLabel").innerHTML = `<i class="fas fa-user"></i> ${t.fullNameLabel}`;
-        document.getElementById("jobTitleLabel").innerHTML = `<i class="fas fa-briefcase"></i> ${t.jobTitleLabel}`;
-        document.getElementById("emailLabel").innerHTML = `<i class="fas fa-envelope"></i> ${t.emailLabel}`;
-        document.getElementById("phoneLabel").innerHTML = `<i class="fas fa-phone-alt"></i> ${t.phoneLabel}`;
-        document.getElementById("locationLabel").innerHTML = `<i class="fas fa-map-marker-alt"></i> ${t.locationLabel}`;
-        document.getElementById("summaryLabel").innerHTML = `<i class="fas fa-align-left"></i> ${t.summaryLabel}`;
-        document.getElementById("skillsLabel").innerHTML = `<i class="fas fa-code"></i> ${t.skillsLabel}`;
-        document.getElementById("langsLabel").innerHTML = `<i class="fas fa-language"></i> ${t.langsLabel}`;
-        document.getElementById("expTitle").innerHTML = t.expTitle;
-        document.getElementById("eduTitle").innerHTML = t.eduTitle;
-        document.getElementById("addExpText").innerText = t.addExpText;
-        document.getElementById("addEduText").innerText = t.addEduText;
-        document.getElementById("previewTitle").innerHTML = `<i class="fas fa-eye"></i> ${t.previewTitle}`;
-        document.getElementById("downloadText").innerText = t.downloadText;
-        document.getElementById("footerText").innerHTML = t.footerText;
-        document.getElementById("mainTitle").innerHTML = `<i class="fas fa-file-alt"></i> ${t.mainTitle}`;
-        document.getElementById("subTitle").innerText = t.subTitle;
-        document.getElementById("tempModern").innerHTML = t.tempModern;
-        document.getElementById("tempElegant").innerHTML = t.tempElegant;
-        document.getElementById("tempSidebar").innerHTML = t.tempSidebar;
-        fullNameInp.placeholder = t.fullNamePlace;
-        jobTitleInp.placeholder = t.jobTitlePlace;
-        
-        const body = document.body;
-        if (currentLang === 'ar') {
-            body.classList.remove('english-mode');
-            body.setAttribute('dir', 'rtl');
-        } else {
-            body.classList.add('english-mode');
-            body.setAttribute('dir', 'ltr');
+    function setLang(lang) {
+        currentLang = lang;
+        document.body.className = lang === 'en' ? 'en-mode' : '';
+        document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
+        document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+        updateUI();
+    }
+
+    function updateUI() {
+        const t = translations[currentLang];
+        for (let id in t) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = t[id];
         }
-        renderDynamicForms();
-        updateCVPreview();
+        renderFormExperiences();
+        renderPreview();
     }
 
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-
-    function renderDynamicForms() {
-        expContainer.innerHTML = "";
-        experiences.forEach((exp, idx) => {
-            const div = document.createElement("div");
-            div.className = "dynamic-item";
-            div.innerHTML = `
-                <div class="dynamic-item-header"><strong>${currentLang === 'ar' ? `خبرة ${idx+1}` : `Experience ${idx+1}`}</strong><button class="remove-btn" data-type="exp" data-index="${idx}"><i class="fas fa-trash-alt"></i></button></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'المسمى الوظيفي' : 'Job Title'}</label><input class="exp-title" value="${escapeHtml(exp.title)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}</label><input class="exp-company" value="${escapeHtml(exp.company)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date'}</label><input class="exp-start" value="${escapeHtml(exp.startDate)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date'}</label><input class="exp-end" value="${escapeHtml(exp.endDate)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'وصف' : 'Description'}</label><textarea class="exp-desc" rows="2">${escapeHtml(exp.description)}</textarea></div>
-            `;
-            expContainer.appendChild(div);
-        });
-        eduContainer.innerHTML = "";
-        educations.forEach((edu, idx) => {
-            const div = document.createElement("div");
-            div.className = "dynamic-item";
-            div.innerHTML = `
-                <div class="dynamic-item-header"><strong>${currentLang === 'ar' ? `تعليم ${idx+1}` : `Education ${idx+1}`}</strong><button class="remove-btn" data-type="edu" data-index="${idx}"><i class="fas fa-trash-alt"></i></button></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'الشهادة / الدرجة' : 'Degree'}</label><input class="edu-degree" value="${escapeHtml(edu.degree)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'المؤسسة' : 'Institution'}</label><input class="edu-institution" value="${escapeHtml(edu.institution)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'السنة' : 'Year'}</label><input class="edu-year" value="${escapeHtml(edu.year)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'ملاحظات' : 'Notes'}</label><textarea class="edu-desc" rows="2">${escapeHtml(edu.description)}</textarea></div>
-            `;
-            eduContainer.appendChild(div);
-        });
-        attachDynamicEvents();
+    function renderFormExperiences() {
+        const container = document.getElementById('experienceInputs');
+        container.innerHTML = experiences.map((exp, i) => `
+            <div class="dynamic-item">
+                <input type="text" placeholder="المسمى الوظيفي" value="${exp.title}" oninput="updateExp(${i}, 'title', this.value)">
+                <input type="text" placeholder="الشركة" value="${exp.company}" oninput="updateExp(${i}, 'company', this.value)" style="margin-top:5px">
+                <input type="text" placeholder="التاريخ" value="${exp.date}" oninput="updateExp(${i}, 'date', this.value)" style="margin-top:5px">
+                <textarea placeholder="الوصف" oninput="updateExp(${i}, 'desc', this.value)" style="margin-top:5px">${exp.desc}</textarea>
+            </div>
+        `).join('');
     }
 
-    function attachDynamicEvents() {
-        document.querySelectorAll(".remove-btn[data-type='exp']").forEach(btn => {
-            btn.addEventListener("click", () => { const idx = parseInt(btn.dataset.index); experiences.splice(idx,1); renderDynamicForms(); updateCVPreview(); });
-        });
-        document.querySelectorAll(".remove-btn[data-type='edu']").forEach(btn => {
-            btn.addEventListener("click", () => { const idx = parseInt(btn.dataset.index); educations.splice(idx,1); renderDynamicForms(); updateCVPreview(); });
-        });
-        document.querySelectorAll(".exp-title, .exp-company, .exp-start, .exp-end, .exp-desc").forEach(inp => inp.addEventListener("input", () => syncExperiences()));
-        document.querySelectorAll(".edu-degree, .edu-institution, .edu-year, .edu-desc").forEach(inp => inp.addEventListener("input", () => syncEducations()));
+    function updateExp(index, field, value) {
+        experiences[index][field] = value;
+        renderPreview();
     }
 
-    function syncExperiences() {
-        const newExps = [];
-        document.querySelectorAll("#experiencesContainer .dynamic-item").forEach(item => {
-            newExps.push({
-                title: item.querySelector(".exp-title")?.value || "",
-                company: item.querySelector(".exp-company")?.value || "",
-                startDate: item.querySelector(".exp-start")?.value || "",
-                endDate: item.querySelector(".exp-end")?.value || "",
-                description: item.querySelector(".exp-desc")?.value || ""
-            });
-        });
-        experiences = newExps;
-        updateCVPreview();
-    }
-    function syncEducations() {
-        const newEdus = [];
-        document.querySelectorAll("#educationContainer .dynamic-item").forEach(item => {
-            newEdus.push({
-                degree: item.querySelector(".edu-degree")?.value || "",
-                institution: item.querySelector(".edu-institution")?.value || "",
-                year: item.querySelector(".edu-year")?.value || "",
-                description: item.querySelector(".edu-desc")?.value || ""
-            });
-        });
-        educations = newEdus;
-        updateCVPreview();
+    function addExperience() {
+        experiences.push({ title: "", company: "", date: "", desc: "" });
+        renderFormExperiences();
+        renderPreview();
     }
 
-    function getBaseData() {
-        return {
-            fullName: fullNameInp.value,
-            jobTitle: jobTitleInp.value,
-            email: emailInp.value,
-            phone: phoneInp.value,
-            location: locationInp.value,
-            summary: summaryInp.value,
-            skills: skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s),
-            languages: languagesInp.value,
-            experiences, educations
-        };
+    function renderPreview() {
+        const t = translations[currentLang];
+        const name = document.getElementById('fullName').value;
+        const job = document.getElementById('jobTitle').value;
+        const summary = document.getElementById('summary').value;
+        const skills = document.getElementById('skills').value.split(',');
+
+        document.getElementById('cvContent').innerHTML = `
+            <div class="cv-header" style="direction: ${currentLang === 'ar' ? 'rtl' : 'ltr'}">
+                <div class="cv-name">${name}</div>
+                <div class="cv-job">${job}</div>
+            </div>
+
+            <div style="direction: ${currentLang === 'ar' ? 'rtl' : 'ltr'}">
+                <div class="cv-section-title">${t.sumSec}</div>
+                <p style="font-size: 11pt; text-align: justify;">${summary}</p>
+
+                <div class="cv-section-title">${t.expSec}</div>
+                ${experiences.map(exp => `
+                    <div class="item-row">
+                        <div class="item-head"><span>${exp.title}</span><span>${exp.date}</span></div>
+                        <div class="item-sub">${exp.company}</div>
+                        <p style="font-size: 10pt;">${exp.desc}</p>
+                    </div>
+                `).join('')}
+
+                <div class="cv-section-title">${t.skillSec}</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    ${skills.map(s => `<span style="border:1px solid #ddd; padding:2px 10px; border-radius:4px; font-size:10pt;">${s.trim()}</span>`).join('')}
+                </div>
+            </div>
+        `;
     }
 
-    function renderCVByTemplate(data, template) {
-        const t = trans[currentLang];
-        const summarySec = t.summarySec, expSec = t.experienceSec, eduSec = t.educationSec, skillsSec = t.skillsSec, langsSec = t.languagesSec;
-        if(template === "modern") {
-            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}</div></div>
-            <div class="section-block"><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div class="section-block"><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)}</div><div class="job-date">${escapeHtml(exp.startDate)} - ${escapeHtml(exp.endDate)}</div><p>${escapeHtml(exp.description)}</p></div>`).join('')}</div>
-            <div class="section-block"><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="edu-degree">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)}</div><div class="edu-date">${escapeHtml(edu.year)}</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
-            <div class="section-block"><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' • ')}</p></div>
-            <div class="section-block"><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
-        }
-        else if(template === "elegant") {
-            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem">${escapeHtml(data.email)} | ${escapeHtml(data.phone)} | ${escapeHtml(data.location)}</div></div>
-            <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><span>${escapeHtml(exp.description)}</span></div><hr style="margin:0.4rem 0"/>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong>, ${escapeHtml(edu.institution)} (${edu.year})<br/><span>${escapeHtml(edu.description)}</span></div><hr style="margin:0.4rem 0"/>`).join('')}</div>
-            <div><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' - ')}</p></div>
-            <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
-        }
-        else {
-            return `<div class="template-sidebar"><div class="sidebar-col"><div><strong>${escapeHtml(data.fullName)}</strong><div>${escapeHtml(data.jobTitle)}</div><hr/><i class="fas fa-envelope"></i> ${escapeHtml(data.email)}<br/><i class="fas fa-phone"></i> ${escapeHtml(data.phone)}<br/><i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}<hr/><div><strong>${skillsSec}</strong><br/>${data.skills.map(s=>`• ${s}`).join('<br>')}</div><hr/><div><strong>${langsSec}</strong><br/>${escapeHtml(data.languages)}</div></div></div>
-            <div class="main-col"><div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong>, ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><span>${escapeHtml(exp.description)}</span></div><br/>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong> - ${escapeHtml(edu.institution)} (${edu.year})<br/><span>${escapeHtml(edu.description)}</span></div><br/>`).join('')}</div>
-            </div></div>`;
-        }
-    }
-
-    function updateCVPreview() {
-        const data = getBaseData();
-        cvPreview.innerHTML = renderCVByTemplate(data, currentTemplate);
-        cvPreview.className = `cv-preview template-${currentTemplate}`;
-    }
-
-    document.getElementById("addExperienceBtn").addEventListener("click", () => {
-        experiences.push({ title: currentLang==='ar'?"وظيفة جديدة":"New Role", company: currentLang==='ar'?"الشركة":"Company", startDate: "2024", endDate: currentLang==='ar'?"الآن":"Present", description: "" });
-        renderDynamicForms();
-        updateCVPreview();
-    });
-    document.getElementById("addEducationBtn").addEventListener("click", () => {
-        educations.push({ degree: currentLang==='ar'?"درجة البكالوريوس":"Bachelor's Degree", institution: currentLang==='ar'?"الجامعة":"University", year: "2024", description: "" });
-        renderDynamicForms();
-        updateCVPreview();
-    });
-
-    document.querySelectorAll(".template-option").forEach(opt => {
-        opt.addEventListener("click", () => {
-            document.querySelectorAll(".template-option").forEach(o=>o.classList.remove("active"));
-            opt.classList.add("active");
-            currentTemplate = opt.dataset.template;
-            updateCVPreview();
-        });
-    });
-
-    const mainInputs = [fullNameInp, jobTitleInp, emailInp, phoneInp, locationInp, summaryInp, skillsInp, languagesInp];
-    mainInputs.forEach(inp => inp.addEventListener("input", () => updateCVPreview()));
-
-    document.getElementById("langArBtn").addEventListener("click", () => { currentLang = "ar"; document.getElementById("langArBtn").classList.add("active"); document.getElementById("langEnBtn").classList.remove("active"); applyLanguage(); });
-    document.getElementById("langEnBtn").addEventListener("click", () => { currentLang = "en"; document.getElementById("langEnBtn").classList.add("active"); document.getElementById("langArBtn").classList.remove("active"); applyLanguage(); });
-
-    // Improved PDF download - single page, no breaks
-    document.getElementById("downloadPDFBtn").addEventListener("click", () => {
-        const element = cvPreview;
+    function downloadPDF() {
+        const element = document.getElementById('cvPreviewContainer');
         const opt = {
-            margin: [0.4, 0.4, 0.4, 0.4],
-            filename: `CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, letterRendering: true, useCORS: true, logging: false },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: 'avoid-all' }
+            margin: 0,
+            filename: 'My_Professional_CV.pdf',
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         html2pdf().set(opt).from(element).save();
-    });
+    }
 
-    renderDynamicForms();
-    applyLanguage();
-    updateCVPreview();
+    // تشغيل أولي
+    document.getElementById('fullName').addEventListener('input', renderPreview);
+    document.getElementById('jobTitle').addEventListener('input', renderPreview);
+    document.getElementById('summary').addEventListener('input', renderPreview);
+    document.getElementById('skills').addEventListener('input', renderPreview);
+    updateUI();
 </script>
+
 </body>
 </html>
