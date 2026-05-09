@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>CV Builder Pro | سيرة ذاتية احترافية - A4 مثالي</title>
+    <title>Khalid Helmy Khafagy | السيرة الذاتية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -46,37 +48,31 @@
         .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
         .remove-btn { background: #fee2e2; border: none; color: #b91c1c; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
         .add-btn { background: #eef2ff; border: none; padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: 600; color: #1e4a6b; cursor: pointer; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 8px; }
+        .add-btn:hover { background: #dfe7ff; }
         .template-selector { background: #f1f5f9; border-radius: 40px; padding: 0.2rem; display: flex; margin: 1rem 0 1.2rem 0; gap: 0.5rem; }
         .template-option { flex: 1; text-align: center; padding: 0.6rem; border-radius: 40px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .template-option.active { background: white; color: #1f6e8c; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
         
         .preview-panel { background: #fefefe; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
         .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .download-btn:hover { background: #0f5a4a; }
         
-        /* CV Preview Styles - Optimized */
         .cv-preview {
             padding: 1.8rem;
             background: white;
             margin: 1rem;
             border-radius: 16px;
-            min-height: auto;
-            width: calc(100% - 2rem);
+            width: 100%;
             font-size: 11pt;
             line-height: 1.45;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
-
         .template-modern .cv-header { text-align: center; margin-bottom: 1rem; }
         .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #0f3b4a; }
         .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 700; border-right: 4px solid #2c7da0; padding-right: 0.8rem; margin: 0.8rem 0 0.5rem 0; }
-        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.8rem; }
-        
         .template-elegant .cv-header { background: #2c3e4e; color: white; margin: -1.8rem -1.8rem 1.2rem -1.8rem; padding: 1.5rem 1.8rem; border-radius: 16px 16px 30px 30px; }
-        
         .template-sidebar { display: grid; grid-template-columns: 0.85fr 2.15fr; gap: 1.2rem; }
         .template-sidebar .sidebar-col { background: #eef3fa; padding: 1rem; border-radius: 16px; }
-        
         .job-item, .edu-item { margin-bottom: 0.7rem; }
         .job-title, .edu-degree { font-weight: 700; }
         .job-date, .edu-date { font-size: 0.7rem; color: #5b6e8c; }
@@ -84,6 +80,16 @@
         
         @media (max-width: 950px) { .dashboard { grid-template-columns: 1fr; } }
         footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #556b82; }
+        body.english-mode .template-modern .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.8rem; padding-right: 0; }
+        
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
+            z-index: 9999; color: white; font-size: 1.5rem; flex-direction: column; gap: 1rem;
+            backdrop-filter: blur(3px);
+        }
+        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -94,7 +100,7 @@
     </div>
     <div class="header">
         <h1 id="mainTitle"><i class="fas fa-file-alt"></i> منشئ السيرة الذاتية الاحترافية</h1>
-        <p id="subTitle">أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | PDF بملء صفحة A4 وبجودة احترافية</p>
+        <p id="subTitle">أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | PDF بملء صفحة A4</p>
     </div>
 
     <div class="dashboard">
@@ -104,20 +110,20 @@
                 <div data-template="elegant" class="template-option" id="tempElegant">💎 أنيق / Elegant</div>
                 <div data-template="sidebar" class="template-option" id="tempSidebar">📐 جانبي / Sidebar</div>
             </div>
-            <div class="form-group"><label id="fullNameLabel"><i class="fas fa-user"></i> الاسم الكامل</label><input type="text" id="fullName" value="ليلى السيد"></div>
-            <div class="form-group"><label id="jobTitleLabel"><i class="fas fa-briefcase"></i> المسمى الوظيفي</label><input type="text" id="jobTitle" value="مصممة تجربة مستخدم أول"></div>
-            <div class="form-group"><label id="emailLabel"><i class="fas fa-envelope"></i> البريد الإلكتروني</label><input type="email" id="email" value="laila@example.com"></div>
-            <div class="form-group"><label id="phoneLabel"><i class="fas fa-phone-alt"></i> رقم الهاتف</label><input type="text" id="phone" value="+966 55 123 4567"></div>
-            <div class="form-group"><label id="locationLabel"><i class="fas fa-map-marker-alt"></i> العنوان</label><input type="text" id="location" value="دبي، الإمارات"></div>
-            <div class="form-group"><label id="summaryLabel"><i class="fas fa-align-left"></i> نبذة شخصية</label><textarea id="summary" rows="2">مصممة UX محترفة بخبرة 6 سنوات في تصميم تجارب رقمية مبتكرة. شغوفة بتحويل الأفكار إلى منتجات سهلة الاستخدام.</textarea></div>
+            <div class="form-group"><label id="fullNameLabel"><i class="fas fa-user"></i> الاسم الكامل</label><input type="text" id="fullName" value="Khalid Helmy Khafagy / خالد حلمي خفاجي"></div>
+            <div class="form-group"><label id="jobTitleLabel"><i class="fas fa-briefcase"></i> المسمى الوظيفي</label><input type="text" id="jobTitle" value="Payroll & HRIS Specialist | SAP & Oracle Expert"></div>
+            <div class="form-group"><label id="emailLabel"><i class="fas fa-envelope"></i> البريد الإلكتروني</label><input type="email" id="email" value="khalidhelmy772@gmail.com"></div>
+            <div class="form-group"><label id="phoneLabel"><i class="fas fa-phone-alt"></i> رقم الهاتف</label><input type="text" id="phone" value="+201095890589"></div>
+            <div class="form-group"><label id="locationLabel"><i class="fas fa-map-marker-alt"></i> العنوان</label><input type="text" id="location" value="Egypt"></div>
+            <div class="form-group"><label id="summaryLabel"><i class="fas fa-align-left"></i> نبذة شخصية</label><textarea id="summary" rows="3">Results-oriented Payroll Specialist with over 15 years of experience managing end-to-end payroll for large-scale government-sector workforces. LL.B. background combined with technical mastery of SAP and Oracle Payroll ensures 100% compliance with Egyptian labor law, social insurance, and tax regulations.</textarea></div>
             <div><span class="section-title" id="expTitle">الخبرات العملية</span></div>
             <div id="experiencesContainer"></div>
             <button class="add-btn" id="addExperienceBtn"><i class="fas fa-plus-circle"></i> <span id="addExpText">إضافة خبرة</span></button>
             <div style="margin-top:1rem;"><span class="section-title" id="eduTitle">التعليم</span></div>
             <div id="educationContainer"></div>
             <button class="add-btn" id="addEducationBtn"><i class="fas fa-plus-circle"></i> <span id="addEduText">إضافة تعليم</span></button>
-            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel"><i class="fas fa-code"></i> المهارات (افصل بينها بفاصلة)</label><input type="text" id="skills" value="Figma, Adobe XD, User Research, Prototyping, CSS"></div>
-            <div class="form-group"><label id="langsLabel"><i class="fas fa-language"></i> اللغات</label><input type="text" id="languages" value="العربية (لغة أم)، الإنجليزية (ممتاز)"></div>
+            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel"><i class="fas fa-code"></i> المهارات (افصل بينها بفاصلة)</label><input type="text" id="skills" value="HRIS, Advanced Excel, SAP, Oracle, Adobe Creative Suite (Photoshop, Illustrator, After Effects, Premiere)"></div>
+            <div class="form-group"><label id="langsLabel"><i class="fas fa-language"></i> اللغات</label><input type="text" id="languages" value="Arabic (Native), English (Professional Working Proficiency)"></div>
         </div>
 
         <div class="preview-panel">
@@ -131,21 +137,18 @@
     <footer id="footerText">يمكنك تعديل البيانات والتبديل بين القوالب — PDF بجودة عالية ويملأ صفحة A4 بالكامل.</footer>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-    // Data
+    // البيانات المُعبأة مسبقاً (خاصة بخالد حلمي خفاجي)
     let experiences = [
-        { title: "مصممة UX كبيرة", company: "شركة تكامل", startDate: "2022", endDate: "حالياً", description: "قيادة فريق التصميم وتطوير تجربة مستخدم لمنصة رقمية." },
-        { title: "مصممة UI/UX", company: "وكالة إبداع", startDate: "2019", endDate: "2022", description: "تصميم واجهات تطبيقات الهاتف واختبارات المستخدم." }
+        { title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "Manage full-cycle payroll for 1,200+ employees using SAP and Oracle with 99.9% accuracy\n- Reduced payroll processing time by 30% through automation\n- Ensure 100% compliance on social insurance and tax filings\n- Maintain employee records across ERP platforms; reduced data discrepancies by 25%\n- Generate financial and HR reports to support audits\n- Resolved 50+ system tickets annually" }
     ];
     let educations = [
-        { degree: "ماجستير في التفاعل الإنساني", institution: "جامعة القاهرة", year: "2018", description: "تخصص تصميم تجارب المستخدم" },
-        { degree: "بكالوريوس علوم الحاسب", institution: "جامعة الملك سعود", year: "2015", description: "تقدير ممتاز" }
+        { degree: "LL.B. (Bachelor of Laws)", institution: "Cairo University", year: "2005", description: "Background in Egyptian labor law and legal compliance" }
     ];
     let currentTemplate = "modern";
     let currentLang = "ar";
 
-    // DOM elements
+    // العناصر
     const fullNameInp = document.getElementById("fullName");
     const jobTitleInp = document.getElementById("jobTitle");
     const emailInp = document.getElementById("email");
@@ -158,17 +161,16 @@
     const eduContainer = document.getElementById("educationContainer");
     const cvPreview = document.getElementById("cvPreviewContainer");
 
-    // Translations
+    // الترجمات
     const trans = {
         ar: {
             fullNameLabel: "الاسم الكامل", jobTitleLabel: "المسمى الوظيفي", emailLabel: "البريد الإلكتروني", phoneLabel: "رقم الهاتف",
             locationLabel: "العنوان", summaryLabel: "نبذة شخصية", skillsLabel: "المهارات (افصل بينها بفاصلة)", langsLabel: "اللغات",
             expTitle: "الخبرات العملية", eduTitle: "التعليم", addExpText: "إضافة خبرة", addEduText: "إضافة تعليم",
             previewTitle: "معاينة السيرة الذاتية", downloadText: "تحميل PDF (A4 كامل)", footerText: "يمكنك تعديل البيانات والتبديل بين القوالب — PDF بجودة عالية ويملأ صفحة A4 بالكامل.",
-            mainTitle: "منشئ السيرة الذاتية الاحترافية", subTitle: "أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | PDF بملء صفحة A4 وبجودة احترافية",
+            mainTitle: "منشئ السيرة الذاتية الاحترافية", subTitle: "أنشئ سيرتك الذاتية بأناقة مع 3 قوالب متميزة | PDF بملء صفحة A4",
             tempModern: "✨ عصري", tempElegant: "💎 أنيق", tempSidebar: "📐 جانبي",
-            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات",
-            jobTitlePlace: "مطور برمجيات", fullNamePlace: "أحمد محمد"
+            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات"
         },
         en: {
             fullNameLabel: "Full Name", jobTitleLabel: "Job Title", emailLabel: "Email", phoneLabel: "Phone",
@@ -177,8 +179,7 @@
             previewTitle: "CV Preview", downloadText: "Download PDF (Full A4)", footerText: "Edit data, switch templates — high-quality PDF that fills the entire A4 page.",
             mainTitle: "Professional CV Builder", subTitle: "Create your CV with 3 unique templates | Perfect full-page A4 PDF export",
             tempModern: "✨ Modern", tempElegant: "💎 Elegant", tempSidebar: "📐 Sidebar",
-            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages",
-            jobTitlePlace: "Software Engineer", fullNamePlace: "Ahmed Mohamed"
+            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages"
         }
     };
 
@@ -204,8 +205,6 @@
         document.getElementById("tempModern").innerHTML = t.tempModern;
         document.getElementById("tempElegant").innerHTML = t.tempElegant;
         document.getElementById("tempSidebar").innerHTML = t.tempSidebar;
-        fullNameInp.placeholder = t.fullNamePlace;
-        jobTitleInp.placeholder = t.jobTitlePlace;
         
         const body = document.body;
         if (currentLang === 'ar') {
@@ -232,7 +231,7 @@
                 <div class="form-group"><label>${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}</label><input class="exp-company" value="${escapeHtml(exp.company)}"></div>
                 <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date'}</label><input class="exp-start" value="${escapeHtml(exp.startDate)}"></div>
                 <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date'}</label><input class="exp-end" value="${escapeHtml(exp.endDate)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'وصف' : 'Description'}</label><textarea class="exp-desc" rows="2">${escapeHtml(exp.description)}</textarea></div>
+                <div class="form-group"><label>${currentLang === 'ar' ? 'وصف' : 'Description'}</label><textarea class="exp-desc" rows="4">${escapeHtml(exp.description)}</textarea></div>
             `;
             expContainer.appendChild(div);
         });
@@ -311,24 +310,25 @@
         if(template === "modern") {
             return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}</div></div>
             <div class="section-block"><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div class="section-block"><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)}</div><div class="job-date">${escapeHtml(exp.startDate)} - ${escapeHtml(exp.endDate)}</div><p>${escapeHtml(exp.description)}</p></div>`).join('')}</div>
-            <div class="section-block"><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="edu-degree">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)}</div><div class="edu-date">${escapeHtml(edu.year)}</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
+            <div class="section-block"><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)} (${exp.startDate} - ${exp.endDate})</div><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div>`).join('')}</div>
+            <div class="section-block"><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="edu-degree">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)} (${edu.year})</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
             <div class="section-block"><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' • ')}</p></div>
             <div class="section-block"><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
         }
+        // تبسيط: نفس الشيء للقوالب الأخرى لكن بنفس المنطق (يمكن توسيعه)
         else if(template === "elegant") {
             return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem">${escapeHtml(data.email)} | ${escapeHtml(data.phone)} | ${escapeHtml(data.location)}</div></div>
             <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><span>${escapeHtml(exp.description)}</span></div><hr style="margin:0.4rem 0"/>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong>, ${escapeHtml(edu.institution)} (${edu.year})<br/><span>${escapeHtml(edu.description)}</span></div><hr style="margin:0.4rem 0"/>`).join('')}</div>
+            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div><hr/>`).join('')}</div>
+            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong>, ${escapeHtml(edu.institution)} (${edu.year})<br/><p>${escapeHtml(edu.description)}</p></div><hr/>`).join('')}</div>
             <div><div class="section-title-preview">${skillsSec}</div><p>${data.skills.join(' - ')}</p></div>
             <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
         }
         else {
             return `<div class="template-sidebar"><div class="sidebar-col"><div><strong>${escapeHtml(data.fullName)}</strong><div>${escapeHtml(data.jobTitle)}</div><hr/><i class="fas fa-envelope"></i> ${escapeHtml(data.email)}<br/><i class="fas fa-phone"></i> ${escapeHtml(data.phone)}<br/><i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}<hr/><div><strong>${skillsSec}</strong><br/>${data.skills.map(s=>`• ${s}`).join('<br>')}</div><hr/><div><strong>${langsSec}</strong><br/>${escapeHtml(data.languages)}</div></div></div>
             <div class="main-col"><div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong>, ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><span>${escapeHtml(exp.description)}</span></div><br/>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong> - ${escapeHtml(edu.institution)} (${edu.year})<br/><span>${escapeHtml(edu.description)}</span></div><br/>`).join('')}</div>
+            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong>, ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div><br/>`).join('')}</div>
+            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong> - ${escapeHtml(edu.institution)} (${edu.year})<br/><p>${escapeHtml(edu.description)}</p></div><br/>`).join('')}</div>
             </div></div>`;
         }
     }
@@ -365,48 +365,55 @@
     document.getElementById("langArBtn").addEventListener("click", () => { currentLang = "ar"; document.getElementById("langArBtn").classList.add("active"); document.getElementById("langEnBtn").classList.remove("active"); applyLanguage(); });
     document.getElementById("langEnBtn").addEventListener("click", () => { currentLang = "en"; document.getElementById("langEnBtn").classList.add("active"); document.getElementById("langArBtn").classList.remove("active"); applyLanguage(); });
 
-    // ========== الحل السحري المُحسّن لـ PDF بملء صفحة A4 وبدون مشاكل ==========
-    document.getElementById("downloadPDFBtn").addEventListener("click", function() {
-        // 1. حفظ الحالة الأصلية
-        const originalWidth = cvPreview.style.width;
-        const originalMargin = cvPreview.style.margin;
-        const originalPadding = cvPreview.style.padding;
-        const originalBoxShadow = cvPreview.style.boxShadow;
+    async function downloadPerfectPDF() {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading-overlay';
+        loadingDiv.innerHTML = '<div class="spinner"></div><div>جاري تجهيز السيرة الذاتية للتحميل...</div>';
+        document.body.appendChild(loadingDiv);
         
-        // 2. تطبيق العرض الصارم لـ A4 (794px تقريباً)
-        cvPreview.style.width = "794px";
-        cvPreview.style.margin = "0";
-        cvPreview.style.padding = "12mm 10mm"; // هوامش داخلية للـ PDF
-        cvPreview.style.boxShadow = "none";
-        
-        // 3. خيارات html2pdf
-        const opt = {
-            margin: 0,
-            filename: `CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2.5, // دقة عالية
-                useCORS: true, 
-                letterRendering: true,
-                width: 794
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // 4. التنفيذ مع إعادة الشكل الأصلي فور الانتهاء
-        html2pdf().set(opt).from(cvPreview).save().then(() => {
-            cvPreview.style.width = originalWidth;
-            cvPreview.style.margin = originalMargin;
-            cvPreview.style.padding = originalPadding;
-            cvPreview.style.boxShadow = originalBoxShadow;
-        }).catch(err => {
-            console.error("PDF Error:", err);
-            cvPreview.style.width = originalWidth;
-            cvPreview.style.margin = originalMargin;
-            cvPreview.style.padding = originalPadding;
-            cvPreview.style.boxShadow = originalBoxShadow;
-        });
-    });
+        try {
+            const originalClasses = cvPreview.className;
+            const originalStyle = cvPreview.getAttribute('style') || '';
+            
+            cvPreview.style.width = "794px";
+            cvPreview.style.margin = "0 auto";
+            cvPreview.style.padding = "12mm 10mm";
+            cvPreview.style.boxSizing = "border-box";
+            cvPreview.style.background = "white";
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const canvas = await html2canvas(cvPreview, {
+                scale: 3,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true
+            });
+            
+            cvPreview.style.width = "";
+            cvPreview.style.margin = "";
+            cvPreview.style.padding = "";
+            
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const imgWidth = 210;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+            
+            pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
+            pdf.save(`CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`);
+            
+        } catch (error) {
+            console.error("PDF Error:", error);
+            alert("عذراً، حدث خطأ أثناء تحضير ملف PDF. يرجى المحاولة مرة أخرى.");
+        } finally {
+            document.body.removeChild(loadingDiv);
+        }
+    }
+    
+    document.getElementById("downloadPDFBtn").addEventListener("click", downloadPerfectPDF);
 
     renderDynamicForms();
     applyLanguage();
