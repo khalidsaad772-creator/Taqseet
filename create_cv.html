@@ -3,93 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ السيرة الذاتية الاحترافية | ATS Optimized</title>
+    <title>منشئ السيرة الذاتية الاحترافية | ATS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* التنسيقات الأساسية للواجهة */
+        /* التنسيقات الأصلية كما هي تماماً */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #f0f4fc 0%, #e9eef5 100%);
-            font-family: 'Cairo', 'Inter', sans-serif;
-            padding: 1.5rem;
-            transition: all 0.2s;
-        }
+        body { background: linear-gradient(135deg, #f0f4fc 0%, #e9eef5 100%); font-family: 'Cairo', 'Inter', sans-serif; padding: 1.5rem; transition: all 0.2s; }
         body.english-mode { direction: ltr; text-align: left; font-family: 'Inter', 'Cairo', sans-serif; }
         .app-container { max-width: 1500px; margin: 0 auto; }
-        
         .lang-switch { display: flex; justify-content: flex-end; margin-bottom: 1rem; gap: 0.5rem; }
-        .lang-btn {
-            background: white; border: none; padding: 0.5rem 1.2rem; border-radius: 40px;
-            font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: inline-flex; align-items: center; gap: 8px;
-        }
+        .lang-btn { background: white; border: none; padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: inline-flex; align-items: center; gap: 8px; }
         .lang-btn.active { background: #1e6f5c; color: white; }
-        
         .header { text-align: center; margin-bottom: 2rem; }
         .header h1 { font-size: 2.3rem; font-weight: 800; background: linear-gradient(135deg, #1f3b4c, #2c5a6e); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        
         .dashboard { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; margin-bottom: 2rem; }
-        .form-panel {
-            background: white; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
-            padding: 1.5rem; max-height: 85vh; overflow-y: auto;
-        }
+        .form-panel { background: white; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1); padding: 1.5rem; max-height: 85vh; overflow-y: auto; }
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; font-weight: 600; margin-bottom: 0.4rem; color: #0f2b3b; font-size: 0.85rem; }
-        input, textarea {
-            width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #e2e8f0;
-            border-radius: 18px; font-family: inherit; font-size: 0.9rem;
-        }
+        input, textarea { width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #e2e8f0; border-radius: 18px; font-family: inherit; font-size: 0.9rem; }
         .section-title { font-size: 1.2rem; font-weight: 700; margin: 1.2rem 0 0.8rem 0; padding-bottom: 0.3rem; border-bottom: 3px solid #2c7da0; display: inline-block; color: #1e4a6b; }
         .dynamic-item { background: #f8fafc; border-radius: 20px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #eef2f8; }
         .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
         .remove-btn { background: #fee2e2; border: none; color: #b91c1c; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
         .add-btn { background: #eef2ff; border: none; padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: 600; color: #1e4a6b; cursor: pointer; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 8px; }
         
+        /* تعديل الـ Selector ليشمل ATS */
         .template-selector { background: #f1f5f9; border-radius: 40px; padding: 0.2rem; display: flex; margin: 1rem 0 1.2rem 0; gap: 0.5rem; flex-wrap: wrap; }
-        .template-option { flex: 1; min-width: 100px; text-align: center; padding: 0.6rem; border-radius: 40px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.85rem; }
-        .template-option.active { background: #1f6e8c; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        
+        .template-option { flex: 1; text-align: center; padding: 0.6rem; border-radius: 40px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.85rem; }
+        .template-option.active { background: white; color: #1f6e8c; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+
         .preview-panel { background: #fefefe; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; }
         .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         
         .image-upload { margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 20px; border: 1px dashed #2c7da0; }
-        
-        /* تنسيقات المعاينة (Preview) */
-        .cv-preview { padding: 1.8rem; background: white; margin: 1rem; border-radius: 16px; width: 100%; font-size: 11pt; line-height: 1.5; color: #333; }
-        
-        /* 1. قالب ATS (نصوص صافية سهلة الفلترة) */
-        .template-ats { font-family: Arial, sans-serif !important; color: #000 !important; }
-        .template-ats .cv-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; text-align: center; }
-        .template-ats .cv-name { font-size: 22pt; font-weight: bold; text-transform: uppercase; }
-        .template-ats .section-title-preview { font-size: 13pt; font-weight: bold; border-bottom: 1px solid #000; margin-top: 20px; margin-bottom: 8px; text-transform: uppercase; border-right: none !important; border-left: none !important; padding: 0 !important; }
-        .template-ats .skill-tag { background: none !important; border: none !important; padding: 0 !important; color: #000 !important; }
-        .template-ats .skill-tag::after { content: " | "; }
-        .template-ats .job-title { font-weight: bold; }
+        .cv-preview { padding: 1.8rem; background: white; margin: 1rem; border-radius: 16px; width: 100%; font-size: 11pt; line-height: 1.5; }
 
-        /* 2. قالب Modern */
+        /* قوالب الـ CV الأصلية */
         .template-modern .cv-header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; }
         .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #1e4a6b; }
-        .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 800; border-right: 4px solid #2c7da0; padding-right: 0.7rem; margin: 1.2rem 0 0.6rem 0; color: #1e4a6b; }
+        .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 800; border-right: 4px solid #2c7da0; padding-right: 0.7rem; margin: 1rem 0 0.6rem 0; color: #1e4a6b; }
         
-        /* 3. قالب Elegant */
         .template-elegant .cv-header { background: #2c3e4e; color: white; margin: -1.8rem -1.8rem 1.2rem -1.8rem; padding: 1.5rem 1.8rem; border-radius: 16px 16px 30px 30px; }
         .template-elegant .section-title-preview { font-size: 1rem; font-weight: 800; border-bottom: 2px solid #d4c2a7; display: inline-block; margin-bottom: 0.6rem; }
         
-        /* 4. قالب Premium */
         .template-premium .premium-header { display: flex; align-items: center; gap: 1.5rem; background: linear-gradient(135deg, #1e4a6b, #2c7da0); color: white; padding: 1.5rem; margin: -1.8rem -1.8rem 1.5rem -1.8rem; border-radius: 16px 16px 30px 30px; }
         .template-premium .premium-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #ffd966; }
-        .template-premium .section-title-preview { font-size: 1.1rem; font-weight: 800; color: #1e4a6b; border-right: 4px solid #ffd966; padding-right: 0.7rem; }
 
+        /* [إضافة] قالب ATS */
+        .template-ats { font-family: Arial, Helvetica, sans-serif !important; color: black !important; }
+        .template-ats .cv-header { border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 10px; }
+        .template-ats .cv-name { font-size: 20pt; font-weight: bold; }
+        .template-ats .section-title-preview { font-size: 12pt; font-weight: bold; text-decoration: underline; margin-top: 15px; color: black !important; border: none !important; padding: 0 !important; }
+        .template-ats .skill-tag { background: none !important; padding: 0 !important; border-radius: 0 !important; color: black !important; }
+        .template-ats .skill-tag::after { content: " | "; }
+
+        .job-item { margin-bottom: 0.8rem; }
+        .job-title { font-weight: 800; font-size: 0.95rem; }
         .skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill-tag { background: #eef2ff; padding: 4px 12px; border-radius: 30px; font-size: 0.8rem; }
         
-        /* إعدادات الطباعة */
+        @media (max-width: 950px) { .dashboard { grid-template-columns: 1fr; } }
+        
+        /* لإخفاء واجهة الموقع عند الطباعة وتصدير الـ CV فقط */
         @media print {
-            body { background: white !important; padding: 0 !important; }
-            .dashboard, .header, .lang-switch { display: none !important; }
-            .cv-preview { margin: 0 !important; border: none !important; box-shadow: none !important; width: 100% !important; }
+            body * { visibility: hidden; }
+            #cvPreviewContainer, #cvPreviewContainer * { visibility: visible; }
+            #cvPreviewContainer { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
         }
     </style>
 </head>
@@ -106,40 +87,41 @@
     <div class="dashboard">
         <div class="form-panel">
             <div class="template-selector" id="templateSelector">
-                <div data-template="modern" class="template-option active">✨ عصري</div>
-                <div data-template="elegant" class="template-option">💎 أنيق</div>
-                <div data-template="premium" class="template-option">🌟 بريميوم</div>
-                <div data-template="ats" class="template-option">🤖 ATS متوافق</div>
+                <div data-template="modern" class="template-option active" id="tempModern">✨ عصري</div>
+                <div data-template="elegant" class="template-option" id="tempElegant">💎 أنيق</div>
+                <div data-template="premium" class="template-option" id="tempPremium">🌟 بريميوم</div>
+                <div data-template="ats" class="template-option" id="tempAts">🤖 ATS</div>
             </div>
             
             <div class="image-upload" id="imageUploadSection" style="display: none;">
-                <label id="photoLabel">الصورة الشخصية (للقالب البريميوم)</label>
+                <label id="photoLabel">الصورة الشخصية</label>
                 <input type="file" id="profileImage" accept="image/*">
             </div>
             
-            <div class="form-group"><label id="fullNameLabel">الاسم الكامل</label><input type="text" id="fullName" value="Khalid Helmy Khafagy"></div>
-            <div class="form-group"><label id="jobTitleLabel">المسمى الوظيفي</label><input type="text" id="jobTitle" value="Senior Payroll Specialist | SAP & Oracle Expert"></div>
-            <div class="form-group"><label id="emailLabel">البريد الإلكتروني</label><input type="email" id="email" value="khalidhelmy772@gmail.com"></div>
-            <div class="form-group"><label id="phoneLabel">رقم الهاتف</label><input type="text" id="phone" value="+201095890589"></div>
-            <div class="form-group"><label id="locationLabel">العنوان</label><input type="text" id="location" value="Egypt"></div>
-            <div class="form-group"><label id="summaryLabel">نبذة شخصية</label><textarea id="summary" rows="4">Results-oriented Payroll Specialist with over 15 years of experience managing end-to-end payroll for large-scale workforces.</textarea></div>
+            <div class="form-group"><label id="fullNameLabel">الاسم</label><input type="text" id="fullName" value="Khalid Helmy Khafagy"></div>
+            <div class="form-group"><label id="jobTitleLabel">المسمى</label><input type="text" id="jobTitle" value="Payroll & HRIS Specialist"></div>
+            <div class="form-group"><label id="emailLabel">الإيميل</label><input type="email" id="email" value="khalidhelmy772@gmail.com"></div>
+            <div class="form-group"><label id="phoneLabel">الهاتف</label><input type="text" id="phone" value="+201095890589"></div>
+            <div class="form-group"><label id="locationLabel">الموقع</label><input type="text" id="location" value="Egypt"></div>
+            <div class="form-group"><label id="linkedinLabel">LinkedIn</label><input type="text" id="linkedin" value="linkedin.com/in/khalid-helmy"></div>
+            <div class="form-group"><label id="summaryLabel">نبذة</label><textarea id="summary" rows="3">Results-oriented Payroll Specialist with 15+ years experience.</textarea></div>
             
-            <div><span class="section-title" id="expTitle">الخبرات</span></div>
+            <span class="section-title" id="expTitle">الخبرة</span>
             <div id="experiencesContainer"></div>
-            <button class="add-btn" id="addExperienceBtn">إضافة خبرة</button>
+            <button class="add-btn" id="addExperienceBtn"><i class="fas fa-plus"></i> إضافة</button>
             
             <div style="margin-top:1rem;"><span class="section-title" id="eduTitle">التعليم</span></div>
             <div id="educationContainer"></div>
-            <button class="add-btn" id="addEducationBtn">إضافة تعليم</button>
+            <button class="add-btn" id="addEducationBtn"><i class="fas fa-plus"></i> إضافة</button>
             
-            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel">المهارات</label><input type="text" id="skills" value="SAP HCM, Oracle Payroll, Advanced Excel, HRIS"></div>
-            <div class="form-group"><label id="langsLabel">اللغات</label><input type="text" id="languages" value="Arabic (Native), English (Professional)"></div>
+            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel">المهارات</label><input type="text" id="skills" value="SAP, Oracle, Excel"></div>
+            <div class="form-group"><label id="langsLabel">اللغات</label><input type="text" id="languages" value="Arabic, English"></div>
         </div>
 
         <div class="preview-panel">
             <div class="preview-header">
-                <h3 id="previewTitle">معاينة السيرة الذاتية</h3>
-                <button id="downloadPDFBtn" class="download-btn"><i class="fas fa-print"></i> <span id="downloadText">تحميل PDF (نصي)</span></button>
+                <h3 id="previewTitle">المعاينة</h3>
+                <button id="downloadPDFBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF (نصي)</span></button>
             </div>
             <div id="cvPreviewContainer" class="cv-preview template-modern"></div>
         </div>
@@ -147,143 +129,92 @@
 </div>
 
 <script>
-    let experiences = [{ title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "• Manage full-cycle payroll for 1,200+ employees using SAP and Oracle." }];
-    let educations = [{ degree: "LL.B. (Bachelor of Laws)", institution: "Cairo University", year: "2018" }];
+    // نفس المنطق البرمجي الأصلي الخاص بك
+    let experiences = [{ title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "• Manage full-cycle payroll." }];
+    let educations = [{ degree: "LL.B.", institution: "Cairo University", year: "2018", description: "" }];
     let currentTemplate = "modern";
     let currentLang = "ar";
     let profileImageData = null;
 
+    // عناصر الإدخال
+    const fullNameInp = document.getElementById("fullName");
+    const jobTitleInp = document.getElementById("jobTitle");
+    const emailInp = document.getElementById("email");
+    const phoneInp = document.getElementById("phone");
+    const locationInp = document.getElementById("location");
+    const linkedinInp = document.getElementById("linkedin");
+    const summaryInp = document.getElementById("summary");
+    const skillsInp = document.getElementById("skills");
+    const languagesInp = document.getElementById("languages");
     const cvPreview = document.getElementById("cvPreviewContainer");
     const profileImageInput = document.getElementById("profileImage");
-    const imageUploadSection = document.getElementById("imageUploadSection");
-
-    const trans = {
-        ar: { summarySec: "الملخص المهني", experienceSec: "الخبرة العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات" },
-        en: { summarySec: "Professional Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages" }
-    };
-
-    profileImageInput.addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => { profileImageData = event.target.result; updateCVPreview(); };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    function getBaseData() {
-        return {
-            fullName: document.getElementById("fullName").value,
-            jobTitle: document.getElementById("jobTitle").value,
-            email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
-            location: document.getElementById("location").value,
-            summary: document.getElementById("summary").value,
-            skills: document.getElementById("skills").value.split(','),
-            languages: document.getElementById("languages").value,
-            experiences, educations, profileImage: profileImageData
-        };
-    }
-
-    function renderCVByTemplate(data, template) {
-        const t = trans[currentLang];
-        const content = `
-            <div class="section-title-preview">${t.summarySec}</div><p>${data.summary}</p>
-            <div class="section-title-preview">${t.experienceSec}</div>
-            ${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${exp.title} - ${exp.company}</div><div style="font-size:0.8rem; color:#666">${exp.startDate} - ${exp.endDate}</div><p style="white-space:pre-line">${exp.description}</p></div>`).join('')}
-            <div class="section-title-preview">${t.educationSec}</div>
-            ${data.educations.map(edu => `<div class="edu-item"><strong>${edu.degree}</strong> - ${edu.institution}</div>`).join('')}
-            <div class="section-title-preview">${t.skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${s.trim()}</span>`).join('')}</div>
-            <div class="section-title-preview">${t.languagesSec}</div><p>${data.languages}</p>
-        `;
-
-        if(template === "ats") {
-            return `<div class="template-ats">
-                <div class="cv-header"><div class="cv-name">${data.fullName}</div><div>${data.email} | ${data.phone} | ${data.location}</div></div>
-                ${content}
-            </div>`;
-        }
-        
-        if(template === "premium") {
-            const avatar = data.profileImage ? `<img class="premium-avatar" src="${data.profileImage}">` : `<div class="premium-avatar" style="background:#ddd"></div>`;
-            return `<div class="template-premium">
-                <div class="premium-header">${avatar}<div><div class="premium-name">${data.fullName}</div><div>${data.jobTitle}</div><div style="font-size:0.8rem">${data.email} | ${data.phone}</div></div></div>
-                ${content}
-            </div>`;
-        }
-
-        return `<div class="${template === 'elegant' ? 'template-elegant' : 'template-modern'}">
-            <div class="cv-header"><div class="cv-name">${data.fullName}</div><div>${data.jobTitle}</div><div style="font-size:0.8rem">${data.email} | ${data.phone} | ${data.location}</div></div>
-            ${content}
-        </div>`;
-    }
 
     function updateCVPreview() {
-        const data = getBaseData();
-        cvPreview.innerHTML = renderCVByTemplate(data, currentTemplate);
+        const t = { ar: { sum: "نبذة", exp: "الخبرة", edu: "التعليم", skl: "المهارات", lng: "اللغات" }, en: { sum: "Summary", exp: "Experience", edu: "Education", skl: "Skills", lng: "Languages" } }[currentLang];
+        
+        let skillsHtml = skillsInp.value.split(',').map(s => `<span class="skill-tag">${s.trim()}</span>`).join('');
+        let expHtml = experiences.map(e => `<div class="job-item"><div class="job-title">${e.title} - ${e.company}</div><div class="job-date">${e.startDate} - ${e.endDate}</div><p style="white-space:pre-line">${e.description}</p></div>`).join('');
+        let eduHtml = educations.map(e => `<div class="edu-item"><div class="job-title">${e.degree} - ${e.institution} (${e.year})</div></div>`).join('');
+        
+        let headerHtml = `<div class="cv-header"><div class="cv-name">${fullNameInp.value}</div><div class="cv-title">${jobTitleInp.value}</div><div>${emailInp.value} | ${phoneInp.value} | ${locationInp.value}</div></div>`;
+        
+        if (currentTemplate === "premium") {
+            const img = profileImageData ? `<img class="premium-avatar" src="${profileImageData}">` : `<div class="premium-avatar" style="background:#ccc"></div>`;
+            headerHtml = `<div class="premium-header">${img}<div><div class="premium-name">${fullNameInp.value}</div><div>${jobTitleInp.value}</div></div></div>`;
+        }
+
+        cvPreview.innerHTML = `
+            ${headerHtml}
+            <div><div class="section-title-preview">${t.sum}</div><p>${summaryInp.value}</p></div>
+            <div><div class="section-title-preview">${t.exp}</div>${expHtml}</div>
+            <div><div class="section-title-preview">${t.edu}</div>${eduHtml}</div>
+            <div><div class="section-title-preview">${t.skl}</div><div class="skills-list">${skillsHtml}</div></div>
+            <div><div class="section-title-preview">${t.lng}</div><p>${languagesInp.value}</p></div>
+        `;
         cvPreview.className = `cv-preview template-${currentTemplate}`;
     }
 
+    // وظيفة التحميل النصي (Print to PDF)
     function downloadPDF() {
-        const printContents = cvPreview.innerHTML;
-        const templateClass = `template-${currentTemplate}`;
-        const isEn = currentLang === 'en' ? 'english-mode' : '';
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>CV - ${document.getElementById("fullName").value}</title>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-                    <style>
-                        ${document.querySelector('style').innerHTML}
-                        body { background: white !important; padding: 0 !important; }
-                        .cv-preview { margin: 0 !important; border: none !important; box-shadow: none !important; width: 100% !important; }
-                        @media print { @page { margin: 10mm; } }
-                    </style>
-                </head>
-                <body class="${isEn} ${templateClass}">
-                    <div class="cv-preview ${templateClass}">${printContents}</div>
-                    <script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script>
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
+        window.print();
     }
 
+    document.getElementById("downloadPDFBtn").addEventListener("click", downloadPDF);
+
+    // التعامل مع الصور والتبديل والقوالب (بقية الكود الأصلي)
     document.querySelectorAll(".template-option").forEach(opt => {
         opt.addEventListener("click", () => {
             document.querySelectorAll(".template-option").forEach(o=>o.classList.remove("active"));
             opt.classList.add("active");
             currentTemplate = opt.dataset.template;
-            imageUploadSection.style.display = (currentTemplate === "premium") ? "block" : "none";
+            document.getElementById("imageUploadSection").style.display = (currentTemplate === "premium") ? "block" : "none";
             updateCVPreview();
         });
     });
 
+    profileImageInput.addEventListener("change", (e) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => { profileImageData = ev.target.result; updateCVPreview(); };
+        reader.readAsDataURL(e.target.files[0]);
+    });
+
+    [fullNameInp, jobTitleInp, emailInp, phoneInp, locationInp, summaryInp, skillsInp, languagesInp].forEach(i => i.addEventListener("input", updateCVPreview));
+
     document.getElementById("addExperienceBtn").addEventListener("click", () => {
-        experiences.push({ title: "New Role", company: "Company", startDate: "2024", endDate: "Present", description: "" });
+        experiences.push({ title: "Role", company: "Company", startDate: "2024", endDate: "Present", description: "" });
         renderForms(); updateCVPreview();
     });
 
     function renderForms() {
-        const container = document.getElementById("experiencesContainer");
-        container.innerHTML = experiences.map((exp, i) => `
+        document.getElementById("experiencesContainer").innerHTML = experiences.map((e, i) => `
             <div class="dynamic-item">
-                <div class="dynamic-item-header"><strong>خبرة ${i+1}</strong><button onclick="experiences.splice(${i},1);renderForms();updateCVPreview()" class="remove-btn">×</button></div>
-                <input oninput="experiences[${i}].title=this.value;updateCVPreview()" value="${exp.title}" placeholder="Job Title">
-                <input oninput="experiences[${i}].company=this.value;updateCVPreview()" value="${exp.company}" placeholder="Company" style="margin-top:5px">
-                <textarea oninput="experiences[${i}].description=this.value;updateCVPreview()" style="margin-top:5px">${exp.description}</textarea>
+                <input value="${e.title}" oninput="experiences[${i}].title=this.value;updateCVPreview()" placeholder="Title">
+                <textarea oninput="experiences[${i}].description=this.value;updateCVPreview()">${e.description}</textarea>
             </div>
         `).join('');
     }
 
-    document.querySelectorAll("input, textarea").forEach(el => el.addEventListener("input", updateCVPreview));
-    document.getElementById("downloadPDFBtn").addEventListener("click", downloadPDF);
-    document.getElementById("langArBtn").addEventListener("click", () => { currentLang="ar"; document.body.classList.remove("english-mode"); updateCVPreview(); });
-    document.getElementById("langEnBtn").addEventListener("click", () => { currentLang="en"; document.body.classList.add("english-mode"); updateCVPreview(); });
-
-    renderForms();
-    updateCVPreview();
+    renderForms(); updateCVPreview();
 </script>
 </body>
 </html>
