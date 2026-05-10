@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ السيرة الذاتية الاحترافية | قوالب مميزة</title>
+    <title>منشئ السيرة الذاتية الاحترافية | ATS Friendly</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -55,118 +55,50 @@
         .template-option.active { background: white; color: #1f6e8c; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
         
         .preview-panel { background: #fefefe; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .preview-header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid #e9edf2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .download-btn { background: #1e6f5c; border: none; padding: 0.6rem 1.3rem; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 0.85rem; }
         .download-btn:hover { background: #0f5a4a; }
+        .ats-btn { background: #2c7da0; }
+        .ats-btn:hover { background: #1a5a75; }
         
-        /* أخبار: حقل رفع الصورة */
-        .image-upload {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f0f9ff;
-            border-radius: 20px;
-            border: 1px dashed #2c7da0;
-        }
-        .image-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-top: 10px;
-            border: 3px solid #2c7da0;
-        }
+        .image-upload { margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 20px; border: 1px dashed #2c7da0; }
         
         /* CV Preview Styles */
-        .cv-preview {
-            padding: 1.8rem;
-            background: white;
-            margin: 1rem;
-            border-radius: 16px;
-            width: 100%;
-            font-size: 11pt;
-            line-height: 1.5;
-        }
+        .cv-preview { padding: 1.8rem; background: white; margin: 1rem; border-radius: 16px; width: 100%; font-size: 11pt; line-height: 1.5; }
         
-        /* Template Modern */
+        /* Template Styles */
         .template-modern .cv-header { text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; }
         .template-modern .cv-name { font-size: 1.8rem; font-weight: 800; color: #1e4a6b; }
-        .template-modern .cv-title { font-size: 1rem; color: #2c7da0; font-weight: 600; margin-top: 5px; }
         .template-modern .section-title-preview { font-size: 1.1rem; font-weight: 800; border-right: 4px solid #2c7da0; padding-right: 0.7rem; margin: 1rem 0 0.6rem 0; color: #1e4a6b; }
         
-        /* Template Elegant */
         .template-elegant .cv-header { background: #2c3e4e; color: white; margin: -1.8rem -1.8rem 1.2rem -1.8rem; padding: 1.5rem 1.8rem; border-radius: 16px 16px 30px 30px; }
         .template-elegant .cv-name { font-size: 1.6rem; font-weight: 800; }
         .template-elegant .section-title-preview { font-size: 1rem; font-weight: 800; border-bottom: 2px solid #d4c2a7; display: inline-block; margin-bottom: 0.6rem; }
         
-        /* Template Premium (جديد - ألوان جذابة مع صورة) */
-        .template-premium {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        }
-        .template-premium .premium-header {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            background: linear-gradient(135deg, #1e4a6b, #2c7da0);
-            color: white;
-            padding: 1.5rem;
-            margin: -1.8rem -1.8rem 1.5rem -1.8rem;
-            border-radius: 16px 16px 30px 30px;
-        }
-        .template-premium .premium-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #ffd966;
-            background: #f0f0f0;
-        }
-        .template-premium .premium-info { flex: 1; }
+        .template-premium .premium-header { display: flex; align-items: center; gap: 1.5rem; background: linear-gradient(135deg, #1e4a6b, #2c7da0); color: white; padding: 1.5rem; margin: -1.8rem -1.8rem 1.5rem -1.8rem; border-radius: 16px 16px 30px 30px; }
+        .template-premium .premium-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #ffd966; background: #f0f0f0; }
         .template-premium .premium-name { font-size: 1.8rem; font-weight: 800; }
-        .template-premium .premium-title { font-size: 1rem; opacity: 0.9; margin-top: 0.3rem; }
-        .template-premium .premium-contact {
-            background: rgba(255,255,255,0.15);
-            padding: 0.8rem;
-            border-radius: 12px;
-            margin-top: 0.8rem;
-            font-size: 0.75rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .template-premium .section-title-preview {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #1e4a6b;
-            border-right: 4px solid #ffd966;
-            padding-right: 0.7rem;
-            margin: 1.2rem 0 0.6rem 0;
-        }
-        .template-premium .skill-tag {
-            background: #e6f7ff;
-            border: 1px solid #2c7da0;
-            color: #1e4a6b;
-        }
+        .template-premium .section-title-preview { font-size: 1.1rem; font-weight: 800; color: #1e4a6b; border-right: 4px solid #ffd966; padding-right: 0.7rem; margin: 1.2rem 0 0.6rem 0; }
         
         /* Common styles */
-        .job-item, .edu-item { margin-bottom: 0.8rem; }
+        .job-item { margin-bottom: 0.8rem; }
         .job-title { font-weight: 800; font-size: 0.95rem; }
-        .job-date { font-size: 0.7rem; color: #5b6e8c; margin-bottom: 0.3rem; }
-        .job-desc { font-size: 0.85rem; white-space: pre-line; }
-        .cv-contact i { width: 20px; margin-left: 5px; color: #5b7c99; }
         .skills-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
         .skill-tag { background: #eef2ff; padding: 4px 12px; border-radius: 30px; font-size: 0.8rem; }
         
+        /* PRINT STYLES FOR ATS COMPATIBILITY */
+        @media print {
+            body { background: white !important; padding: 0 !important; }
+            .app-container > *:not(.dashboard), .form-panel, .preview-header, footer, .lang-switch { display: none !important; }
+            .dashboard { display: block !important; margin: 0 !important; }
+            .preview-panel { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; }
+            .cv-preview { margin: 0 !important; padding: 0 !important; width: 100% !important; border-radius: 0 !important; }
+            .template-premium .premium-header, .skill-tag, .section-title-preview { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
         @media (max-width: 950px) { .dashboard { grid-template-columns: 1fr; } }
         footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #556b82; }
-        body.english-mode .template-modern .section-title-preview,
-        body.english-mode .template-premium .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.7rem; padding-right: 0; }
-        
-        .loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
-            z-index: 9999; color: white; font-size: 1.2rem; flex-direction: column; gap: 1rem;
-            backdrop-filter: blur(3px);
-        }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 9999; color: white; flex-direction: column; gap: 1rem; backdrop-filter: blur(3px); }
         .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -178,66 +110,64 @@
         <button id="langEnBtn" class="lang-btn"><i class="fas fa-language"></i> English</button>
     </div>
     <div class="header">
-        <h1 id="mainTitle"><i class="fas fa-file-alt"></i> منشئ السيرة الذاتية الاحترافية</h1>
-        <p id="subTitle">أنشئ سيرتك الذاتية مع 3 قوالب مميزة (عصري، أنيق، بريميوم) مع إمكانية إضافة صورتك</p>
+        <h1 id="mainTitle">منشئ السيرة الذاتية الاحترافية</h1>
+        <p id="subTitle">أنشئ سيرتك الذاتية مع قوالب مميزة ودعم كامل لنظام ATS</p>
     </div>
 
     <div class="dashboard">
         <div class="form-panel">
             <div class="template-selector" id="templateSelector">
-                <div data-template="modern" class="template-option active" id="tempModern">✨ عصري / Modern</div>
-                <div data-template="elegant" class="template-option" id="tempElegant">💎 أنيق / Elegant</div>
-                <div data-template="premium" class="template-option" id="tempPremium">🌟 بريميوم / Premium</div>
+                <div data-template="modern" class="template-option active" id="tempModern">✨ عصري</div>
+                <div data-template="elegant" class="template-option" id="tempElegant">💎 أنيق</div>
+                <div data-template="premium" class="template-option" id="tempPremium">🌟 بريميوم</div>
             </div>
             
-            <!-- حقل رفع الصورة (يظهر فقط في القالب Premium) -->
             <div class="image-upload" id="imageUploadSection" style="display: none;">
-                <label><i class="fas fa-camera"></i> <span id="photoLabel">الصورة الشخصية (اختياري)</span></label>
+                <label><i class="fas fa-camera"></i> <span id="photoLabel">الصورة الشخصية</span></label>
                 <input type="file" id="profileImage" accept="image/*">
-                <div id="imagePreviewContainer"></div>
             </div>
             
-            <div class="form-group"><label id="fullNameLabel"><i class="fas fa-user"></i> الاسم الكامل</label><input type="text" id="fullName" value="Khalid Helmy Khafagy / خالد حلمي خفاجي"></div>
-            <div class="form-group"><label id="jobTitleLabel"><i class="fas fa-briefcase"></i> المسمى الوظيفي</label><input type="text" id="jobTitle" value="Payroll & HRIS Specialist | SAP & Oracle Expert"></div>
-            <div class="form-group"><label id="emailLabel"><i class="fas fa-envelope"></i> البريد الإلكتروني</label><input type="email" id="email" value="khalidhelmy772@gmail.com"></div>
-            <div class="form-group"><label id="phoneLabel"><i class="fas fa-phone-alt"></i> رقم الهاتف</label><input type="text" id="phone" value="+201095890589"></div>
-            <div class="form-group"><label id="locationLabel"><i class="fas fa-map-marker-alt"></i> العنوان</label><input type="text" id="location" value="Egypt"></div>
-            <div class="form-group"><label id="linkedinLabel"><i class="fab fa-linkedin"></i> LinkedIn</label><input type="text" id="linkedin" value="https://www.linkedin.com/in/khalid-helmy"></div>
-            <div class="form-group"><label id="summaryLabel"><i class="fas fa-align-left"></i> نبذة شخصية</label><textarea id="summary" rows="3">Results-oriented Payroll Specialist with over 15 years of experience managing end-to-end payroll for large-scale government-sector workforces. LL.B. background combined with technical mastery of SAP and Oracle Payroll ensures 100% compliance with Egyptian labor law, social insurance, and tax regulations.</textarea></div>
-            <div><span class="section-title" id="expTitle">الخبرات العملية</span></div>
+            <div class="form-group"><label id="fullNameLabel">الاسم الكامل</label><input type="text" id="fullName" value="Khalid Helmy Khafagy"></div>
+            <div class="form-group"><label id="jobTitleLabel">المسمى الوظيفي</label><input type="text" id="jobTitle" value="Payroll Specialist"></div>
+            <div class="form-group"><label id="emailLabel">البريد الإلكتروني</label><input type="email" id="email" value="khalid@example.com"></div>
+            <div class="form-group"><label id="phoneLabel">رقم الهاتف</label><input type="text" id="phone" value="+201095890589"></div>
+            <div class="form-group"><label id="locationLabel">العنوان</label><input type="text" id="location" value="Egypt"></div>
+            <div class="form-group"><label id="linkedinLabel">LinkedIn</label><input type="text" id="linkedin" value="linkedin.com/in/khalid"></div>
+            <div class="form-group"><label id="summaryLabel">نبذة شخصية</label><textarea id="summary" rows="3">Results-oriented Payroll Specialist with 15+ years of experience.</textarea></div>
+            
+            <span class="section-title" id="expTitle">الخبرات</span>
             <div id="experiencesContainer"></div>
-            <button class="add-btn" id="addExperienceBtn"><i class="fas fa-plus-circle"></i> <span id="addExpText">إضافة خبرة</span></button>
+            <button class="add-btn" id="addExperienceBtn"><i class="fas fa-plus"></i> <span id="addExpText">إضافة خبرة</span></button>
+            
             <div style="margin-top:1rem;"><span class="section-title" id="eduTitle">التعليم</span></div>
             <div id="educationContainer"></div>
-            <button class="add-btn" id="addEducationBtn"><i class="fas fa-plus-circle"></i> <span id="addEduText">إضافة تعليم</span></button>
-            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel"><i class="fas fa-code"></i> المهارات (افصل بينها بفاصلة)</label><input type="text" id="skills" value="HRIS, Advanced Excel, SAP, Oracle, Adobe Creative Suite (Photoshop, Illustrator, After Effects, Premiere)"></div>
-            <div class="form-group"><label id="langsLabel"><i class="fas fa-language"></i> اللغات</label><input type="text" id="languages" value="Arabic (Native), English (Professional Working Proficiency)"></div>
+            <button class="add-btn" id="addEducationBtn"><i class="fas fa-plus"></i> <span id="addEduText">إضافة تعليم</span></button>
+            
+            <div class="form-group" style="margin-top:1rem;"><label id="skillsLabel">المهارات</label><input type="text" id="skills" value="SAP, Excel, Payroll, HRIS"></div>
+            <div class="form-group"><label id="langsLabel">اللغات</label><input type="text" id="languages" value="Arabic, English"></div>
         </div>
 
         <div class="preview-panel">
             <div class="preview-header">
-                <h3 id="previewTitle"><i class="fas fa-eye"></i> معاينة السيرة الذاتية</h3>
-                <button id="downloadPDFBtn" class="download-btn"><i class="fas fa-download"></i> <span id="downloadText">تحميل PDF (A4 كامل)</span></button>
+                <h3 id="previewTitle"><i class="fas fa-eye"></i> المعاينة</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button id="downloadAtsBtn" class="download-btn ats-btn"><i class="fas fa-file-invoice"></i> <span id="atsBtnText">نسخة ATS (نصية)</span></button>
+                    <button id="downloadPDFBtn" class="download-btn"><i class="fas fa-image"></i> <span id="downloadText">تحميل PDF (تصميم)</span></button>
+                </div>
             </div>
             <div id="cvPreviewContainer" class="cv-preview template-modern"></div>
         </div>
     </div>
-    <footer id="footerText">يمكنك تعديل البيانات والتبديل بين القوالب — القالب الجديد (بريميوم) يدعم الصور الشخصية والألوان الجذابة</footer>
+    <footer id="footerText">جميع الحقوق محفوظة - المنشئ يدعم التصدير النصي لضمان القراءة بواسطة الأنظمة الآلية</footer>
 </div>
 
 <script>
-    // البيانات المُعبأة مسبقاً
-    let experiences = [
-        { title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "• Manage full-cycle payroll for 1,200+ employees using SAP and Oracle with 99.9% accuracy\n• Reduced payroll processing time by 30% through automation\n• Ensure 100% compliance on social insurance and tax filings\n• Maintain employee records across ERP platforms; reduced data discrepancies by 25%\n• Generate financial and HR reports to support audits\n• Resolved 50+ system tickets annually" }
-    ];
-    let educations = [
-        { degree: "LL.B. (Bachelor of Laws)", institution: "Cairo University", year: "2018", description: "Background in Egyptian labor law and legal compliance" }
-    ];
+    let experiences = [{ title: "Senior Payroll Specialist", company: "Egypt Post", startDate: "2014", endDate: "Present", description: "Manage full-cycle payroll using SAP." }];
+    let educations = [{ degree: "LL.B. Law", institution: "Cairo University", year: "2018", description: "Labor law specialist." }];
     let currentTemplate = "modern";
     let currentLang = "ar";
-    let profileImageData = null; // لتخزين الصورة
+    let profileImageData = null;
 
-    // العناصر
     const fullNameInp = document.getElementById("fullName");
     const jobTitleInp = document.getElementById("jobTitle");
     const emailInp = document.getElementById("email");
@@ -250,313 +180,143 @@
     const expContainer = document.getElementById("experiencesContainer");
     const eduContainer = document.getElementById("educationContainer");
     const cvPreview = document.getElementById("cvPreviewContainer");
-    const profileImageInput = document.getElementById("profileImage");
-    const imageUploadSection = document.getElementById("imageUploadSection");
 
-    // الترجمات
     const trans = {
-        ar: {
-            fullNameLabel: "الاسم الكامل", jobTitleLabel: "المسمى الوظيفي", emailLabel: "البريد الإلكتروني", phoneLabel: "رقم الهاتف",
-            locationLabel: "العنوان", summaryLabel: "نبذة شخصية", skillsLabel: "المهارات (افصل بينها بفاصلة)", langsLabel: "اللغات",
-            expTitle: "الخبرات العملية", eduTitle: "التعليم", addExpText: "إضافة خبرة", addEduText: "إضافة تعليم",
-            previewTitle: "معاينة السيرة الذاتية", downloadText: "تحميل PDF (A4 كامل)", footerText: "يمكنك تعديل البيانات والتبديل بين القوالب — القالب الجديد (بريميوم) يدعم الصور الشخصية والألوان الجذابة",
-            mainTitle: "منشئ السيرة الذاتية الاحترافية", subTitle: "أنشئ سيرتك الذاتية مع 3 قوالب مميزة (عصري، أنيق، بريميوم) مع إمكانية إضافة صورتك",
-            tempModern: "✨ عصري", tempElegant: "💎 أنيق", tempPremium: "🌟 بريميوم",
-            summarySec: "نبذة شخصية", experienceSec: "الخبرات العملية", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات", linkedinLabel: "LinkedIn", photoLabel: "الصورة الشخصية (اختياري)"
-        },
-        en: {
-            fullNameLabel: "Full Name", jobTitleLabel: "Job Title", emailLabel: "Email", phoneLabel: "Phone",
-            locationLabel: "Location", summaryLabel: "Professional Summary", skillsLabel: "Skills (comma separated)", langsLabel: "Languages",
-            expTitle: "Work Experience", eduTitle: "Education", addExpText: "Add Experience", addEduText: "Add Education",
-            previewTitle: "CV Preview", downloadText: "Download PDF (Full A4)", footerText: "Edit data, switch templates — the new Premium template supports profile pictures and attractive colors",
-            mainTitle: "Professional CV Builder", subTitle: "Create your CV with 3 unique templates (Modern, Elegant, Premium) with profile picture support",
-            tempModern: "✨ Modern", tempElegant: "💎 Elegant", tempPremium: "🌟 Premium",
-            summarySec: "Summary", experienceSec: "Work Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages", linkedinLabel: "LinkedIn", photoLabel: "Profile Picture (Optional)"
-        }
+        ar: { expTitle: "الخبرات العملية", eduTitle: "التعليم", addExpText: "إضافة خبرة", addEduText: "إضافة تعليم", atsBtnText: "نسخة ATS (نصية)", downloadText: "تحميل PDF (تصميم)", summarySec: "نبذة شخصية", experienceSec: "الخبرات", educationSec: "التعليم", skillsSec: "المهارات", languagesSec: "اللغات" },
+        en: { expTitle: "Work Experience", eduTitle: "Education", addExpText: "Add Experience", addEduText: "Add Education", atsBtnText: "ATS Version (Text)", downloadText: "Download PDF (Design)", summarySec: "Summary", experienceSec: "Experience", educationSec: "Education", skillsSec: "Skills", languagesSec: "Languages" }
     };
 
     function applyLanguage() {
         const t = trans[currentLang];
-        document.getElementById("fullNameLabel").innerHTML = `<i class="fas fa-user"></i> ${t.fullNameLabel}`;
-        document.getElementById("jobTitleLabel").innerHTML = `<i class="fas fa-briefcase"></i> ${t.jobTitleLabel}`;
-        document.getElementById("emailLabel").innerHTML = `<i class="fas fa-envelope"></i> ${t.emailLabel}`;
-        document.getElementById("phoneLabel").innerHTML = `<i class="fas fa-phone-alt"></i> ${t.phoneLabel}`;
-        document.getElementById("locationLabel").innerHTML = `<i class="fas fa-map-marker-alt"></i> ${t.locationLabel}`;
-        document.getElementById("linkedinLabel").innerHTML = `<i class="fab fa-linkedin"></i> ${t.linkedinLabel}`;
-        document.getElementById("summaryLabel").innerHTML = `<i class="fas fa-align-left"></i> ${t.summaryLabel}`;
-        document.getElementById("skillsLabel").innerHTML = `<i class="fas fa-code"></i> ${t.skillsLabel}`;
-        document.getElementById("langsLabel").innerHTML = `<i class="fas fa-language"></i> ${t.langsLabel}`;
-        document.getElementById("expTitle").innerHTML = t.expTitle;
-        document.getElementById("eduTitle").innerHTML = t.eduTitle;
+        document.getElementById("expTitle").innerText = t.expTitle;
+        document.getElementById("eduTitle").innerText = t.eduTitle;
         document.getElementById("addExpText").innerText = t.addExpText;
         document.getElementById("addEduText").innerText = t.addEduText;
-        document.getElementById("previewTitle").innerHTML = `<i class="fas fa-eye"></i> ${t.previewTitle}`;
+        document.getElementById("atsBtnText").innerText = t.atsBtnText;
         document.getElementById("downloadText").innerText = t.downloadText;
-        document.getElementById("footerText").innerHTML = t.footerText;
-        document.getElementById("mainTitle").innerHTML = `<i class="fas fa-file-alt"></i> ${t.mainTitle}`;
-        document.getElementById("subTitle").innerText = t.subTitle;
-        document.getElementById("tempModern").innerHTML = t.tempModern;
-        document.getElementById("tempElegant").innerHTML = t.tempElegant;
-        document.getElementById("tempPremium").innerHTML = t.tempPremium;
-        document.getElementById("photoLabel").innerHTML = t.photoLabel;
-        
-        const body = document.body;
-        if (currentLang === 'ar') {
-            body.classList.remove('english-mode');
-            body.setAttribute('dir', 'rtl');
-        } else {
-            body.classList.add('english-mode');
-            body.setAttribute('dir', 'ltr');
-        }
+        document.body.className = currentLang === 'ar' ? '' : 'english-mode';
+        document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
         renderDynamicForms();
         updateCVPreview();
     }
 
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-
-    // رفع الصورة
-    profileImageInput.addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                profileImageData = event.target.result;
-                updateCVPreview();
-            };
-            reader.readAsDataURL(file);
-        } else {
-            profileImageData = null;
-            updateCVPreview();
-        }
+    document.getElementById("profileImage").addEventListener("change", function(e) {
+        const reader = new FileReader();
+        reader.onload = e => { profileImageData = e.target.result; updateCVPreview(); };
+        if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
     });
 
     function renderDynamicForms() {
-        expContainer.innerHTML = "";
-        experiences.forEach((exp, idx) => {
-            const div = document.createElement("div");
-            div.className = "dynamic-item";
-            div.innerHTML = `
-                <div class="dynamic-item-header"><strong>${currentLang === 'ar' ? `خبرة ${idx+1}` : `Experience ${idx+1}`}</strong><button class="remove-btn" data-type="exp" data-index="${idx}"><i class="fas fa-trash-alt"></i></button></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'المسمى الوظيفي' : 'Job Title'}</label><input class="exp-title" value="${escapeHtml(exp.title)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'اسم الشركة' : 'Company'}</label><input class="exp-company" value="${escapeHtml(exp.company)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ البدء' : 'Start Date'}</label><input class="exp-start" value="${escapeHtml(exp.startDate)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'تاريخ الانتهاء' : 'End Date'}</label><input class="exp-end" value="${escapeHtml(exp.endDate)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'وصف' : 'Description'}</label><textarea class="exp-desc" rows="4">${escapeHtml(exp.description)}</textarea></div>
-            `;
-            expContainer.appendChild(div);
-        });
-        eduContainer.innerHTML = "";
-        educations.forEach((edu, idx) => {
-            const div = document.createElement("div");
-            div.className = "dynamic-item";
-            div.innerHTML = `
-                <div class="dynamic-item-header"><strong>${currentLang === 'ar' ? `تعليم ${idx+1}` : `Education ${idx+1}`}</strong><button class="remove-btn" data-type="edu" data-index="${idx}"><i class="fas fa-trash-alt"></i></button></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'الشهادة / الدرجة' : 'Degree'}</label><input class="edu-degree" value="${escapeHtml(edu.degree)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'المؤسسة' : 'Institution'}</label><input class="edu-institution" value="${escapeHtml(edu.institution)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'السنة' : 'Year'}</label><input class="edu-year" value="${escapeHtml(edu.year)}"></div>
-                <div class="form-group"><label>${currentLang === 'ar' ? 'ملاحظات' : 'Notes'}</label><textarea class="edu-desc" rows="2">${escapeHtml(edu.description)}</textarea></div>
-            `;
-            eduContainer.appendChild(div);
-        });
-        attachDynamicEvents();
-    }
-
-    function attachDynamicEvents() {
-        document.querySelectorAll(".remove-btn[data-type='exp']").forEach(btn => {
-            btn.addEventListener("click", () => { const idx = parseInt(btn.dataset.index); experiences.splice(idx,1); renderDynamicForms(); updateCVPreview(); });
-        });
-        document.querySelectorAll(".remove-btn[data-type='edu']").forEach(btn => {
-            btn.addEventListener("click", () => { const idx = parseInt(btn.dataset.index); educations.splice(idx,1); renderDynamicForms(); updateCVPreview(); });
-        });
-        document.querySelectorAll(".exp-title, .exp-company, .exp-start, .exp-end, .exp-desc").forEach(inp => inp.addEventListener("input", () => syncExperiences()));
-        document.querySelectorAll(".edu-degree, .edu-institution, .edu-year, .edu-desc").forEach(inp => inp.addEventListener("input", () => syncEducations()));
-    }
-
-    function syncExperiences() {
-        const newExps = [];
-        document.querySelectorAll("#experiencesContainer .dynamic-item").forEach(item => {
-            newExps.push({
-                title: item.querySelector(".exp-title")?.value || "",
-                company: item.querySelector(".exp-company")?.value || "",
-                startDate: item.querySelector(".exp-start")?.value || "",
-                endDate: item.querySelector(".exp-end")?.value || "",
-                description: item.querySelector(".exp-desc")?.value || ""
-            });
-        });
-        experiences = newExps;
-        updateCVPreview();
-    }
-    function syncEducations() {
-        const newEdus = [];
-        document.querySelectorAll("#educationContainer .dynamic-item").forEach(item => {
-            newEdus.push({
-                degree: item.querySelector(".edu-degree")?.value || "",
-                institution: item.querySelector(".edu-institution")?.value || "",
-                year: item.querySelector(".edu-year")?.value || "",
-                description: item.querySelector(".edu-desc")?.value || ""
-            });
-        });
-        educations = newEdus;
-        updateCVPreview();
-    }
-
-    function getBaseData() {
-        return {
-            fullName: fullNameInp.value,
-            jobTitle: jobTitleInp.value,
-            email: emailInp.value,
-            phone: phoneInp.value,
-            location: locationInp.value,
-            linkedin: linkedinInp.value,
-            summary: summaryInp.value,
-            skills: skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s),
-            languages: languagesInp.value,
-            experiences, educations,
-            profileImage: profileImageData
-        };
-    }
-
-    function renderCVByTemplate(data, template) {
-        const t = trans[currentLang];
-        const summarySec = t.summarySec, expSec = t.experienceSec, eduSec = t.educationSec, skillsSec = t.skillsSec, langsSec = t.languagesSec;
+        expContainer.innerHTML = experiences.map((exp, i) => `
+            <div class="dynamic-item">
+                <div class="dynamic-item-header"><strong>خبرة ${i+1}</strong><button class="remove-btn" onclick="removeExp(${i})"><i class="fas fa-trash"></i></button></div>
+                <input class="exp-title" value="${exp.title}" placeholder="المسمى">
+                <input class="exp-company" value="${exp.company}" placeholder="الشركة">
+                <textarea class="exp-desc" rows="2">${exp.description}</textarea>
+            </div>`).join('');
         
-        // قالب Premium الجديد (مع صورة وألوان جذابة)
-        if(template === "premium") {
-            const avatarHtml = data.profileImage ? `<img class="premium-avatar" src="${data.profileImage}" alt="Profile">` : `<div class="premium-avatar" style="background: #ffd966; display: flex; align-items: center; justify-content: center; font-size: 2rem;"><i class="fas fa-user"></i></div>`;
-            return `<div class="template-premium">
-                <div class="premium-header">
-                    ${avatarHtml}
-                    <div class="premium-info">
-                        <div class="premium-name">${escapeHtml(data.fullName)}</div>
-                        <div class="premium-title">${escapeHtml(data.jobTitle)}</div>
-                        <div class="premium-contact">
-                            <span><i class="fas fa-envelope"></i> ${escapeHtml(data.email)}</span>
-                            <span><i class="fas fa-phone-alt"></i> ${escapeHtml(data.phone)}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)}</span>
-                            ${data.linkedin ? `<span><i class="fab fa-linkedin"></i> ${escapeHtml(data.linkedin)}</span>` : ''}
-                        </div>
-                    </div>
-                </div>
-                <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-                <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)} (${exp.startDate} - ${exp.endDate})</div><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div>`).join('')}</div>
-                <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="job-title">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)} (${edu.year})</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
-                <div><div class="section-title-preview">${skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div></div>
-                <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>
-            </div>`;
-        }
-        // قالب عصري (Modern)
-        else if(template === "modern") {
-            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div class="cv-contact" style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)} ${data.linkedin ? `| <i class="fab fa-linkedin"></i> ${escapeHtml(data.linkedin)}` : ''}</div></div>
-            <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div class="job-item"><div class="job-title">${escapeHtml(exp.title)} - ${escapeHtml(exp.company)} (${exp.startDate} - ${exp.endDate})</div><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div class="edu-item"><div class="job-title">${escapeHtml(edu.degree)} - ${escapeHtml(edu.institution)} (${edu.year})</div><p>${escapeHtml(edu.description)}</p></div>`).join('')}</div>
-            <div><div class="section-title-preview">${skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div></div>
-            <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
-        }
-        // قالب أنيق (Elegant)
-        else {
-            return `<div class="cv-header"><div class="cv-name">${escapeHtml(data.fullName)}</div><div class="cv-title">${escapeHtml(data.jobTitle)}</div><div style="margin-top:6px;font-size:0.8rem"><i class="fas fa-envelope"></i> ${escapeHtml(data.email)} | <i class="fas fa-phone"></i> ${escapeHtml(data.phone)} | <i class="fas fa-map-marker-alt"></i> ${escapeHtml(data.location)} ${data.linkedin ? `| <i class="fab fa-linkedin"></i> ${escapeHtml(data.linkedin)}` : ''}</div></div>
-            <div><div class="section-title-preview">${summarySec}</div><p>${escapeHtml(data.summary)}</p></div>
-            <div><div class="section-title-preview">${expSec}</div>${data.experiences.map(exp => `<div><strong>${escapeHtml(exp.title)}</strong> @ ${escapeHtml(exp.company)} (${exp.startDate}-${exp.endDate})<br/><p style="white-space:pre-line">${escapeHtml(exp.description)}</p></div><hr/>`).join('')}</div>
-            <div><div class="section-title-preview">${eduSec}</div>${data.educations.map(edu => `<div><strong>${escapeHtml(edu.degree)}</strong>, ${escapeHtml(edu.institution)} (${edu.year})<br/><p>${escapeHtml(edu.description)}</p></div><hr/>`).join('')}</div>
-            <div><div class="section-title-preview">${skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div></div>
-            <div><div class="section-title-preview">${langsSec}</div><p>${escapeHtml(data.languages)}</p></div>`;
-        }
+        eduContainer.innerHTML = educations.map((edu, i) => `
+            <div class="dynamic-item">
+                <div class="dynamic-item-header"><strong>تعليم ${i+1}</strong><button class="remove-btn" onclick="removeEdu(${i})"><i class="fas fa-trash"></i></button></div>
+                <input class="edu-degree" value="${edu.degree}">
+                <input class="edu-institution" value="${edu.institution}">
+            </div>`).join('');
+        
+        document.querySelectorAll(".dynamic-item input, .dynamic-item textarea").forEach(el => el.oninput = syncData);
+    }
+
+    function removeExp(i) { experiences.splice(i,1); renderDynamicForms(); updateCVPreview(); }
+    function removeEdu(i) { educations.splice(i,1); renderDynamicForms(); updateCVPreview(); }
+
+    function syncData() {
+        experiences = Array.from(document.querySelectorAll("#experiencesContainer .dynamic-item")).map(item => ({
+            title: item.querySelector(".exp-title").value,
+            company: item.querySelector(".exp-company").value,
+            description: item.querySelector(".exp-desc").value,
+            startDate: "", endDate: ""
+        }));
+        educations = Array.from(document.querySelectorAll("#educationContainer .dynamic-item")).map(item => ({
+            degree: item.querySelector(".edu-degree").value,
+            institution: item.querySelector(".edu-institution").value,
+            year: "", description: ""
+        }));
+        updateCVPreview();
     }
 
     function updateCVPreview() {
-        const data = getBaseData();
-        cvPreview.innerHTML = renderCVByTemplate(data, currentTemplate);
+        const t = trans[currentLang];
+        const data = {
+            name: fullNameInp.value, title: jobTitleInp.value, email: emailInp.value,
+            phone: phoneInp.value, loc: locationInp.value, link: linkedinInp.value,
+            sum: summaryInp.value, skills: skillsInp.value.split(','), langs: languagesInp.value
+        };
+
+        let html = '';
+        if(currentTemplate === "premium") {
+            html = `<div class="template-premium">
+                <div class="premium-header">
+                    ${profileImageData ? `<img src="${profileImageData}" class="premium-avatar">` : '<div class="premium-avatar"></div>'}
+                    <div><h2>${data.name}</h2><p>${data.title}</p></div>
+                </div>
+                <div class="section-title-preview">${t.summarySec}</div><p>${data.sum}</p>
+                <div class="section-title-preview">${t.experienceSec}</div>${experiences.map(e => `<div><strong>${e.title}</strong> - ${e.company}<br>${e.description}</div>`).join('')}
+                <div class="section-title-preview">${t.skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+            </div>`;
+        } else {
+            html = `<div class="template-modern">
+                <div class="cv-header"><h1>${data.name}</h1><p>${data.title}</p></div>
+                <p><strong>Email:</strong> ${data.email} | <strong>Phone:</strong> ${data.phone}</p>
+                <div class="section-title-preview">${t.summarySec}</div><p>${data.sum}</p>
+                <div class="section-title-preview">${t.experienceSec}</div>${experiences.map(e => `<div><strong>${e.title}</strong> @ ${e.company}<p>${e.description}</p></div>`).join('')}
+                <div class="section-title-preview">${t.educationSec}</div>${educations.map(e => `<div><strong>${e.degree}</strong> - ${e.institution}</div>`).join('')}
+                <div class="section-title-preview">${t.skillsSec}</div><div class="skills-list">${data.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+            </div>`;
+        }
+        cvPreview.innerHTML = html;
         cvPreview.className = `cv-preview template-${currentTemplate}`;
     }
 
-    // إظهار/إخفاء حقل رفع الصورة حسب القالب
-    function toggleImageUpload() {
-        if (currentTemplate === "premium") {
-            imageUploadSection.style.display = "block";
-        } else {
-            imageUploadSection.style.display = "none";
-        }
+    // وظيفة التحميل لنسخة الـ ATS (نصية بالكامل)
+    function downloadAtsFriendly() {
+        const originalTitle = document.title;
+        document.title = `CV_ATS_${fullNameInp.value.replace(/\s/g, '_')}`;
+        window.print();
+        document.title = originalTitle;
     }
 
-    document.getElementById("addExperienceBtn").addEventListener("click", () => {
-        experiences.push({ title: currentLang==='ar'?"وظيفة جديدة":"New Role", company: currentLang==='ar'?"الشركة":"Company", startDate: "2024", endDate: currentLang==='ar'?"الآن":"Present", description: "" });
-        renderDynamicForms();
-        updateCVPreview();
-    });
-    document.getElementById("addEducationBtn").addEventListener("click", () => {
-        educations.push({ degree: currentLang==='ar'?"درجة البكالوريوس":"Bachelor's Degree", institution: currentLang==='ar'?"الجامعة":"University", year: "2024", description: "" });
-        renderDynamicForms();
-        updateCVPreview();
-    });
-
-    document.querySelectorAll(".template-option").forEach(opt => {
-        opt.addEventListener("click", () => {
-            document.querySelectorAll(".template-option").forEach(o=>o.classList.remove("active"));
-            opt.classList.add("active");
-            currentTemplate = opt.dataset.template;
-            toggleImageUpload();
-            updateCVPreview();
-        });
-    });
-
-    const mainInputs = [fullNameInp, jobTitleInp, emailInp, phoneInp, locationInp, linkedinInp, summaryInp, skillsInp, languagesInp];
-    mainInputs.forEach(inp => inp.addEventListener("input", () => updateCVPreview()));
-
-    document.getElementById("langArBtn").addEventListener("click", () => { currentLang = "ar"; document.getElementById("langArBtn").classList.add("active"); document.getElementById("langEnBtn").classList.remove("active"); applyLanguage(); });
-    document.getElementById("langEnBtn").addEventListener("click", () => { currentLang = "en"; document.getElementById("langEnBtn").classList.add("active"); document.getElementById("langArBtn").classList.remove("active"); applyLanguage(); });
-
-    async function downloadPerfectPDF() {
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'loading-overlay';
-        loadingDiv.innerHTML = '<div class="spinner"></div><div>جاري تجهيز السيرة الذاتية للتحميل...</div>';
-        document.body.appendChild(loadingDiv);
+    // وظيفة التحميل لنسخة التصميم (صورة داخل PDF)
+    async function downloadDesignPDF() {
+        const loading = document.createElement('div');
+        loading.className = 'loading-overlay';
+        loading.innerHTML = '<div class="spinner"></div><div>جاري المعالجة...</div>';
+        document.body.appendChild(loading);
         
-        try {
-            const originalStyle = cvPreview.getAttribute('style') || '';
-            cvPreview.style.width = "794px";
-            cvPreview.style.margin = "0 auto";
-            cvPreview.style.padding = "12mm 10mm";
-            cvPreview.style.boxSizing = "border-box";
-            cvPreview.style.background = "white";
-            
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            const canvas = await html2canvas(cvPreview, {
-                scale: 3,
-                backgroundColor: '#ffffff',
-                logging: false,
-                useCORS: true
-            });
-            
-            cvPreview.style.width = "";
-            cvPreview.style.margin = "";
-            cvPreview.style.padding = "";
-            
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            const imgWidth = 210;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-            
-            pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-            pdf.save(`CV_${fullNameInp.value.replace(/\s/g, '_')}_${currentLang}.pdf`);
-            
-        } catch (error) {
-            console.error("PDF Error:", error);
-            alert("عذراً، حدث خطأ أثناء تحضير ملف PDF. يرجى المحاولة مرة أخرى.");
-        } finally {
-            document.body.removeChild(loadingDiv);
-        }
+        const canvas = await html2canvas(cvPreview, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new jspdf.jsPDF();
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+        pdf.save(`CV_Design_${fullNameInp.value}.pdf`);
+        document.body.removeChild(loading);
     }
-    
-    document.getElementById("downloadPDFBtn").addEventListener("click", downloadPerfectPDF);
 
-    renderDynamicForms();
+    document.getElementById("addExperienceBtn").onclick = () => { experiences.push({title:"",company:"",description:""}); renderDynamicForms(); };
+    document.getElementById("addEducationBtn").onclick = () => { educations.push({degree:"",institution:""}); renderDynamicForms(); };
+    document.querySelectorAll(".template-option").forEach(opt => opt.onclick = () => {
+        document.querySelectorAll(".template-option").forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        currentTemplate = opt.dataset.template;
+        document.getElementById("imageUploadSection").style.display = currentTemplate === "premium" ? "block" : "none";
+        updateCVPreview();
+    });
+
+    document.getElementById("downloadAtsBtn").onclick = downloadAtsFriendly;
+    document.getElementById("downloadPDFBtn").onclick = downloadDesignPDF;
+    document.getElementById("langArBtn").onclick = () => { currentLang = "ar"; applyLanguage(); };
+    document.getElementById("langEnBtn").onclick = () => { currentLang = "en"; applyLanguage(); };
+
+    fullNameInp.oninput = jobTitleInp.oninput = emailInp.oninput = phoneInp.oninput = summaryInp.oninput = skillsInp.oninput = updateCVPreview;
+
     applyLanguage();
-    updateCVPreview();
-    toggleImageUpload();
 </script>
 </body>
 </html>
