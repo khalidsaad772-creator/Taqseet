@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ السيرة الذاتية الاحترافية</title>
+    <title>منشئ السيرة الذاتية الاحترافية | PDF نصي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -98,29 +98,68 @@
         body.english-mode .template-modern .section-title-preview,
         body.english-mode .template-premium .section-title-preview { border-right: none; border-left: 4px solid #2c7da0; padding-left: 0.7rem; padding-right: 0; }
         
-        /* ========== أنماط الطباعة (النص يبقى حقيقي) ========== */
+        /* ========== أنماط الطباعة (النص يبقى حقيقي والألوان تظهر) ========== */
         @media print {
-            .form-panel, .lang-switch, .preview-header, footer, .template-selector, .image-upload, .add-btn, .remove-btn {
+            /* إخفاء كل عناصر التحكم والنموذج والهيدر */
+            .form-panel, 
+            .lang-switch, 
+            .preview-header, 
+            footer, 
+            .template-selector, 
+            .image-upload, 
+            .add-btn, 
+            .remove-btn,
+            .dashboard .form-panel,
+            .app-container > .header,
+            .lang-switch {
                 display: none !important;
             }
+            
+            /* إظهار المعاينة فقط */
             .dashboard {
                 display: block !important;
             }
+            
             .preview-panel {
                 box-shadow: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
+            
             .cv-preview {
                 margin: 0 !important;
                 padding: 0.5cm !important;
                 box-shadow: none !important;
             }
+            
             body {
                 background: white !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
+            
+            /* إجبار جميع الألوان على الظهور في الطباعة */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* ضمان ظهور ألوان القوالب */
+            .template-premium .premium-header {
+                background: #1e4a6b !important;
+                color: white !important;
+            }
+            
+            .template-elegant .cv-header {
+                background: #2c3e4e !important;
+                color: white !important;
+            }
+            
+            .skill-tag, .premium-avatar {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
             @page {
                 size: A4;
                 margin: 1.5cm;
@@ -457,7 +496,7 @@
     document.getElementById("langArBtn").addEventListener("click", () => { currentLang = "ar"; document.getElementById("langArBtn").classList.add("active"); document.getElementById("langEnBtn").classList.remove("active"); applyLanguage(); });
     document.getElementById("langEnBtn").addEventListener("click", () => { currentLang = "en"; document.getElementById("langEnBtn").classList.add("active"); document.getElementById("langArBtn").classList.remove("active"); applyLanguage(); });
 
-    // استخدام window.print بدلاً من html2canvas
+    // طباعة PDF (نص حقيقي)
     document.getElementById("printBtn").addEventListener("click", () => {
         window.print();
     });
