@@ -401,7 +401,7 @@
 <!-- ===== نهاية سكشن الباقات ===== -->
 
 <footer>  
-    <p style="margin:0">جميع الحقوق محفوظة © معرض خفاجي للتقسيط - كفر الشيخ</p>  
+    <p style="margin:0">جميع الحقوق محفوظة ©.   معرض خفاجي للتقسيط - كفر الشيخ</p>  
     <p style="font-size: 0.9rem; color: #888; margin-top: 5px;">نرحب بزيارتكم في أي وقت</p>  
     <a href="tel:01095890589" class="footer-call">  
         <i class="fas fa-phone-alt"></i> اتصل بنا: 01095890589  
@@ -804,7 +804,7 @@ window.showPackageDetails = (pkgId) => {
         const text = `شوف العرض ده من معرض خالد خفاجي للتقسيط:\n${name}\nبسعر كاش: ${price.toLocaleString()} ج.م\nتقدر تقسطه دلوقتي بأسهل الإجراءات!`;  
         const url = window.location.href;  
         if (navigator.share) {  
-            navigator.share({ title: 'معرض خالد خفاجي', text: text, url: url }).catch(console.error);  
+            navigator.share({ title: 'معرض خفاجي', text: text, url: url }).catch(console.error);  
         } else {  
             window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, '_blank');  
         }  
